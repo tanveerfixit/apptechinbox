@@ -15,13 +15,14 @@ $username = $_SESSION['username'] ?? '';
 $successMsg = '';
 $errorMsg = '';
 
-// Fetch active user details (to get active business name)
-$stmtUser = $db->prepare("SELECT name, contact, email FROM users WHERE id = ?");
+// Fetch active user details (to get active business name, contact, email, address)
+$stmtUser = $db->prepare("SELECT name, contact, email, address FROM users WHERE id = ?");
 $stmtUser->execute([$userId]);
 $profile = $stmtUser->fetch();
 $businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
 $businessContact = !empty($profile['contact']) ? $profile['contact'] : '';
 $businessEmail = !empty($profile['email']) ? $profile['email'] : '';
+$businessAddress = !empty($profile['address']) ? $profile['address'] : '';
 
 // Format current date exactly like "Monday 13 July 2026"
 $currentDateStr = date('l j F Y'); // e.g. "Monday 13 July 2026"
@@ -48,14 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
         $saveStmt = $db->prepare("
             INSERT INTO daily_closures (user_id, business_name, closure_date, cash_sale, card_boi, card_fixed, total_sale)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (closure_date) 
-            DO UPDATE SET 
-                user_id = EXCLUDED.user_id,
-                business_name = EXCLUDED.business_name,
-                cash_sale = EXCLUDED.cash_sale,
-                card_boi = EXCLUDED.card_boi,
-                card_fixed = EXCLUDED.card_fixed,
-                total_sale = EXCLUDED.total_sale
+            ON DUPLICATE KEY UPDATE 
+                user_id = VALUES(user_id),
+                business_name = VALUES(business_name),
+                cash_sale = VALUES(cash_sale),
+                card_boi = VALUES(card_boi),
+                card_fixed = VALUES(card_fixed),
+                total_sale = VALUES(total_sale)
         ");
         
         if ($saveStmt->execute([$userId, $businessName, $todayIso, $cashInput, $boiInput, $fixedInput, $totalInput])) {
@@ -89,6 +89,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
 
         /* Printing adjustments */
         @media print {
+            @page {
+                size: auto;
+                margin: 0mm;
+            }
             body * {
                 visibility: hidden;
             }
@@ -100,37 +104,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 100%;
-                font-family: 'Courier New', Courier, monospace;
+                width: 72mm;
+                max-width: 72mm;
+                font-family: Arial, Helvetica, sans-serif;
                 color: #000000;
-                padding: 10px;
-                font-size: 16px; /* Larger print font */
-                line-height: 1.4;
+                background-color: #ffffff;
+                padding: 4mm 2mm;
+                font-size: 12px;
+                line-height: 1.25;
+            }
+            #printArea p, #printArea h2, #printArea h3, #printArea span, #printArea div {
+                margin: 0;
+                padding: 0;
             }
             .receipt-header {
                 text-align: center;
-                margin-bottom: 24px;
+                margin-bottom: 8px;
             }
             .receipt-header h2 {
-                font-size: 22px; /* Larger header */
-                margin-bottom: 6px;
+                font-size: 14px;
+                margin-bottom: 3px;
                 font-weight: bold;
+            }
+            .receipt-header p {
+                font-size: 11px;
+                margin-bottom: 2px;
             }
             .receipt-row {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 8px;
+                margin-bottom: 4px;
             }
             .receipt-divider {
                 border-top: 1px dashed #000000;
-                margin: 12px 0;
+                margin: 6px 0;
             }
             .receipt-details {
-                margin-bottom: 12px;
+                margin-bottom: 6px;
+            }
+            .receipt-details p {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 3px;
+                font-size: 11.5px;
             }
             .receipt-details strong {
-                display: inline-block;
-                width: 140px;
+                font-weight: bold;
             }
         }
     </style>
@@ -221,7 +240,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
     <!-- Hidden Printable Ticket Layout -->
     <div id="printArea">
         <div class="receipt-header">
-            <h2><?php echo htmlspecialchars(strtoupper($businessName)); ?> DAILY CLOSURE</h2>
+            <h2>DAILY CLOSURE</h2>
+            <p style="font-weight: bold; font-size: 11px; margin-bottom: 4px;"><?php echo htmlspecialchars(strtoupper($businessName)); ?></p>
+            <?php if (!empty($businessAddress)): ?>
+                <p><?php echo htmlspecialchars($businessAddress); ?></p>
+            <?php endif; ?>
             <?php if (!empty($businessContact)): ?>
                 <p>Phone: <?php echo htmlspecialchars($businessContact); ?></p>
             <?php endif; ?>
@@ -231,8 +254,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-details">
-            <p><strong>Name of Business:</strong> <?php echo htmlspecialchars($businessName); ?></p>
-            <p><strong>Staff Name:</strong> <?php echo htmlspecialchars($username); ?></p>
+            <p><strong>Business:</strong> <span><?php echo htmlspecialchars($businessName); ?></span></p>
+            <p><strong>Staff Name:</strong> <span><?php echo htmlspecialchars($username); ?></span></p>
             <p><strong>Date & Time:</strong> <span id="receiptDateTime"></span></p>
         </div>
         <div class="receipt-divider"></div>
@@ -249,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
             <span id="pFixed">€0.00</span>
         </div>
         <div class="receipt-divider"></div>
-        <div class="receipt-row" style="font-weight: bold; font-size: 18px;">
+        <div class="receipt-row" style="font-weight: bold; font-size: 14px;">
             <span>Total Sale:</span>
             <span id="pTotal">€0.00</span>
         </div>

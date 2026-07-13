@@ -14,7 +14,7 @@ $successMsg = '';
 $errorMsg = '';
 
 // Fetch current user details
-$stmt = $db->prepare("SELECT username, name, contact, email FROM users WHERE id = ?");
+$stmt = $db->prepare("SELECT username, name, contact, email, address FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newName = trim($_POST['name'] ?? '');
     $newContact = trim($_POST['contact'] ?? '');
     $newEmail = trim($_POST['email'] ?? '');
+    $newAddress = trim($_POST['address'] ?? '');
 
     if (empty($newUsername)) {
         $errorMsg = "Username cannot be empty.";
@@ -39,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errorMsg = "Username is already taken.";
         } else {
             // Update user details
-            $updateStmt = $db->prepare("UPDATE users SET username = ?, name = ?, contact = ?, email = ? WHERE id = ?");
-            if ($updateStmt->execute([$newUsername, $newName, $newContact, $newEmail, $userId])) {
+            $updateStmt = $db->prepare("UPDATE users SET username = ?, name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
+            if ($updateStmt->execute([$newUsername, $newName, $newContact, $newEmail, $newAddress, $userId])) {
                 $_SESSION['username'] = $newUsername;
                 $successMsg = "Profile updated successfully!";
                 
@@ -49,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user['name'] = $newName;
                 $user['contact'] = $newContact;
                 $user['email'] = $newEmail;
+                $user['address'] = $newAddress;
             } else {
                 $errorMsg = "Failed to update profile. Please try again.";
             }
@@ -390,8 +392,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select id="name" name="name">
                             <option value="" disabled <?php echo empty($user['name']) ? 'selected' : ''; ?>>Select a business name...</option>
                             <option value="Phone Lab" <?php echo ($user['name'] ?? '') === 'Phone Lab' ? 'selected' : ''; ?>>Phone Lab</option>
-                            <option value="Gadgets Shop" <?php echo ($user['name'] ?? '') === 'Gadgets Shop' ? 'selected' : ''; ?>>Gadgets Shop</option>
-                            <option value="iPear Tesco" <?php echo ($user['name'] ?? '') === 'iPear Tesco' ? 'selected' : ''; ?>>iPear Tesco</option>
+                            <option value="FIXD GORT" <?php echo ($user['name'] ?? '') === 'FIXD GORT' ? 'selected' : ''; ?>>FIXD GORT</option>
+                            <option value="Gadget Repair & Vape shop" <?php echo ($user['name'] ?? '') === 'Gadget Repair & Vape shop' ? 'selected' : ''; ?>>Gadget Repair & Vape shop</option>
+                            <option value="iPear Ennis" <?php echo ($user['name'] ?? '') === 'iPear Ennis' ? 'selected' : ''; ?>>iPear Ennis</option>
+                            <option value="iPear in Tesco" <?php echo ($user['name'] ?? '') === 'iPear in Tesco' ? 'selected' : ''; ?>>iPear in Tesco</option>
+                            <option value="Phone Shop Town Loughrea" <?php echo ($user['name'] ?? '') === 'Phone Shop Town Loughrea' ? 'selected' : ''; ?>>Phone Shop Town Loughrea</option>
                         </select>
                     </div>
 
@@ -408,6 +413,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" placeholder="Enter email address...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Business Address</label>
+                        <input type="text" id="address" name="address" value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>" placeholder="Enter business address...">
                     </div>
 
                     <button type="submit" class="btn-submit">

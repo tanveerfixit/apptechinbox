@@ -24,11 +24,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             
-            // Update the user's business name dynamically based on selection
+            // Update the user's business details dynamically based on selection
             $selectedBusiness = trim($_POST['business'] ?? '');
             if ($selectedBusiness) {
-                $updateStmt = $db->prepare("UPDATE users SET name = ? WHERE id = ?");
-                $updateStmt->execute([$selectedBusiness, $user['id']]);
+                $bizStmt = $db->prepare("SELECT * FROM businesses WHERE name = ?");
+                $bizStmt->execute([$selectedBusiness]);
+                $bizDetails = $bizStmt->fetch();
+                
+                $updateStmt = $db->prepare("UPDATE users SET name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
+                $updateStmt->execute([
+                    $selectedBusiness, 
+                    $bizDetails['contact'] ?? NULL, 
+                    $bizDetails['email'] ?? NULL, 
+                    $bizDetails['address'] ?? NULL, 
+                    $user['id']
+                ]);
             }
             
             header("Location: index.php");
@@ -41,17 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch all users with their business name to populate selectors
-$stmtUsers = $db->query("SELECT username, name FROM users ORDER BY name, username");
-$dbUsers = $stmtUsers->fetchAll();
+// Fetch all users to populate the username selection dropdown
+$stmtUsers = $db->query("SELECT username FROM users ORDER BY username");
+$allUsers = $stmtUsers->fetchAll();
 
-$allUsers = [];
-foreach ($dbUsers as $u) {
-    $allUsers[] = [
-        'username' => $u['username'],
-        'name' => !empty($u['name']) ? $u['name'] : 'Phone Lab'
-    ];
-}
+// Fetch all businesses to populate the business selection dropdown
+$stmtBiz = $db->query("SELECT name FROM businesses ORDER BY name");
+$allBusinesses = $stmtBiz->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -324,9 +330,9 @@ foreach ($dbUsers as $u) {
                     <label for="business">Business Name</label>
                     <select id="business" name="business" required>
                         <option value="" disabled selected>Select business...</option>
-                        <option value="Phone Lab">Phone Lab</option>
-                        <option value="Gadgets Shop">Gadgets Shop</option>
-                        <option value="iPear Tesco">iPear Tesco</option>
+                        <?php foreach ($allBusinesses as $biz): ?>
+                            <option value="<?php echo htmlspecialchars($biz['name']); ?>"><?php echo htmlspecialchars($biz['name']); ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="input-group">

@@ -34,13 +34,15 @@ function loadEnv($path) {
 loadEnv(__DIR__ . '/.env');
 
 $host = getenv('DB_HOST') ?: 'localhost';
-$port = getenv('DB_PORT') ?: '5432';
+$port = getenv('DB_PORT') ?: '3306';
 $dbname = getenv('DB_DATABASE') ?: 'defaultdb';
-$user = getenv('DB_USERNAME') ?: 'postgres';
+$user = getenv('DB_USERNAME') ?: 'root';
 $password = getenv('DB_PASSWORD') ?: '';
 
 try {
-    $db = new PDO("pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require", $user, $password);
+    $db = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $user, $password, [
+        PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
+    ]);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -50,64 +52,123 @@ try {
 // Initialize Schema and Seed
 $db->exec("
     CREATE TABLE IF NOT EXISTS categories (
-        id SERIAL PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) UNIQUE NOT NULL
-    );
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
 
+$db->exec("
     CREATE TABLE IF NOT EXISTS products (
-        id SERIAL PRIMARY KEY,
-        category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        category_id INT NOT NULL,
         brand VARCHAR(255) NOT NULL,
         line VARCHAR(255) NOT NULL,
-        UNIQUE (category_id, brand, line)
-    );
+        UNIQUE (category_id, brand, line),
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
 
+$db->exec("
     CREATE TABLE IF NOT EXISTS flavors (
-        id SERIAL PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) UNIQUE NOT NULL
-    );
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
 
+$db->exec("
     CREATE TABLE IF NOT EXISTS orders (
-        id SERIAL PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         status VARCHAR(50) DEFAULT 'active'
-    );
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
 
+$db->exec("
     CREATE TABLE IF NOT EXISTS order_items (
-        id SERIAL PRIMARY KEY,
-        order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-        product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-        flavor_id INTEGER NOT NULL REFERENCES flavors(id) ON DELETE CASCADE,
-        quantity INTEGER NOT NULL,
-        status VARCHAR(50) DEFAULT 'pending'
-    );
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        order_id INT NOT NULL,
+        product_id INT NOT NULL,
+        flavor_id INT NOT NULL,
+        quantity INT NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+        FOREIGN KEY (flavor_id) REFERENCES flavors(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
 
+$db->exec("
     CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL
-    );
+        password VARCHAR(255) NOT NULL,
+        name VARCHAR(255) DEFAULT NULL,
+        contact VARCHAR(255) DEFAULT NULL,
+        email VARCHAR(255) DEFAULT NULL,
+        address VARCHAR(255) DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
+$db->exec("
+    CREATE TABLE IF NOT EXISTS businesses (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) UNIQUE NOT NULL,
+        contact VARCHAR(255) DEFAULT NULL,
+        email VARCHAR(255) DEFAULT NULL,
+        address VARCHAR(255) DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
 // Apply migration to existing databases if column doesn't exist
-$db->exec("ALTER TABLE order_items ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending'");
-$db->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255) DEFAULT NULL");
-$db->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS contact VARCHAR(255) DEFAULT NULL");
-$db->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255) DEFAULT NULL");
+// Note: In MySQL, check and alter column structure can be wrapped, but we ensure these exist.
+// Since we initialized them in the script, these columns are already in users and order_items.
+// To prevent mysql errors from ADD COLUMN IF NOT EXISTS (which is not standard MySQL syntax unless newer version), we can check if they exist or run safely.
+try {
+    $q = $db->query("SELECT status FROM order_items LIMIT 1");
+    if ($q) $q->closeCursor();
+} catch (Exception $e) {
+    $db->exec("ALTER TABLE order_items ADD COLUMN status VARCHAR(50) DEFAULT 'pending'");
+}
+try {
+    $q = $db->query("SELECT name FROM users LIMIT 1");
+    if ($q) $q->closeCursor();
+} catch (Exception $e) {
+    $db->exec("ALTER TABLE users ADD COLUMN name VARCHAR(255) DEFAULT NULL");
+}
+try {
+    $q = $db->query("SELECT contact FROM users LIMIT 1");
+    if ($q) $q->closeCursor();
+} catch (Exception $e) {
+    $db->exec("ALTER TABLE users ADD COLUMN contact VARCHAR(255) DEFAULT NULL");
+}
+try {
+    $q = $db->query("SELECT email FROM users LIMIT 1");
+    if ($q) $q->closeCursor();
+} catch (Exception $e) {
+    $db->exec("ALTER TABLE users ADD COLUMN email VARCHAR(255) DEFAULT NULL");
+}
+try {
+    $q = $db->query("SELECT address FROM users LIMIT 1");
+    if ($q) $q->closeCursor();
+} catch (Exception $e) {
+    $db->exec("ALTER TABLE users ADD COLUMN address VARCHAR(255) DEFAULT NULL");
+}
+
 $db->exec("UPDATE users SET name = 'Phone Lab' WHERE name IS NULL OR name = ''");
 
 $db->exec("
     CREATE TABLE IF NOT EXISTS daily_closures (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
         business_name VARCHAR(255) NOT NULL,
-        closure_date DATE UNIQUE DEFAULT CURRENT_DATE,
-        cash_sale NUMERIC(10, 2) DEFAULT 0.00,
-        card_boi NUMERIC(10, 2) DEFAULT 0.00,
-        card_fixed NUMERIC(10, 2) DEFAULT 0.00,
-        total_sale NUMERIC(10, 2) DEFAULT 0.00,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+        closure_date DATE UNIQUE,
+        cash_sale DECIMAL(10, 2) DEFAULT 0.00,
+        card_boi DECIMAL(10, 2) DEFAULT 0.00,
+        card_fixed DECIMAL(10, 2) DEFAULT 0.00,
+        total_sale DECIMAL(10, 2) DEFAULT 0.00,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
 // Check if categories is empty to decide if seeding is needed
@@ -171,7 +232,7 @@ if ($count == 0) {
         "Watermelon Ice"
     ];
 
-    $insertFlavor = $db->prepare("INSERT INTO flavors (name) VALUES (?) ON CONFLICT (name) DO NOTHING");
+    $insertFlavor = $db->prepare("INSERT INTO flavors (name) VALUES (?) ON DUPLICATE KEY UPDATE name=name");
     foreach ($flavourMasterList as $f) {
         $insertFlavor->execute([$f]);
     }
@@ -195,23 +256,35 @@ if ($count == 0) {
 $userCount = $db->query("SELECT COUNT(*) FROM users")->fetchColumn();
 if ($userCount == 0) {
     $hashedPassword = password_hash('lab@123', PASSWORD_BCRYPT);
-    $stmt = $db->prepare("INSERT INTO users (username, password, name) VALUES (?, ?, ?)");
-    $stmt->execute(['phonelab', $hashedPassword, 'Phone Lab']);
+    $stmt = $db->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    
+    $defaultUsers = [
+        ['Tanveer', $hashedPassword],
+        ['Suhail Saif', $hashedPassword],
+        ['Rutvik', $hashedPassword],
+        ['Umar', $hashedPassword]
+    ];
+
+    foreach ($defaultUsers as $u) {
+        $stmt->execute($u);
+    }
 }
 
-// Seed specific requested users if they do not exist
-$newUsers = [
-    ['username' => 'Tanveer', 'name' => 'Phone Lab'],
-    ['username' => 'Suhail Saif', 'name' => 'Gadgets Shop'],
-    ['username' => 'Rutvik', 'name' => 'iPear Tesco']
-];
+// Seed businesses table if empty
+$bizCount = $db->query("SELECT COUNT(*) FROM businesses")->fetchColumn();
+if ($bizCount == 0) {
+    $stmtBiz = $db->prepare("INSERT INTO businesses (name, contact, email, address) VALUES (?, ?, ?, ?)");
+    
+    $defaultBusinesses = [
+        ['Phone Lab', '(065) 672 4192', 'phone.lab.ennis@gmail.com', '32 O\'Connell Street, Clonroad Beg, Ennis, Co. Clare, V95 EW74'],
+        ['FIXD GORT', '(089) 981 5157', 'fixd.gort@gmail.com', '1 Bridge St, Ballyhugh, Gort, Co. Galway, H91 FRC8'],
+        ['Gadget Repair & Vape shop', '(089) 961 7473', 'istoreirl@gmail.com', 'Apartment 1, Unit 1, Millennium House, Loughrea, Co. Galway, H62 H573'],
+        ['iPear Ennis', '(065) 682 2900', '', '6 Parnell St, Clonroad Beg, Ennis, Co. Clare, V95 X073'],
+        ['iPear in Tesco', '(065) 672 4446', 'ipear.ennis@gmail.com', 'Unit 20, Francis St, Clonroad Beg, Ennis, Co. Clare, V95 EP8K'],
+        ['Phone Shop Town Loughrea', '', '', '']
+    ];
 
-foreach ($newUsers as $u) {
-    $check = $db->prepare("SELECT COUNT(*) FROM users WHERE LOWER(username) = LOWER(?)");
-    $check->execute([$u['username']]);
-    if ($check->fetchColumn() == 0) {
-        $hashed = password_hash('lab@123', PASSWORD_BCRYPT);
-        $insert = $db->prepare("INSERT INTO users (username, password, name) VALUES (?, ?, ?)");
-        $insert->execute([$u['username'], $hashed, $u['name']]);
+    foreach ($defaultBusinesses as $b) {
+        $stmtBiz->execute($b);
     }
 }

@@ -13,13 +13,14 @@ $userId = $_SESSION['user_id'];
 $isLoggedIn = true;
 $username = $_SESSION['username'] ?? '';
 
-// Fetch active user details (to get active business name, contact, email)
-$stmtUser = $db->prepare("SELECT name, contact, email FROM users WHERE id = ?");
+// Fetch active user details (to get active business name, contact, email, address)
+$stmtUser = $db->prepare("SELECT name, contact, email, address FROM users WHERE id = ?");
 $stmtUser->execute([$userId]);
 $profile = $stmtUser->fetch();
 $businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
 $businessContact = !empty($profile['contact']) ? $profile['contact'] : '';
 $businessEmail = !empty($profile['email']) ? $profile['email'] : '';
+$businessAddress = !empty($profile['address']) ? $profile['address'] : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,6 +38,10 @@ $businessEmail = !empty($profile['email']) ? $profile['email'] : '';
 
         /* Printing adjustments */
         @media print {
+            @page {
+                size: auto;
+                margin: 0mm;
+            }
             body * {
                 visibility: hidden;
             }
@@ -48,37 +53,52 @@ $businessEmail = !empty($profile['email']) ? $profile['email'] : '';
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 100%;
-                font-family: 'Courier New', Courier, monospace;
+                width: 72mm;
+                max-width: 72mm;
+                font-family: Arial, Helvetica, sans-serif;
                 color: #000000;
-                padding: 10px;
-                font-size: 16px; /* Larger print font */
-                line-height: 1.4;
+                background-color: #ffffff;
+                padding: 4mm 2mm;
+                font-size: 12px;
+                line-height: 1.25;
+            }
+            #printArea p, #printArea h2, #printArea h3, #printArea span, #printArea div {
+                margin: 0;
+                padding: 0;
             }
             .receipt-header {
                 text-align: center;
-                margin-bottom: 24px;
+                margin-bottom: 8px;
             }
             .receipt-header h2 {
-                font-size: 22px; /* Larger header */
-                margin-bottom: 6px;
+                font-size: 14px;
+                margin-bottom: 3px;
                 font-weight: bold;
+            }
+            .receipt-header p {
+                font-size: 11px;
+                margin-bottom: 2px;
             }
             .receipt-row {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 8px;
+                margin-bottom: 4px;
             }
             .receipt-divider {
                 border-top: 1px dashed #000000;
-                margin: 12px 0;
+                margin: 6px 0;
             }
             .receipt-details {
-                margin-bottom: 12px;
+                margin-bottom: 6px;
+            }
+            .receipt-details p {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 3px;
+                font-size: 11.5px;
             }
             .receipt-details strong {
-                display: inline-block;
-                width: 120px;
+                font-weight: bold;
             }
         }
     </style>
@@ -181,15 +201,19 @@ $businessEmail = !empty($profile['email']) ? $profile['email'] : '';
     <!-- Hidden Container for thermal ticket layout during printing -->
     <div id="printArea">
         <div class="receipt-header">
-            <h2><?php echo htmlspecialchars(strtoupper($businessName)); ?> REPAIR TICKET</h2>
+            <h2><?php echo htmlspecialchars(strtoupper($businessName)); ?></h2>
+            <p style="font-weight: bold; font-size: 12px; margin-bottom: 4px;">REPAIR TICKET</p>
+            <?php if (!empty($businessAddress)): ?>
+                <p><?php echo htmlspecialchars($businessAddress); ?></p>
+            <?php endif; ?>
             <?php if (!empty($businessContact)): ?>
                 <p>Phone: <?php echo htmlspecialchars($businessContact); ?></p>
             <?php endif; ?>
             <?php if (!empty($businessEmail)): ?>
                 <p>Email: <?php echo htmlspecialchars($businessEmail); ?></p>
             <?php endif; ?>
-            <p id="receiptDate"></p>
-            <p id="receiptTicketNum"></p>
+            <p id="receiptDate" style="margin-top: 4px;"></p>
+            <p id="receiptTicketNum" style="font-weight: bold;"></p>
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-details">
@@ -199,9 +223,9 @@ $businessEmail = !empty($profile['email']) ? $profile['email'] : '';
             <p><strong>Booked By:</strong> <span id="rUser"><?php echo htmlspecialchars($username ?: 'Guest'); ?></span></p>
         </div>
         <div class="receipt-divider"></div>
-        <div class="receipt-details">
-            <p><strong>Fault Description:</strong></p>
-            <p id="rFault" style="padding-left: 10px; margin-top: 4px; font-style: italic;"></p>
+        <div class="receipt-details" style="display: block;">
+            <p style="display: block; font-weight: bold; margin-bottom: 2px;">Fault Description:</p>
+            <p id="rFault" style="display: block; padding-left: 4px; font-style: italic; font-size: 11px; white-space: pre-wrap; line-height: 1.3;"></p>
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-row">
@@ -213,7 +237,7 @@ $businessEmail = !empty($profile['email']) ? $profile['email'] : '';
             <span id="rDeposit">€0.00</span>
         </div>
         <div class="receipt-divider"></div>
-        <div class="receipt-row" style="font-weight: bold; font-size: 18px;">
+        <div class="receipt-row" style="font-weight: bold; font-size: 14px;">
             <span>Balance Due:</span>
             <span id="rBalance">€0.00</span>
         </div>
