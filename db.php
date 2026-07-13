@@ -33,11 +33,11 @@ function loadEnv($path) {
 // Load environment variables
 loadEnv(__DIR__ . '/.env');
 
-$host = getenv('DB_HOST') ?: 'localhost';
+$host = getenv('DB_HOST') ?: 'srv2113.hstgr.io';
 $port = getenv('DB_PORT') ?: '3306';
-$dbname = getenv('DB_DATABASE') ?: 'defaultdb';
-$user = getenv('DB_USERNAME') ?: 'root';
-$password = getenv('DB_PASSWORD') ?: '';
+$dbname = getenv('DB_DATABASE') ?: 'u583652021_apps';
+$user = getenv('DB_USERNAME') ?: 'u583652021_techinbox';
+$password = getenv('DB_PASSWORD') ?: 'Techinbox@8877';
 
 try {
     $db = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $user, $password, [
