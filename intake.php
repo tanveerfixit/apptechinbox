@@ -145,12 +145,10 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
          }">
          
         <div class="card p-4">
-             <!-- Premium Business Header -->
-             <div class="text-center mb-4 pb-3 border-bottom" style="border-bottom-color: var(--card-border) !important;">
-                 <div class="d-inline-block px-3 py-1 rounded-pill mb-2" style="background-color: rgba(0, 130, 114, 0.08); border: 1px solid rgba(0, 130, 114, 0.15);">
-                     <span class="small fw-semibold text-uppercase" style="color: var(--brand-teal); font-size: 10px; letter-spacing: 0.8px;">Repair Partner</span>
-                 </div>
-                 <h1 class="h4 fw-bold text-dark mb-0" style="letter-spacing: -0.3px;"><?php echo htmlspecialchars($businessName); ?></h1>
+             <!-- Business Header & Instructions -->
+             <div class="text-center mb-4">
+                 <h1 class="h5 fw-bold text-dark mb-1" style="letter-spacing: -0.2px;"><?php echo htmlspecialchars($businessName); ?></h1>
+                 <p class="text-muted mb-0" style="font-size: 12px; line-height: 1.4;">Please enter your contact and device details below to book your repair.</p>
              </div>
 
              <!-- Form Intake / Success / Expired Cards -->
@@ -172,11 +170,8 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
 
              <template x-if="!success && !isExpired">
                  <div>
-                     <!-- Professional Heading & Instructions -->
+                     <!-- Session Timer -->
                      <div class="text-center mb-4">
-                         <h2 class="h5 fw-bold text-dark mb-1">Book Your Device</h2>
-                         <p class="text-muted mb-3" style="font-size: 12px; line-height: 1.4;">Please enter your contact and device details below to register your repair.</p>
-                         
                          <span class="badge bg-secondary-subtle text-secondary px-2 py-1" style="font-size: 10px; border: 1px solid var(--card-border);">
                              Session Expires In: <span class="fw-bold text-dark" x-text="Math.floor(remainingSeconds / 60) + ':' + String(remainingSeconds % 60).padStart(2, '0')"></span>
                          </span>
