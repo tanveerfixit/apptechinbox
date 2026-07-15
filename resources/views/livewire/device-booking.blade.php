@@ -6,6 +6,54 @@
          fault: @entangle('problemDescription'),
          quote: @entangle('totalQuote'),
          deposit: @entangle('depositPaid'),
+         sessionId: '',
+         init() {
+             this.sessionId = 'INT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+             
+             this.$nextTick(() => {
+                 const intakeUrl = window.location.origin + '/intake.php?session_id=' + this.sessionId;
+                 new QRious({
+                     element: document.getElementById('intakeQr'),
+                     value: intakeUrl,
+                     size: 300,
+                     foreground: '#008272' // Teal theme color for QR code
+                 });
+             });
+
+             // Start polling every 2 seconds
+             setInterval(async () => {
+                 try {
+                     const res = await fetch('api.php?action=check_intake&session_id=' + this.sessionId);
+                     const data = await res.json();
+                     if (data.status === 'success' && data.found) {
+                         this.name = data.data.name;
+                         this.phone = data.data.phone;
+                         this.device = data.data.device_name;
+                         
+                         // Play modern notification chime
+                         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                         const osc = audioCtx.createOscillator();
+                         const gain = audioCtx.createGain();
+                         osc.connect(gain);
+                         gain.connect(audioCtx.destination);
+                         osc.type = 'sine';
+                         osc.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+                         gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                         osc.start();
+                         osc.stop(audioCtx.currentTime + 0.1);
+                         
+                         setTimeout(() => {
+                             const osc2 = audioCtx.createOscillator();
+                             osc2.connect(gain);
+                             osc2.type = 'sine';
+                             osc2.frequency.setValueAtTime(880.00, audioCtx.currentTime); // A5
+                             osc2.start();
+                             osc2.stop(audioCtx.currentTime + 0.15);
+                         }, 100);
+                     }
+                 } catch (e) {}
+             }, 2000);
+         },
          get balance() {
              return Math.max(0.00, parseFloat(this.quote || 0) - parseFloat(this.deposit || 0)).toFixed(2);
          },
@@ -31,6 +79,20 @@
          }
      }">
      
+    <!-- QR Customer Intake Code Block -->
+    <div class="card shadow-sm border-1 p-3 mb-3 bg-white text-center" style="border-radius: 6px; border-color: var(--card-border) !important;">
+        <h3 class="small fw-bold text-uppercase text-muted mb-2" style="font-size: 11px; letter-spacing: 0.5px; color: var(--brand-teal) !important;">
+            📲 Mobile Customer Intake
+        </h3>
+        <p class="text-muted mb-3" style="font-size: 12px; max-width: 420px; margin: 0 auto;">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
+        <div class="d-flex justify-content-center mb-2">
+            <canvas id="intakeQr" style="width: 140px; height: 140px;"></canvas>
+        </div>
+        <div class="small text-muted" style="font-size: 11px;">
+            Session: <span class="fw-semibold text-dark" x-text="sessionId"></span>
+        </div>
+    </div>
+
     <div class="card shadow-sm border-1 overflow-hidden bg-white" style="border-radius: 6px; border-color: var(--card-border);">
         <div class="card-header bg-white py-3 px-4 border-bottom" style="border-left: 4px solid #008272 !important;">
             <h1 class="h5 fw-bold text-dark mb-1">New Repair Booking</h1>

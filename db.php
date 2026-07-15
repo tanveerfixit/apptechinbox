@@ -171,6 +171,17 @@ $db->exec("
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
+$db->exec("
+    CREATE TABLE IF NOT EXISTS booking_intakes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        session_id VARCHAR(100) NOT NULL UNIQUE,
+        name VARCHAR(255),
+        phone VARCHAR(255),
+        device_name VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
 // Check if categories is empty to decide if seeding is needed
 $count = $db->query("SELECT COUNT(*) FROM categories")->fetchColumn();
 

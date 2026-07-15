@@ -3,15 +3,15 @@
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id'])) {
+$action = $_GET['action'] ?? '';
+
+if ($action !== 'submit_intake' && !isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit();
 }
 
 require_once __DIR__ . '/db.php';
-
-$action = $_GET['action'] ?? '';
 
 try {
     switch ($action) {
@@ -293,6 +293,50 @@ try {
             $stmt->execute([$itemId]);
 
             echo json_encode(['status' => 'success']);
+            break;
+
+        case 'submit_intake':
+            $input = json_decode(file_get_contents('php://input'), true);
+            $sessionId = $input['session_id'] ?? '';
+            $name = $input['name'] ?? '';
+            $phone = $input['phone'] ?? '';
+            $deviceName = $input['device_name'] ?? '';
+
+            if (empty($sessionId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Session ID is required.']);
+                break;
+            }
+
+            // Remove existing intake session (in case of double submission) and insert fresh entry
+            $stmtDel = $db->prepare("DELETE FROM booking_intakes WHERE session_id = ?");
+            $stmtDel->execute([$sessionId]);
+
+            $stmtIns = $db->prepare("INSERT INTO booking_intakes (session_id, name, phone, device_name) VALUES (?, ?, ?, ?)");
+            $stmtIns->execute([$sessionId, $name, $phone, $deviceName]);
+
+            echo json_encode(['status' => 'success', 'message' => 'Intake submitted.']);
+            break;
+
+        case 'check_intake':
+            $sessionId = $_GET['session_id'] ?? '';
+            if (empty($sessionId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Session ID is required.']);
+                break;
+            }
+
+            $stmt = $db->prepare("SELECT name, phone, device_name FROM booking_intakes WHERE session_id = ?");
+            $stmt->execute([$sessionId]);
+            $intake = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($intake) {
+                // Delete intake from database so it doesn't double-poll
+                $stmtDel = $db->prepare("DELETE FROM booking_intakes WHERE session_id = ?");
+                $stmtDel->execute([$sessionId]);
+
+                echo json_encode(['status' => 'success', 'found' => true, 'data' => $intake]);
+            } else {
+                echo json_encode(['status' => 'success', 'found' => false]);
+            }
             break;
 
         default:
