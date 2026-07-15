@@ -122,32 +122,7 @@ $apps = [
 <body class="bg-light d-flex flex-column min-vh-100">
 
     <!-- Header Navigation -->
-    <header class="navbar navbar-expand navbar-light bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
-        <a href="index.php" class="d-flex align-items-center gap-2 text-decoration-none">
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; width: 18px; height: 18px;">
-                <div style="width: 8px; height: 8px; background-color: #f25022;"></div>
-                <div style="width: 8px; height: 8px; background-color: #7fba00;"></div>
-                <div style="width: 8px; height: 8px; background-color: #00a4ef;"></div>
-                <div style="width: 8px; height: 8px; background-color: #ffb900;"></div>
-            </div>
-            <span class="fs-5 fw-bold text-dark mb-0 leading-none">TechInbox</span>
-            <span class="text-muted border-start ps-2 mb-0 d-none d-sm-inline" style="font-size: 14px;">Portal</span>
-        </a>
-        <div class="d-flex align-items-center gap-3">
-            <?php if ($isLoggedIn): ?>
-                <span class="small text-muted d-none d-sm-inline">Signed in as <a href="profile.php" class="text-dark fw-semibold text-decoration-underline"><?php echo htmlspecialchars($username); ?></a></span>
-                <a href="logout.php" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                    Sign Out
-                </a>
-            <?php else: ?>
-                <span class="small text-muted d-none d-sm-inline">Not signed in</span>
-                <a href="login.php" class="btn btn-sm btn-primary px-3" onclick="event.preventDefault(); document.getElementById('loginModal').style.setProperty('display', 'flex', 'important');">
-                    Sign In
-                </a>
-            <?php endif; ?>
-        </div>
-    </header>
+    <?php require_once __DIR__ . '/header.php'; ?>
 
     <!-- Main Container Dashboard -->
     <main class="container py-5 flex-grow-1">
@@ -229,11 +204,7 @@ $apps = [
     <?php endif; ?>
 
     <!-- Standard Footer -->
-    <footer class="bg-white border-top py-3 text-center mt-auto w-100">
-        <p class="small text-muted mb-0">
-            These system apps and Utility are Developer: <span class="fw-semibold text-dark">Tanveer</span> | Support: <a href="mailto:support@techinbox.ie" class="text-decoration-none fw-semibold text-primary">support@techinbox.ie</a>
-        </p>
-    </footer>
+    <?php require_once __DIR__ . '/footer.php'; ?>
 
     <!-- Bootstrap 5 JavaScript Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

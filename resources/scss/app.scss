@@ -1,0 +1,126 @@
+// Design Tokens / Brand Theme Customizations
+$primary: #00a4ef;           // Microsoft Brand Blue
+$danger: #f25022;            // Microsoft Brand Red/Orange (Assigned to Vape Order primary triggers)
+$success: #7fba00;           // Microsoft Brand Green (Assigned to closures/received ticks)
+$body-bg: #f3f3f3;           // Microsoft Light Gray background
+$card-border-color: #e0e0e0; // Fluent border color
+$card-bg: #ffffff;
+$font-family-sans-serif: 'Outfit', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+// Import Bootstrap Core Variables
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+
+// Import Remaining Bootstrap Components
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/images';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/tables';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/transitions';
+@import 'bootstrap/scss/dropdown';
+@import 'bootstrap/scss/button-group';
+@import 'bootstrap/scss/nav';
+@import 'bootstrap/scss/navbar';
+@import 'bootstrap/scss/card';
+@import 'bootstrap/scss/accordion';
+@import 'bootstrap/scss/breadcrumb';
+@import 'bootstrap/scss/pagination';
+@import 'bootstrap/scss/badge';
+@import 'bootstrap/scss/alert';
+@import 'bootstrap/scss/progress';
+@import 'bootstrap/scss/list-group';
+@import 'bootstrap/scss/close';
+@import 'bootstrap/scss/toasts';
+@import 'bootstrap/scss/modal';
+@import 'bootstrap/scss/tooltip';
+@import 'bootstrap/scss/popover';
+@import 'bootstrap/scss/carousel';
+@import 'bootstrap/scss/spinners';
+@import 'bootstrap/scss/offcanvas';
+@import 'bootstrap/scss/helpers';
+@import 'bootstrap/scss/utilities';
+@import 'bootstrap/scss/utilities/api';
+
+// Design Token Custom CSS Properties
+:root {
+    --bg-color: #{$body-bg};
+    --card-bg: #{$card-bg};
+    --card-border: #{$card-border-color};
+    --text-primary: #242424;
+    --text-secondary: #5c5c5c;
+    
+    --brand-red: #f25022;
+    --brand-green: #7fba00;
+    --brand-blue: #00a4ef;
+    --brand-teal: #008272;
+    --brand-yellow: #ffb900;
+}
+
+body {
+    background-color: var(--bg-color) !important;
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+
+// Fluent Layout Overrides
+.card {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 6px !important;
+}
+
+.btn {
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-brand {
+    background-color: var(--brand-red);
+    border-color: var(--brand-red);
+    color: #ffffff;
+    
+    &:hover {
+        background-color: #d83b01;
+        border-color: #d83b01;
+        color: #ffffff;
+    }
+}
+
+// Premium Autocomplete suggestions hover
+.hover-bg-light:hover {
+    background-color: #f3f3f3;
+}
+
+// Smooth transitions helper
+.animate-fade-in {
+    animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+// Custom scrollbar for premium feel
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

@@ -288,3 +288,21 @@ if ($bizCount == 0) {
         $stmtBiz->execute($b);
     }
 }
+
+// Create indexes to optimize query speeds (Silent fail if index already exists or syntax differences)
+try {
+    $db->exec("CREATE INDEX idx_orders_status_created ON orders (status, created_at)");
+} catch (Exception $e) {}
+try {
+    $db->exec("CREATE INDEX idx_order_items_order ON order_items (order_id)");
+} catch (Exception $e) {}
+try {
+    $db->exec("CREATE INDEX idx_order_items_product ON order_items (product_id)");
+} catch (Exception $e) {}
+try {
+    $db->exec("CREATE INDEX idx_order_items_flavor ON order_items (flavor_id)");
+} catch (Exception $e) {}
+try {
+    $db->exec("CREATE INDEX idx_daily_closures_date ON daily_closures (closure_date)");
+} catch (Exception $e) {}
+

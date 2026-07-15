@@ -9,6 +9,11 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Redirect to Laravel route if Laravel application is bootstrapped
+if (defined('LARAVEL_START')) {
+    return redirect()->to('/vape');
+}
+
 $username = $_SESSION['username'] ?? '';
 ?>
 <!DOCTYPE html>
@@ -17,107 +22,80 @@ $username = $_SESSION['username'] ?? '';
     <meta charset="UTF-8">
     <title>Vape Order Builder - TechInbox</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap 5.3 CDN -->
+    
+    <!-- Outfit Font & Bootstrap 5 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
         :root {
-            --brand-orange: #f25022; /* Vape orange brand color */
-            --brand-orange-hover: #d83b01;
-            --brand-blue: #0078d4;
+            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
+            --card-bg: #ffffff;
+            --card-border: #e0e0e0;
+            --text-primary: #242424;
+            --text-secondary: #5c5c5c;
+            --brand-red: #f25022;
+            --brand-green: #7fba00;
+            --brand-blue: #00a4ef;
+            --brand-yellow: #ffb900;
+            --font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
-            background-color: #f3f3f3; /* Fluent Light Gray */
-            color: #242424;
-        }
-
-        /* Category Responsive Flex Container */
-        .category-scroll-container {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            min-height: 100vh;
             display: flex;
-            flex-wrap: wrap; /* Wraps clean on small screens */
-            gap: 8px;
-            padding: 6px 0;
+            flex-direction: column;
         }
 
-        /* Suggestions Dropdown Box */
-        .suggestions-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: #ffffff;
-            border: 1px solid #d0d0d0;
-            border-radius: 4px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            display: none;
-        }
-
-        .suggestion-item {
-            padding: 10px 12px;
-            cursor: pointer;
-            font-size: 13px;
-            color: #242424;
-            transition: background-color 0.1s ease;
-        }
-
-        .suggestion-item:hover {
-            background-color: #f3f3f3;
-        }
-
-        /* Toast notifications */
-        .toast-container-custom {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 3000;
-            display: none;
-            background-color: #242424;
-            color: #ffffff;
-            padding: 12px 20px;
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            font-size: 13px;
-            font-weight: 600;
-            animation: toastFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes toastFade {
-            from { transform: translateY(10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .btn-brand {
+            background-color: var(--brand-red);
+            border-color: var(--brand-red);
+            color: #ffffff;
+        }
+
+        .btn-brand:hover {
+            background-color: #d83b01;
+            border-color: #d83b01;
+            color: #ffffff;
         }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
     <!-- Header Navigation -->
-    <header class="navbar navbar-expand navbar-light bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
-        <a href="index.php" class="d-flex align-items-center gap-2 text-decoration-none">
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; width: 18px; height: 18px;">
-                <div style="width: 8px; height: 8px; background-color: #f25022;"></div>
-                <div style="width: 8px; height: 8px; background-color: #7fba00;"></div>
-                <div style="width: 8px; height: 8px; background-color: #00a4ef;"></div>
-                <div style="width: 8px; height: 8px; background-color: #ffb900;"></div>
-            </div>
-            <span class="fs-5 fw-bold text-dark mb-0 leading-none">TechInbox</span>
-            <span class="text-muted border-start ps-2 mb-0 d-none d-sm-inline" style="font-size: 14px;">Portal</span>
-        </a>
-        <div class="user-section style= d-flex align-items-center gap-3">
-            <a href="index.php" class="btn-portal text-decoration-none fw-semibold text-primary" style="font-size: 14px;">&larr; Back to Portal</a>
-            <span class="small text-muted d-none d-md-inline">Signed in as <a href="profile.php" class="text-dark fw-semibold text-decoration-underline"><?php echo htmlspecialchars($username); ?></a></span>
-            <a href="logout.php" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">
-                Sign Out
-            </a>
-        </div>
-    </header>
+    <?php require_once __DIR__ . '/header.php'; ?>
 
     <!-- Main Content Container -->
-    <main class="container py-4 flex-grow-1">
+    <main class="container-fluid px-2 px-sm-3 py-3 py-md-4 flex-grow-1" style="max-width: 1200px; margin: 0 auto;" 
+          x-data="vapeOrderBuilderApp()" 
+          x-init="init()">
         
-        <h1 class="h4 fw-bold text-dark mb-3">Vape Order Builder</h1>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h4 fw-bold text-dark mb-0">Vape Order Builder</h1>
+        </div>
+
+        <!-- Alert Notifications -->
+        <div x-show="toast.show" 
+             x-transition 
+             class="alert py-2 px-3 small mb-3 border-0 shadow-sm"
+             :class="toast.type === 'danger' ? 'alert-danger bg-danger-subtle text-danger' : 'alert-success bg-success-subtle text-success'"
+             style="border-radius: 4px; display: none;">
+            <span x-text="toast.message"></span>
+        </div>
 
         <div class="row g-4">
             
@@ -125,24 +103,42 @@ $username = $_SESSION['username'] ?? '';
             <div class="col-12 col-lg-6">
                 
                 <!-- Add Item Form -->
-                <div class="card shadow-sm border-1 p-4 mb-4" style="border-radius: 6px; background-color: #ffffff;">
+                <div class="card shadow-sm border-1 p-4 mb-4">
                     <h2 class="small fw-bold text-uppercase text-muted mb-3" style="letter-spacing: 0.5px; font-size: 11px;">Add Item</h2>
                     
                     <!-- Category selection scroll container -->
                     <div class="mb-3">
                         <label class="small fw-bold text-muted text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Category</label>
-                        <div id="categoryContainer" class="category-scroll-container"></div>
+                        <div class="d-flex flex-wrap gap-2 py-1">
+                            <template x-for="cat in categories" :key="cat.id">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-sm px-3 py-2 fw-medium rounded-1"
+                                    :class="selectedCategoryId === cat.id ? 'btn-brand text-white' : 'btn-light border text-secondary'"
+                                    x-text="cat.name"
+                                    x-on:click="selectCategory(cat.id)"
+                                ></button>
+                            </template>
+                        </div>
                     </div>
 
                     <!-- Brand & Line Selectors -->
                     <div class="row g-3 mb-3">
                         <div class="col-6">
                             <label for="brand" class="small fw-bold text-muted text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Brand</label>
-                            <select id="brand" class="form-select"></select>
+                            <select id="brand" class="form-select rounded-1" x-model="selectedBrand" x-on:change="updateLineOptions()" style="font-size: 14px;">
+                                <template x-for="b in filteredBrands" :key="b">
+                                    <option :value="b" x-text="b"></option>
+                                </template>
+                            </select>
                         </div>
                         <div class="col-6">
                             <label for="line" class="small fw-bold text-muted text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Model / Line</label>
-                            <select id="line" class="form-select"></select>
+                            <select id="line" class="form-select rounded-1" x-model="selectedLine" style="font-size: 14px;">
+                                <template x-for="l in filteredLines" :key="l">
+                                    <option :value="l" x-text="l || '(Standard)'"></option>
+                                </template>
+                            </select>
                         </div>
                     </div>
 
@@ -150,39 +146,58 @@ $username = $_SESSION['username'] ?? '';
                     <div class="row g-3 mb-4">
                         <div class="col-7 position-relative">
                             <label for="flavour" class="small fw-bold text-muted text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Flavor</label>
-                            <input id="flavour" class="form-control" placeholder="Flavor..." autocomplete="off">
-                            <div id="flavourSuggestions" class="suggestions-dropdown"></div>
-                            <p id="flavourHint" class="text-danger small mt-1 mb-0" style="font-size: 11px;"></p>
+                            <input 
+                                id="flavour" 
+                                class="form-control rounded-1" 
+                                placeholder="Flavor..." 
+                                autocomplete="off"
+                                x-model="flavorInput"
+                                x-on:focus="showSuggestions = true"
+                                x-on:click.away="showSuggestions = false"
+                                style="font-size: 14px;"
+                            >
+                            <!-- Suggestions Dropdown Box -->
+                            <div class="position-absolute top-100 start-0 end-0 bg-white border rounded shadow-sm overflow-auto" 
+                                 style="max-height: 200px; z-index: 1000; display: none;" 
+                                 x-show="showSuggestions && filteredFlavors.length > 0">
+                                <template x-for="flavor in filteredFlavors" :key="flavor">
+                                    <div class="px-3 py-2 small cursor-pointer hover-bg-light"
+                                         style="cursor: pointer;"
+                                         x-on:mousedown="flavorInput = flavor; showSuggestions = false;">
+                                        <span x-text="flavor"></span>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
                         <div class="col-5">
                             <label class="small fw-bold text-muted text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Qty</label>
                             <div class="input-group">
-                                <button class="btn btn-outline-secondary" type="button" onclick="adjustQty(-1)">-</button>
-                                <input id="qty" class="form-control text-center fw-bold bg-white" type="number" min="1" value="1" readonly>
-                                <button class="btn btn-outline-secondary" type="button" onclick="adjustQty(1)">+</button>
+                                <button class="btn btn-outline-secondary py-1" type="button" x-on:click="adjustQty(-1)">-</button>
+                                <input id="qty" class="form-control text-center fw-bold bg-white py-1" type="number" readonly :value="quantity" style="font-size: 14px;">
+                                <button class="btn btn-outline-secondary py-1" type="button" x-on:click="adjustQty(1)">+</button>
                             </div>
                         </div>
                     </div>
 
-                    <button id="addToOrderBtn" type="button" class="btn text-white w-100 py-2 text-uppercase fw-bold" style="background-color: var(--brand-orange); font-size: 13px; letter-spacing: 0.5px;" onmouseover="this.style.backgroundColor='var(--brand-orange-hover)'" onmouseout="this.style.backgroundColor='var(--brand-orange)'">
+                    <button type="button" class="btn btn-brand w-100 py-2 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;" x-on:click="addItem()">
                         Add to Order
                     </button>
                 </div>
 
                 <!-- Database Management (Admin Panel) -->
-                <div class="card shadow-sm border-1 p-3 mb-4" style="border-radius: 6px; background-color: #ffffff;">
-                    <div onclick="toggleAdminPanel()" class="d-flex justify-content-between align-items-center" style="cursor: pointer; user-select: none;">
+                <div class="card shadow-sm border-1 p-3 mb-4">
+                    <div x-on:click="adminExpanded = !adminExpanded" class="d-flex justify-content-between align-items-center" style="cursor: pointer; user-select: none;">
                         <h2 class="small fw-bold text-muted text-uppercase mb-0" style="letter-spacing: 0.5px; font-size: 11px;">⚙️ Database Management</h2>
-                        <span id="adminToggleIcon" class="small text-muted fw-bold" style="font-size: 10px;">+ EXPAND</span>
+                        <span class="small text-muted fw-bold" style="font-size: 10px;" x-text="adminExpanded ? '- COLLAPSE' : '+ EXPAND'"></span>
                     </div>
 
-                    <div id="adminPanelContent" class="mt-3 pt-3 border-top" style="display: none;">
+                    <div class="mt-3 pt-3 border-top" x-show="adminExpanded" style="display: none;">
                         <!-- Add Category -->
                         <div class="mb-4">
                             <h3 class="small fw-bold text-dark text-uppercase mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Add New Category</h3>
                             <div class="d-flex gap-2">
-                                <input id="newCatName" class="form-control form-control-sm" placeholder="e.g. Nicotine Pouches...">
-                                <button onclick="addCategory()" class="btn btn-sm btn-primary px-3 fw-bold">Add</button>
+                                <input class="form-control form-control-sm rounded-1" placeholder="e.g. Nicotine Pouches..." x-model="newCategoryName">
+                                <button x-on:click="addCategory()" class="btn btn-sm btn-primary px-3 fw-bold rounded-1" style="background-color: var(--brand-blue); border-color: var(--brand-blue);">Add</button>
                             </div>
                         </div>
 
@@ -191,19 +206,24 @@ $username = $_SESSION['username'] ?? '';
                             <h3 class="small fw-bold text-dark text-uppercase mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Add New Product</h3>
                             <div class="mb-2">
                                 <label class="small text-muted text-uppercase mb-1" style="font-size: 9px;">Under Category</label>
-                                <select id="newProdCatSelect" class="form-select form-select-sm"></select>
+                                <select class="form-select form-select-sm rounded-1" x-model="newProductCategoryId">
+                                    <option value="">Select category...</option>
+                                    <template x-for="cat in categories" :key="cat.id">
+                                        <option :value="cat.id" x-text="cat.name"></option>
+                                    </template>
+                                </select>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
                                     <label class="small text-muted text-uppercase mb-1" style="font-size: 9px;">Brand</label>
-                                    <input id="newProdBrand" class="form-control form-control-sm" placeholder="e.g. Lost Mary">
+                                    <input class="form-control form-control-sm rounded-1" placeholder="e.g. Lost Mary" x-model="newProductBrand">
                                 </div>
                                 <div class="col-6">
                                     <label class="small text-muted text-uppercase mb-1" style="font-size: 9px;">Model / Line</label>
-                                    <input id="newProdLine" class="form-control form-control-sm" placeholder="e.g. BM6000">
+                                    <input class="form-control form-control-sm rounded-1" placeholder="e.g. BM6000" x-model="newProductLine">
                                 </div>
                             </div>
-                            <button onclick="addProduct()" class="btn btn-sm btn-primary w-100 fw-bold">Add Product</button>
+                            <button x-on:click="addProduct()" class="btn btn-sm btn-primary w-100 fw-bold rounded-1" style="background-color: var(--brand-blue); border-color: var(--brand-blue);">Add Product</button>
                         </div>
                     </div>
                 </div>
@@ -214,10 +234,10 @@ $username = $_SESSION['username'] ?? '';
             <div class="col-12 col-lg-6">
 
                 <!-- Current Items Table -->
-                <div class="card shadow-sm border-1 p-0 mb-4 overflow-hidden" style="border-radius: 6px; background-color: #ffffff;">
+                <div class="card shadow-sm border-1 p-0 mb-4 overflow-hidden">
                     <div class="d-flex justify-content-between align-items-center py-2 px-3 border-bottom" style="background-color: #fafafa;">
                         <h2 class="small fw-bold text-muted text-uppercase mb-0" style="letter-spacing: 0.5px; font-size: 11px;">Current Items</h2>
-                        <span id="itemCount" class="badge bg-secondary text-uppercase fw-semibold" style="font-size: 10px; padding: 4px 8px;">0 Items</span>
+                        <span class="badge bg-secondary text-uppercase fw-semibold" style="font-size: 10px; padding: 4px 8px;" x-text="orderItems.length + (orderItems.length === 1 ? ' Item' : ' Items')">0 Items</span>
                     </div>
 
                     <div class="table-responsive" style="max-height: 310px;">
@@ -231,8 +251,19 @@ $username = $_SESSION['username'] ?? '';
                                     <th class="text-center" style="width: 80px; padding: 12px 8px;">Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="orderTable">
-                                <tr>
+                            <tbody>
+                                <template x-for="(item, idx) in orderItems" :key="item.id">
+                                    <tr>
+                                        <td class="text-muted" style="padding: 10px 8px;" x-text="idx + 1"></td>
+                                        <td style="padding: 10px 8px;"><strong x-text="item.brand + (item.line ? ' (' + item.line + ')' : '')"></strong></td>
+                                        <td style="padding: 10px 8px;" x-text="item.flavour"></td>
+                                        <td class="text-end fw-bold" style="padding: 10px 8px;" x-text="item.quantity || item.qty"></td>
+                                        <td class="text-center" style="padding: 10px 8px;">
+                                            <button class="btn btn-sm btn-outline-danger py-1 px-2 rounded-1" x-on:click="removeItem(item.id)" style="font-size: 11px;">Remove</button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr x-show="orderItems.length === 0">
                                     <td colspan="5" class="text-center text-muted fst-italic py-4">
                                         No items added yet.
                                     </td>
@@ -243,21 +274,21 @@ $username = $_SESSION['username'] ?? '';
                 </div>
 
                 <!-- Order Summary Output preview -->
-                <div class="card shadow-sm border-1 p-4 mb-4" style="border-radius: 6px; background-color: #ffffff;">
+                <div class="card shadow-sm border-1 p-4 mb-4">
                     <h2 class="small fw-bold text-muted text-uppercase mb-3" style="letter-spacing: 0.5px; font-size: 11px;">Order Summary</h2>
                     
-                    <textarea id="orderOutput" class="form-control text-monospace bg-light mb-3" rows="10" readonly placeholder="WhatsApp text preview..." style="font-family: monospace; font-size: 12px;"></textarea>
+                    <textarea id="orderOutput" class="form-control text-monospace bg-light mb-3 rounded-1" rows="10" readonly placeholder="WhatsApp text preview..." style="font-family: monospace; font-size: 12px;" :value="orderSummary"></textarea>
                     
                     <div class="d-flex gap-2">
-                        <button onclick="copyOrder()" class="btn btn-primary flex-grow-1 fw-bold" style="font-size: 13px;">
+                        <button x-on:click="copyOrder()" class="btn btn-brand flex-grow-1 fw-bold rounded-1" style="font-size: 13px;">
                             Copy Order
                         </button>
-                        <button onclick="clearOrder()" class="btn btn-outline-danger" style="font-size: 13px;">
+                        <button x-on:click="clearOrder()" class="btn btn-outline-danger rounded-1" style="font-size: 13px;">
                             Clear
                         </button>
-                        <button onclick="window.location.href='past_orders.php'" class="btn btn-outline-secondary" style="font-size: 13px;">
+                        <a href="past_orders.php" class="btn btn-outline-secondary rounded-1" style="font-size: 13px;">
                             History
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -267,490 +298,310 @@ $username = $_SESSION['username'] ?? '';
 
     </main>
 
-    <!-- Hidden toast container -->
-    <div id="toast" class="toast-container-custom">
-        <span id="toastMsg"></span>
-    </div>
-
-    <!-- Standard Footer -->
-    <footer class="bg-white border-top py-3 text-center mt-auto w-100">
-        <p class="small text-muted mb-0">
-            These system apps and Utility are Developer: <span class="fw-semibold text-dark">Tanveer</span> | Support: <a href="mailto:support@techinbox.ie" class="text-decoration-none fw-semibold text-primary">support@techinbox.ie</a>
-        </p>
+    <!-- Redesigned Clean Footer -->
+    <footer class="bg-white border-top py-3 mt-auto w-100 shadow-sm" style="border-color: var(--card-border) !important;">
+        <div class="container-fluid px-3 text-center">
+            <span class="text-muted" style="font-size: 12px; letter-spacing: 0.1px;">
+                Developer: <span class="fw-semibold text-dark">Tanveer</span>
+                <span class="mx-2" style="color: var(--card-border);">&bull;</span>
+                Support: <a href="mailto:support@techinbox.ie" class="text-decoration-none fw-semibold" style="color: var(--brand-blue) !important;">support@techinbox.ie</a>
+            </span>
+        </div>
     </footer>
 
     <!-- Bootstrap 5 JavaScript Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
+    <!-- Single Page Application Logic with Alpine.js -->
     <script>
-    /* GLOBAL STATE */
-    let categories = [];
-    let products = [];
-    let flavors = [];
+    function vapeOrderBuilderApp() {
+        return {
+            categories: [],
+            products: [],
+            flavors: [],
+            orderItems: [],
 
-    let currentOrderItems = [];
-    let selectedCategoryId = null;
+            selectedCategoryId: null,
+            selectedBrand: '',
+            selectedLine: '',
+            flavorInput: '',
+            quantity: 1,
 
-    /* TOAST HELPER */
-    function showToast(message, type = "info") {
-        const toast = document.getElementById("toast");
-        const msgSpan = document.getElementById("toastMsg");
-        msgSpan.textContent = message;
-        
-        if (type === "warning") {
-            toast.style.backgroundColor = "#d83b01";
-        } else {
-            toast.style.backgroundColor = "#242424";
-        }
-        
-        toast.style.display = "block";
-        
-        setTimeout(() => {
-            toast.style.display = "none";
-        }, 2500);
-    }
+            showSuggestions: false,
+            adminExpanded: false,
+            newCategoryName: '',
+            newProductCategoryId: '',
+            newProductBrand: '',
+            newProductLine: '',
 
-    /* FETCH & SETUP LOGIC */
-    async function loadData() {
-        try {
-            const res = await fetch("api.php?action=get_data");
-            const data = await res.json();
-            
-            categories = data.categories || [];
-            products = data.products || [];
-            flavors = data.flavors || [];
+            toast: {
+                show: false,
+                message: '',
+                type: 'success'
+            },
 
-            renderCategoryContainer();
-            renderNewProductCategorySelect();
-            
-            // Auto-select first category if available and not selected
-            if (categories.length > 0 && selectedCategoryId === null) {
-                selectCategory(categories[0].id);
-            } else {
-                updateBrandOptions();
-            }
-        } catch (e) {
-            showToast("Failed to fetch initial database details.", "warning");
-        }
-    }
+            get filteredBrands() {
+                const prods = this.products.filter(p => p.category_id === this.selectedCategoryId);
+                return [...new Set(prods.map(p => p.brand))].sort();
+            },
 
-    async function loadActiveOrder() {
-        try {
-            const res = await fetch("api.php?action=get_active_order");
-            const data = await res.json();
-            currentOrderItems = data.items || [];
-            renderOrderItems();
-        } catch (e) {
-            showToast("Failed to load active order list.", "warning");
-        }
-    }
+            get filteredLines() {
+                const prods = this.products.filter(p => p.category_id === this.selectedCategoryId && p.brand === this.selectedBrand);
+                return [...new Set(prods.map(p => p.line))].sort();
+            },
 
-    /* RENDER CATEGORIES */
-    function renderCategoryContainer() {
-        const container = document.getElementById("categoryContainer");
-        container.innerHTML = "";
-        
-        categories.forEach(cat => {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            
-            if (cat.id === selectedCategoryId) {
-                btn.className = "btn btn-sm px-3 py-2 fw-bold text-white shadow-sm";
-                btn.style.backgroundColor = "var(--brand-orange)";
-                btn.style.borderColor = "var(--brand-orange)";
-            } else {
-                btn.className = "btn btn-sm btn-light border px-3 py-2 fw-semibold text-secondary";
-                btn.style.transition = "all 0.15s ease-in-out";
-            }
-            
-            btn.textContent = cat.name;
-            btn.onclick = () => selectCategory(cat.id);
-            container.appendChild(btn);
-        });
-    }
+            get filteredFlavors() {
+                if (!this.flavorInput) return [];
+                const val = this.flavorInput.toLowerCase().trim();
+                return this.flavors.map(f => f.name).filter(name => name.toLowerCase().includes(val));
+            },
 
-    function selectCategory(id) {
-        selectedCategoryId = id;
-        renderCategoryContainer();
-        updateBrandOptions();
-    }
+            get orderSummary() {
+                if (this.orderItems.length === 0) return '';
+                const grouped = {};
+                this.orderItems.forEach(item => {
+                    const catName = item.category_name || "Uncategorized";
+                    const lineText = item.line ? ` (${item.line})` : "";
+                    const prodKey = `${item.brand}${lineText}`;
 
-    function renderNewProductCategorySelect() {
-        const select = document.getElementById("newProdCatSelect");
-        select.innerHTML = "";
-        categories.forEach(cat => {
-            const opt = document.createElement("option");
-            opt.value = cat.id;
-            opt.textContent = cat.name;
-            select.appendChild(opt);
-        });
-    }
-
-    /* BRAND & LINE DROPDOWNS */
-    function updateBrandOptions() {
-        const brandSelect = document.getElementById("brand");
-        brandSelect.innerHTML = "";
-        
-        // Filter products of active category
-        const filteredProds = products.filter(p => p.category_id === selectedCategoryId);
-        
-        // Get unique brands
-        const uniqueBrands = [...new Set(filteredProds.map(p => p.brand))].sort();
-        
-        uniqueBrands.forEach(b => {
-            const opt = document.createElement("option");
-            opt.value = b;
-            opt.textContent = b;
-            brandSelect.appendChild(opt);
-        });
-        
-        brandSelect.onchange = updateLineOptions;
-        updateLineOptions();
-    }
-
-    function updateLineOptions() {
-        const brandSelect = document.getElementById("brand");
-        const lineSelect = document.getElementById("line");
-        lineSelect.innerHTML = "";
-        
-        const selectedBrand = brandSelect.value;
-        if (!selectedBrand) return;
-        
-        const filteredProds = products.filter(p => p.category_id === selectedCategoryId && p.brand === selectedBrand);
-        
-        // Get unique lines
-        const uniqueLines = [...new Set(filteredProds.map(p => p.line))].sort();
-        
-        uniqueLines.forEach(l => {
-            const opt = document.createElement("option");
-            opt.value = l;
-            opt.textContent = l || "(Standard)";
-            lineSelect.appendChild(opt);
-        });
-        
-        updateFlavorSuggestions();
-    }
-
-    /* SUGGESTIONS & AUTOCOMPLETE FOR FLAVORS */
-    function updateFlavorSuggestions() {
-        // Since flavors are globally stored in the database, we suggest the entire master list
-        const activeSuggestions = flavors.map(f => f.name);
-        setupAutocomplete(document.getElementById("flavour"), activeSuggestions);
-    }
-
-    function setupAutocomplete(input, list) {
-        const dropdown = document.getElementById("flavourSuggestions");
-        
-        input.oninput = function() {
-            const val = this.value.trim().toLowerCase();
-            dropdown.innerHTML = "";
-            document.getElementById("flavourHint").textContent = "";
-            
-            if (!val) {
-                dropdown.style.display = "none";
-                return;
-            }
-            
-            const filtered = list.filter(item => item.toLowerCase().includes(val));
-            if (filtered.length === 0) {
-                dropdown.style.display = "none";
-                return;
-            }
-            
-            filtered.forEach(item => {
-                const row = document.createElement("div");
-                row.className = "suggestion-item";
-                row.textContent = item;
-                row.onclick = function() {
-                    input.value = item;
-                    dropdown.style.display = "none";
-                };
-                dropdown.appendChild(row);
-            });
-            dropdown.style.display = "block";
-        };
-        
-        // Close dropdown when clicking outside
-        document.addEventListener("click", (e) => {
-            if (e.target !== input && e.target !== dropdown) {
-                dropdown.style.display = "none";
-            }
-        });
-    }
-
-    /* QUANTITY ADJUSTER */
-    function adjustQty(amount) {
-        const qtyInput = document.getElementById("qty");
-        let val = parseInt(qtyInput.value) || 1;
-        val += amount;
-        if (val < 1) val = 1;
-        qtyInput.value = val;
-    }
-
-    /* ADD TO ORDER ACTION */
-    document.getElementById("addToOrderBtn").onclick = async function() {
-        const brand = document.getElementById("brand").value;
-        const line = document.getElementById("line").value;
-        const flavourInput = document.getElementById("flavour");
-        const flavour = flavourInput.value.trim();
-        const qty = parseInt(document.getElementById("qty").value) || 1;
-        
-        if (!brand || !flavour) {
-            showToast("Please enter a flavor.", "warning");
-            return;
-        }
-
-        // Find matching product
-        const matchingProd = products.find(p => {
-            const productLine = p.line || "";
-            const filterLine = line || "";
-            return p.category_id === selectedCategoryId && p.brand === brand && productLine === filterLine;
-        });
-        if (!matchingProd) {
-            showToast("Selected product not found in database.", "warning");
-            return;
-        }
-
-        try {
-            const res = await fetch("api.php?action=add_item", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ product_id: matchingProd.id, flavour, qty })
-            });
-            const data = await res.json();
-            
-            if (data.status === 'success') {
-                showToast("Item added successfully!");
-                flavourInput.value = "";
-                document.getElementById("qty").value = 1;
-                await loadActiveOrder();
-                await loadData(); // Reload data to sync new autocomplete entries
-            } else {
-                showToast(data.message, "warning");
-            }
-        } catch (e) {
-            showToast("Network error saving item.", "warning");
-        }
-    };
-
-    /* RENDER CURRENT ORDER ITEMS */
-    function renderOrderItems() {
-        const tbody = document.getElementById("orderTable");
-        const countSpan = document.getElementById("itemCount");
-        tbody.innerHTML = "";
-        
-        countSpan.textContent = currentOrderItems.length + (currentOrderItems.length === 1 ? " Item" : " Items");
-
-        if (currentOrderItems.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted fst-italic py-4">No items added yet.</td></tr>`;
-            generateOrderSummary();
-            return;
-        }
-
-        currentOrderItems.forEach((item, index) => {
-            const row = document.createElement("tr");
-            
-            const lineText = item.line ? ` (${item.line})` : "";
-            const prodName = `${item.brand}${lineText}`;
-            const displayQty = item.qty || item.quantity || 1;
-
-            row.innerHTML = `
-                <td class="text-muted" style="padding: 10px 8px;">${index + 1}</td>
-                <td style="padding: 10px 8px;"><strong>${prodName}</strong></td>
-                <td style="padding: 10px 8px;">${item.flavour}</td>
-                <td class="text-end fw-bold" style="padding: 10px 8px;">${displayQty}</td>
-                <td class="text-center" style="padding: 10px 8px;">
-                    <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="removeItem(${item.id})" style="font-size: 11px;">Remove</button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        generateOrderSummary();
-    }
-
-    async function removeItem(itemId) {
-        try {
-            const res = await fetch("api.php?action=remove_item", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ item_id: itemId })
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                showToast("Item removed.");
-                await loadActiveOrder();
-            } else {
-                showToast(data.message, "warning");
-            }
-        } catch (e) {
-            showToast("Network error deleting item.", "warning");
-        }
-    }
-
-    /* GENERATE WA MESSAGE TEXT PREVIEW */
-    function generateOrderSummary() {
-        const output = document.getElementById("orderOutput");
-        if (currentOrderItems.length === 0) {
-            output.value = "";
-            return;
-        }
-
-        // Group items by Category and Product
-        const grouped = {};
-        currentOrderItems.forEach(item => {
-            const catName = item.category_name || "Uncategorized";
-            const lineText = item.line ? ` (${item.line})` : "";
-            const prodKey = `${item.brand}${lineText}`;
-
-            if (!grouped[catName]) grouped[catName] = {};
-            if (!grouped[catName][prodKey]) grouped[catName][prodKey] = [];
-            
-            grouped[catName][prodKey].push(item);
-        });
-
-        let text = "*VAPE ORDER*\n\n";
-        
-        for (const catName in grouped) {
-            text += `*${catName.toUpperCase()}*\n`;
-            for (const prodKey in grouped[catName]) {
-                text += `_${prodKey}_\n`;
-                grouped[catName][prodKey].forEach(item => {
-                    const displayQty = item.qty || item.quantity || 1;
-                    text += `- ${item.flavour} x ${displayQty}\n`;
+                    if (!grouped[catName]) grouped[catName] = {};
+                    if (!grouped[catName][prodKey]) grouped[catName][prodKey] = [];
+                    grouped[catName][prodKey].push(item);
                 });
-                text += "\n";
+
+                let text = "*VAPE ORDER*\n\n";
+                for (const catName in grouped) {
+                    text += `*${catName.toUpperCase()}*\n`;
+                    for (const prodKey in grouped[catName]) {
+                        text += `_${prodKey}_\n`;
+                        grouped[catName][prodKey].forEach(item => {
+                            const displayQty = item.qty || item.quantity || 1;
+                            text += `- ${item.flavour} x ${displayQty}\n`;
+                        });
+                        text += "\n";
+                    }
+                    text += "\n";
+                }
+                return text.trim();
+            },
+
+            showToast(msg, type = 'success') {
+                this.toast.message = msg;
+                this.toast.type = type;
+                this.toast.show = true;
+                setTimeout(() => {
+                    this.toast.show = false;
+                }, 3000);
+            },
+
+            async init() {
+                await this.loadData();
+                await this.loadActiveOrder();
+            },
+
+            async loadData() {
+                try {
+                    const res = await fetch("api.php?action=get_data");
+                    const data = await res.json();
+                    this.categories = data.categories || [];
+                    this.products = data.products || [];
+                    this.flavors = data.flavors || [];
+
+                    if (this.categories.length > 0 && this.selectedCategoryId === null) {
+                        this.selectCategory(this.categories[0].id);
+                    }
+                } catch (e) {
+                    this.showToast("Failed to fetch initial database details.", "danger");
+                }
+            },
+
+            async loadActiveOrder() {
+                try {
+                    const res = await fetch("api.php?action=get_active_order");
+                    const data = await res.json();
+                    this.orderItems = data.items || [];
+                } catch (e) {
+                    this.showToast("Failed to load active order list.", "danger");
+                }
+            },
+
+            selectCategory(id) {
+                this.selectedCategoryId = id;
+                const brands = this.filteredBrands;
+                if (brands.length > 0) {
+                    this.selectedBrand = brands[0];
+                    this.updateLineOptions();
+                } else {
+                    this.selectedBrand = '';
+                    this.selectedLine = '';
+                }
+            },
+
+            updateLineOptions() {
+                const lines = this.filteredLines;
+                this.selectedLine = lines.length > 0 ? lines[0] : '';
+            },
+
+            adjustQty(val) {
+                this.quantity = Math.max(1, this.quantity + val);
+            },
+
+            async addItem() {
+                if (!this.selectedBrand || !this.flavorInput.trim()) {
+                    this.showToast("Please enter a flavor.", "danger");
+                    return;
+                }
+
+                const matchingProd = this.products.find(p => {
+                    const productLine = p.line || "";
+                    const filterLine = this.selectedLine || "";
+                    return p.category_id === this.selectedCategoryId && p.brand === this.selectedBrand && productLine === filterLine;
+                });
+
+                if (!matchingProd) {
+                    this.showToast("Selected product not found in database.", "danger");
+                    return;
+                }
+
+                try {
+                    const res = await fetch("api.php?action=add_item", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ product_id: matchingProd.id, flavour: this.flavorInput.trim(), qty: this.quantity })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        this.showToast("Item added successfully!");
+                        this.flavorInput = "";
+                        this.quantity = 1;
+                        await this.loadActiveOrder();
+                        await this.loadData();
+                    } else {
+                        this.showToast(data.message, "danger");
+                    }
+                } catch (e) {
+                    this.showToast("Network error saving item.", "danger");
+                }
+            },
+
+            async removeItem(itemId) {
+                try {
+                    const res = await fetch("api.php?action=remove_item", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ item_id: itemId })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        this.showToast("Item removed.");
+                        await this.loadActiveOrder();
+                    } else {
+                        this.showToast(data.message, "danger");
+                    }
+                } catch (e) {
+                    this.showToast("Network error deleting item.", "danger");
+                }
+            },
+
+            async clearOrder() {
+                try {
+                    const res = await fetch("api.php?action=clear_order", { method: "POST" });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        this.showToast("Active order cleared!");
+                        await this.loadActiveOrder();
+                    } else {
+                        this.showToast(data.message, "danger");
+                    }
+                } catch (e) {
+                    this.showToast("Network error clearing order.", "danger");
+                }
+            },
+
+            async copyOrder() {
+                const output = document.getElementById("orderOutput");
+                if (!output.value) {
+                    this.showToast("Add items to your order first.", "danger");
+                    return;
+                }
+
+                try {
+                    const res = await fetch("api.php?action=submit_order", { method: "POST" });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        await navigator.clipboard.writeText(output.value);
+                        this.showToast("Order copied to clipboard!");
+                        this.orderItems = [];
+                    } else {
+                        this.showToast(data.message, "danger");
+                    }
+                } catch (e) {
+                    this.showToast("Copy error or connection failed.", "danger");
+                }
+            },
+
+            async addCategory() {
+                const name = this.newCategoryName.trim();
+                if (!name) {
+                    this.showToast("Enter a category name.", "danger");
+                    return;
+                }
+
+                try {
+                    const res = await fetch("api.php?action=add_category", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        this.newCategoryName = "";
+                        this.showToast("Category added!");
+                        await this.loadData();
+                    } else {
+                        this.showToast(data.message, "danger");
+                    }
+                } catch (e) {
+                    this.showToast("Error adding category", "danger");
+                }
+            },
+
+            async addProduct() {
+                const catId = this.newProductCategoryId;
+                const brand = this.newProductBrand.trim();
+                const line = this.newProductLine.trim();
+
+                if (!catId || !brand) {
+                    this.showToast("Category and Brand are required.", "danger");
+                    return;
+                }
+
+                try {
+                    const res = await fetch("api.php?action=add_product", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ category_id: catId, brand, line })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        this.newProductBrand = "";
+                        this.newProductLine = "";
+                        this.showToast("Product added!");
+                        await this.loadData();
+                    } else {
+                        this.showToast(data.message, "danger");
+                    }
+                } catch (e) {
+                    this.showToast("Error adding product", "danger");
+                }
             }
-            text += "\n";
-        }
-        
-        output.value = text.trim();
+        };
     }
-
-    /* COPY & SUBMIT ORDER */
-    async function copyOrder() {
-        const output = document.getElementById("orderOutput");
-        if (!output.value) {
-            showToast("Add items to your order first.", "warning");
-            return;
-        }
-
-        try {
-            // First hit the server to submit (mark as pending -> moves to history)
-            const res = await fetch("api.php?action=submit_order", { method: "POST" });
-            const data = await res.json();
-            
-            if (data.status === 'success') {
-                // Copy to clipboard
-                await navigator.clipboard.writeText(output.value);
-                showToast("Order copied to clipboard!");
-                
-                // Clear state
-                currentOrderItems = [];
-                renderOrderItems();
-            } else {
-                showToast(data.message, "warning");
-            }
-        } catch (e) {
-            showToast("Copy error or connection failed.", "warning");
-        }
-    }
-
-    /* CLEAR ORDER COMPLETELY */
-    async function clearOrder() {
-        if (!confirm("Are you sure you want to clear this active order?")) return;
-        
-        try {
-            const res = await fetch("api.php?action=clear_order", { method: "POST" });
-            const data = await res.json();
-            if (data.status === 'success') {
-                showToast("Active order cleared!");
-                await loadActiveOrder();
-            } else {
-                showToast(data.message, "warning");
-            }
-        } catch (e) {
-            showToast("Network error clearing order.", "warning");
-        }
-    }
-
-    /* ADMIN PANEL: TOGGLE COLLAPSIBLE CARD */
-    function toggleAdminPanel() {
-        const panel = document.getElementById("adminPanelContent");
-        const icon = document.getElementById("adminToggleIcon");
-        if (panel.style.display === "none") {
-            panel.style.display = "block";
-            icon.textContent = "- COLLAPSE";
-        } else {
-            panel.style.display = "none";
-            icon.textContent = "+ EXPAND";
-        }
-    }
-
-    /* ADMIN PANEL: OPERATIONS */
-    async function addCategory() {
-        const input = document.getElementById("newCatName");
-        const name = input.value.trim();
-        if (!name) {
-            showToast("Enter a category name.", "warning");
-            return;
-        }
-
-        try {
-            const res = await fetch("api.php?action=add_category", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name })
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                input.value = "";
-                showToast("Category added!");
-                await loadData();
-            } else {
-                showToast(data.message, "warning");
-            }
-        } catch (e) {
-            showToast("Error adding category", "warning");
-        }
-    }
-
-    async function addProduct() {
-        const catId = document.getElementById("newProdCatSelect").value;
-        const brand = document.getElementById("newProdBrand").value.trim();
-        const line = document.getElementById("newProdLine").value.trim();
-        
-        if (!catId || !brand) {
-            showToast("Category and Brand are required.", "warning");
-            return;
-        }
-
-        try {
-            const res = await fetch("api.php?action=add_product", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ category_id: catId, brand, line })
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                document.getElementById("newProdBrand").value = "";
-                document.getElementById("newProdLine").value = "";
-                showToast("Product added!");
-                await loadData();
-            } else {
-                showToast(data.message, "warning");
-            }
-        } catch (e) {
-            showToast("Error adding product", "warning");
-        }
-    }
-
-    // Start App
-    function init() {
-        loadData();
-        loadActiveOrder();
-    }
-    init();
     </script>
+    <style>
+        .hover-bg-light:hover {
+            background-color: #f3f3f3;
+        }
+    </style>
 </body>
 </html>
