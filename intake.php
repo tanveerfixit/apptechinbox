@@ -1,6 +1,9 @@
 <?php
 // intake.php
 $sessionId = $_GET['session_id'] ?? '';
+$timestamp = intval($_GET['t'] ?? 0);
+$currentTime = time();
+$isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -86,7 +89,26 @@ $sessionId = $_GET['session_id'] ?? '';
              isSubmitting: false,
              success: false,
              errorMessage: '',
+             remainingSeconds: <?php echo max(0, 300 - ($currentTime - $timestamp)); ?>,
+             isExpired: <?php echo $isExpired ? 'true' : 'false'; ?>,
+             init() {
+                 if (this.isExpired || this.remainingSeconds <= 0) {
+                     this.isExpired = true;
+                     return;
+                 }
+                 const timer = setInterval(() => {
+                     this.remainingSeconds--;
+                     if (this.remainingSeconds <= 0) {
+                         clearInterval(timer);
+                         this.isExpired = true;
+                     }
+                 }, 1000);
+             },
              async submitForm() {
+                 if (this.isExpired) {
+                     this.errorMessage = 'This form session has expired. Please ask the merchant for a new QR code.';
+                     return;
+                 }
                  if (!this.name.trim() || !this.phone.trim() || !this.deviceName.trim()) {
                      this.errorMessage = 'Please fill out Name, Phone, and Device fields.';
                      return;
@@ -133,8 +155,16 @@ $sessionId = $_GET['session_id'] ?? '';
                 <span class="fs-5 fw-bold text-dark mb-0">TechInbox</span>
             </div>
 
-            <!-- Form Intake / Success Card -->
-            <template x-if="success">
+            <!-- Form Intake / Success / Expired Cards -->
+            <template x-if="isExpired">
+                <div class="text-center py-3">
+                    <span class="fs-1 d-block mb-3" style="color: var(--brand-red);">&times;</span>
+                    <h2 class="h5 fw-bold text-danger mb-2">QR Code Expired</h2>
+                    <p class="text-muted small mb-0">This booking session expired after 5 minutes. Please scan a fresh QR code from the merchant's screen to try again.</p>
+                </div>
+            </template>
+
+            <template x-if="success && !isExpired">
                 <div class="text-center py-3">
                     <span class="fs-1 d-block mb-3" style="color: var(--brand-teal);">&check;</span>
                     <h2 class="h5 fw-bold text-dark mb-2">Thank you!</h2>
@@ -142,10 +172,16 @@ $sessionId = $_GET['session_id'] ?? '';
                 </div>
             </template>
 
-            <template x-if="!success">
+            <template x-if="!success && !isExpired">
                 <div>
                     <h2 class="h5 fw-bold text-center text-dark mb-1">Device Intake Form</h2>
-                    <p class="text-muted text-center small mb-4">Enter your details below to populate the shop's booking sheet instantly.</p>
+                    <p class="text-muted text-center small mb-3">Enter your details below to populate the shop's booking sheet instantly.</p>
+                    
+                    <div class="text-center mb-3">
+                        <span class="badge bg-secondary-subtle text-secondary px-2 py-1" style="font-size: 11px;">
+                            Time Remaining: <span x-text="Math.floor(remainingSeconds / 60) + ':' + String(remainingSeconds % 60).padStart(2, '0')"></span>
+                        </span>
+                    </div>
                     
                     <form @submit.prevent="submitForm">
                         <template x-if="errorMessage">

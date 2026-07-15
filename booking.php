@@ -100,11 +100,13 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               deposit: 0.00,
               email: '',
               sessionId: '',
+              timestamp: 0,
               init() {
                   this.sessionId = 'INT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+                  this.timestamp = Math.floor(Date.now() / 1000);
                   
                   this.$nextTick(() => {
-                      const intakeUrl = window.location.origin + '/intake.php?session_id=' + this.sessionId;
+                      const intakeUrl = window.location.origin + '/intake.php?session_id=' + this.sessionId + '&t=' + this.timestamp;
                       new QRious({
                           element: document.getElementById('intakeQr'),
                           value: intakeUrl,
@@ -200,7 +202,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             </div>
             <div class="small text-muted d-flex align-items-center justify-content-center gap-2" style="font-size: 11px;">
                 Session: <span class="fw-semibold text-dark" x-text="sessionId"></span>
-                <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                 </button>
             </div>
