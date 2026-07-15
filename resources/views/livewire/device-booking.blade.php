@@ -21,44 +21,55 @@
                  });
              });
 
-             // Start polling every 4 seconds and clear once found
-             const pollInterval = setInterval(async () => {
+             // Start polling every 15 seconds
+             this.pollInterval = setInterval(async () => {
                  if (document.hidden) return; // Save resources when tab is hidden
-                 try {
-                     const res = await fetch('api.php?action=check_intake&session_id=' + this.sessionId);
-                     const data = await res.json();
-                     if (data.status === 'success' && data.found) {
-                         this.name = data.data.name;
-                         this.phone = data.data.phone;
-                         this.device = data.data.device_name;
-                         this.email = data.data.email || '';
-                         
-                         // Stop polling once data is populated
-                         clearInterval(pollInterval);
-                         
-                         // Play modern notification chime
-                         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                         const osc = audioCtx.createOscillator();
-                         const gain = audioCtx.createGain();
-                         osc.connect(gain);
-                         gain.connect(audioCtx.destination);
-                         osc.type = 'sine';
-                         osc.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
-                         gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                         osc.start();
-                         osc.stop(audioCtx.currentTime + 0.1);
-                         
-                         setTimeout(() => {
-                             const osc2 = audioCtx.createOscillator();
-                             osc2.connect(gain);
-                             osc2.type = 'sine';
-                             osc2.frequency.setValueAtTime(880.00, audioCtx.currentTime); // A5
-                             osc2.start();
-                             osc2.stop(audioCtx.currentTime + 0.15);
-                         }, 100);
+                 this.checkIntake();
+             }, 15000);
+         },
+         pollInterval: null,
+         isPulling: false,
+         async checkIntake() {
+             if (this.isPulling) return;
+             this.isPulling = true;
+             try {
+                 const res = await fetch('api.php?action=check_intake&session_id=' + this.sessionId);
+                 const data = await res.json();
+                 if (data.status === 'success' && data.found) {
+                     this.name = data.data.name;
+                     this.phone = data.data.phone;
+                     this.device = data.data.device_name;
+                     this.email = data.data.email || '';
+                     
+                     if (this.pollInterval) {
+                         clearInterval(this.pollInterval);
+                         this.pollInterval = null;
                      }
-                 } catch (e) {}
-             }, 8000);
+                     
+                     // Play modern notification chime
+                     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                     const osc = audioCtx.createOscillator();
+                     const gain = audioCtx.createGain();
+                     osc.connect(gain);
+                     gain.connect(audioCtx.destination);
+                     osc.type = 'sine';
+                     osc.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+                     gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                     osc.start();
+                     osc.stop(audioCtx.currentTime + 0.1);
+                     
+                     setTimeout(() => {
+                         const osc2 = audioCtx.createOscillator();
+                         osc2.connect(gain);
+                         osc2.type = 'sine';
+                         osc2.frequency.setValueAtTime(880.00, audioCtx.currentTime); // A5
+                         osc2.start();
+                         osc2.stop(audioCtx.currentTime + 0.15);
+                     }, 100);
+                 }
+             } catch (e) {} finally {
+                 this.isPulling = false;
+             }
          },
          get balance() {
              return Math.max(0.00, parseFloat(this.quote || 0) - parseFloat(this.deposit || 0)).toFixed(2);
@@ -99,6 +110,13 @@
             Session: <span class="fw-semibold text-dark" x-text="sessionId"></span>
             <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+        </div>
+
+        <div class="mt-2">
+            <button type="button" @click="checkIntake()" class="btn btn-sm btn-light border px-3 py-1 text-teal d-inline-flex align-items-center gap-1 rounded-1" style="font-size: 11.5px; border-color: var(--card-border) !important; color: var(--brand-teal) !important;" :disabled="isPulling">
+                <span x-show="!isPulling">⚡ Check Mobile Submission</span>
+                <span x-show="isPulling" class="spinner-border spinner-border-sm" role="status"></span>
             </button>
         </div>
     </div>
