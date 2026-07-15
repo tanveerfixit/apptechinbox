@@ -150,7 +150,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                               }, 100);
                           }
                       } catch (e) {}
-                  }, 4000);
+                  }, 8000);
               },
               get balance() {
                   return Math.max(0.00, parseFloat(this.quote || 0) - parseFloat(this.deposit || 0)).toFixed(2);
