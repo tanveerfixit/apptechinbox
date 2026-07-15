@@ -41,7 +41,8 @@ $password = getenv('DB_PASSWORD') ?: 'Techinbox@8877';
 
 try {
     $db = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $user, $password, [
-        PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
+        PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+        PDO::ATTR_PERSISTENT => true
     ]);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);

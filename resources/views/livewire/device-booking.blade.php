@@ -21,8 +21,9 @@
                  });
              });
 
-             // Start polling every 2 seconds
-             setInterval(async () => {
+             // Start polling every 4 seconds and clear once found
+             const pollInterval = setInterval(async () => {
+                 if (document.hidden) return; // Save resources when tab is hidden
                  try {
                      const res = await fetch('api.php?action=check_intake&session_id=' + this.sessionId);
                      const data = await res.json();
@@ -31,6 +32,9 @@
                          this.phone = data.data.phone;
                          this.device = data.data.device_name;
                          this.email = data.data.email || '';
+                         
+                         // Stop polling once data is populated
+                         clearInterval(pollInterval);
                          
                          // Play modern notification chime
                          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -54,7 +58,7 @@
                          }, 100);
                      }
                  } catch (e) {}
-             }, 2000);
+             }, 4000);
          },
          get balance() {
              return Math.max(0.00, parseFloat(this.quote || 0) - parseFloat(this.deposit || 0)).toFixed(2);
