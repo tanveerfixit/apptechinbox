@@ -102,7 +102,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               sessionId: '',
               timestamp: 0,
               businessName: '<?php echo htmlspecialchars($businessName, ENT_QUOTES, 'UTF-8'); ?>',
-              isExpired: false,
+              isExpired: true,
               expirationTimeout: null,
               startExpirationTimer() {
                   if (this.expirationTimeout) clearTimeout(this.expirationTimeout);
@@ -143,16 +143,8 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                   });
               },
               init() {
-                  this.sessionId = 'INT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-                  this.timestamp = Math.floor(Date.now() / 1000);
-                  this.generateQrCode();
-                  this.startExpirationTimer();
-
-                  // Start polling every 15 seconds
-                  this.pollInterval = setInterval(async () => {
-                      if (document.hidden || this.isExpired) return;
-                      this.checkIntake();
-                  }, 15000);
+                  // Do not automatically generate QR code or start session on init
+                  this.isExpired = true;
               },
               pollInterval: null,
               isPulling: false,
@@ -221,6 +213,59 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                   document.getElementById('receiptTicketNum').textContent = 'Ticket #: ' + ticketNum;
 
                   window.print();
+              },
+              async saveBooking(andPrint = false) {
+                  if (!this.name || !this.phone || !this.device || !this.fault) {
+                      alert('Please fill in all required fields (Name, Phone, Device, and Description).');
+                      return;
+                  }
+                  const bookingData = {
+                      name: this.name,
+                      phone: this.phone,
+                      email: this.email,
+                      device: this.device,
+                      fault: this.fault,
+                      quote: this.quote,
+                      deposit: this.deposit,
+                      business_name: this.businessName
+                  };
+                  try {
+                      const response = await fetch('api.php?action=save_booking', {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify(bookingData)
+                      });
+                      const result = await response.json();
+                      if (result.status === 'success') {
+                          if (andPrint) {
+                              const ticketId = result.ticket_id || 'TI-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+                              
+                              // Populate print ticket items
+                              document.getElementById('rCustomer').textContent = this.name;
+                              document.getElementById('rPhone').textContent = this.phone;
+                              document.getElementById('rEmail').textContent = this.email || 'N/A';
+                              document.getElementById('rDevice').textContent = this.device;
+                              document.getElementById('rFault').textContent = this.fault;
+                              document.getElementById('rQuote').textContent = '€' + parseFloat(this.quote || 0).toFixed(2);
+                              document.getElementById('rDeposit').textContent = '€' + parseFloat(this.deposit || 0).toFixed(2);
+                              document.getElementById('rBalance').textContent = '€' + this.balance;
+
+                              const now = new Date();
+                              const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                              document.getElementById('receiptDate').textContent = 'Date: ' + dateStr;
+                              document.getElementById('receiptTicketNum').textContent = 'Ticket #: ' + ticketId;
+
+                              window.print();
+                          }
+                          window.location.reload();
+                      } else {
+                          alert('Error saving booking: ' + (result.message || 'Unknown error'));
+                      }
+                  } catch (e) {
+                      alert('Failed to save booking. Please try again.');
+                  }
               }
           }">
           
@@ -255,10 +300,10 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             <template x-if="isExpired">
                 <div class="py-4 px-2 d-flex flex-column align-items-center justify-content-center">
                     <span class="fs-4 mb-2">⏳</span>
-                    <h4 class="h6 fw-bold text-secondary mb-1">QR Code Expired</h4>
-                    <p class="text-muted small mb-3" style="font-size: 11px; max-width: 250px;">This intake session has timed out after 3 minutes of inactivity to protect your connection limit.</p>
+                    <h4 class="h6 fw-bold text-secondary mb-1">QR Code Expired / Not Generated</h4>
+                    <p class="text-muted small mb-3" style="font-size: 11px; max-width: 250px;">This intake session has timed out or has not been generated yet.</p>
                     <button type="button" @click="refreshSession()" class="btn btn-sm btn-teal text-white d-inline-flex align-items-center gap-1 px-3 py-1.5 rounded-1" style="font-size: 12px; background-color: var(--brand-teal); border: 0;">
-                        <span>🔄 Refresh QR Code</span>
+                        <span>Generate QR/ID</span>
                     </button>
                 </div>
             </template>
@@ -271,7 +316,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             </div>
 
             <div class="card-body p-4 bg-white">
-                <form x-on:submit.prevent="printReceipt()">
+                <form x-on:submit.prevent="saveBooking(true)">
                     
                     <!-- Customer Name, Phone & Email -->
                     <div class="row g-3 mb-3">
@@ -327,10 +372,19 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                         </div>
                     </div>
 
-                    <!-- Action Button -->
-                    <button type="submit" class="btn btn-brand w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">
-                        Generate & Print Receipt
-                    </button>
+                    <!-- Action Buttons -->
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button type="button" @click="saveBooking(false)" class="btn btn-secondary w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px; background-color: #5c5c5c; border-color: #5c5c5c; color: #ffffff;">
+                                Save
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-brand w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">
+                                Save and Print
+                            </button>
+                        </div>
+                    </div>
 
                 </form>
             </div>

@@ -316,7 +316,7 @@ $allBusinesses = $stmtBiz->fetchAll();
 
     <main>
         <div class="login-card">
-            <h2>Vapor Order Builder</h2>
+            <h2>Sign in to Business Portal</h2>
             <p>Sign in to access your inventory builder</p>
 
             <?php if ($error): ?>

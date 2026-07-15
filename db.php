@@ -184,6 +184,24 @@ $db->exec("
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
+$db->exec("
+    CREATE TABLE IF NOT EXISTS bookings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ticket_id VARCHAR(50) UNIQUE NOT NULL,
+        customer_name VARCHAR(255) NOT NULL,
+        phone_number VARCHAR(255) NOT NULL,
+        email VARCHAR(255) DEFAULT NULL,
+        device_model VARCHAR(255) NOT NULL,
+        problem_description TEXT NOT NULL,
+        total_quote DECIMAL(10, 2) DEFAULT 0.00,
+        deposit_paid DECIMAL(10, 2) DEFAULT 0.00,
+        balance_due DECIMAL(10, 2) DEFAULT 0.00,
+        business_name VARCHAR(255) NOT NULL,
+        booked_by VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
 try {
     $q = $db->query("SELECT email FROM booking_intakes LIMIT 1");
     if ($q) $q->closeCursor();

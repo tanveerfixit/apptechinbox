@@ -163,7 +163,7 @@ $apps = [
     ?>
     <div id="loginModal" class="modal fade show align-items-center justify-content-center" style="display: <?php echo $modalDisplay; ?>; background: rgba(9, 13, 22, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2050;">
         <div class="card shadow-lg p-4 border-1" style="width: 100%; max-width: 380px; border-radius: 6px;">
-            <h2 class="h5 fw-semibold text-dark text-center mb-1">Vapor Order Builder</h2>
+            <h2 class="h5 fw-semibold text-dark text-center mb-1">Sign in to Business Portal</h2>
             <p class="small text-muted text-center mb-4">Sign in to access your inventory builder</p>
 
             <?php if ($loginError): ?>

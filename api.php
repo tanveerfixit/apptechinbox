@@ -340,6 +340,47 @@ try {
             }
             break;
 
+        case 'save_booking':
+            $input = json_decode(file_get_contents('php://input'), true);
+            $customer_name = trim($input['name'] ?? '');
+            $phone_number = trim($input['phone'] ?? '');
+            $email = trim($input['email'] ?? '');
+            $device_model = trim($input['device'] ?? '');
+            $problem_description = trim($input['fault'] ?? '');
+            $total_quote = floatval($input['quote'] ?? 0);
+            $deposit_paid = floatval($input['deposit'] ?? 0);
+            $balance_due = max(0, $total_quote - $deposit_paid);
+            $business_name = trim($input['business_name'] ?? '');
+            $booked_by = $_SESSION['username'] ?? 'Guest';
+            
+            // Format Ticket ID as: TI-YYYYMMDDHHMM
+            $ticket_id = 'TI-' . date('YmdHi');
+            
+            if (!$customer_name || !$phone_number || !$device_model || !$problem_description) {
+                throw new Exception('Customer name, phone, device, and problem description are required.');
+            }
+            
+            $stmt = $db->prepare("INSERT INTO bookings (ticket_id, customer_name, phone_number, email, device_model, problem_description, total_quote, deposit_paid, balance_due, business_name, booked_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([
+                $ticket_id,
+                $customer_name,
+                $phone_number,
+                $email,
+                $device_model,
+                $problem_description,
+                $total_quote,
+                $deposit_paid,
+                $balance_due,
+                $business_name,
+                $booked_by
+            ]);
+            
+            echo json_encode([
+                'status' => 'success',
+                'ticket_id' => $ticket_id
+            ]);
+            break;
+
         default:
             throw new Exception('Invalid action.');
     }

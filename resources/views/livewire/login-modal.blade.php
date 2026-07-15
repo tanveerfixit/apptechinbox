@@ -23,7 +23,7 @@
         x-transition:leave-start="opacity-100 transform scale-100"
         x-transition:leave-end="opacity-0 transform scale-95"
     >
-        <h2 class="h5 fw-semibold text-dark text-center mb-1" style="color: var(--text-primary) !important;">Vapor Order Builder</h2>
+        <h2 class="h5 fw-semibold text-dark text-center mb-1" style="color: var(--text-primary) !important;">Sign in to Business Portal</h2>
         <p class="small text-muted text-center mb-4" style="color: var(--text-secondary) !important;">Sign in to access your inventory builder</p>
 
         @if ($loginError)
