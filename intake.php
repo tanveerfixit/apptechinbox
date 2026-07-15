@@ -4,7 +4,7 @@ $sessionId = $_GET['session_id'] ?? '';
 $businessName = $_GET['b'] ?? 'Store';
 $timestamp = intval($_GET['t'] ?? 0);
 $currentTime = time();
-$isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
+$isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -90,7 +90,7 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
              isSubmitting: false,
              success: false,
              errorMessage: '',
-             remainingSeconds: <?php echo max(0, 300 - ($currentTime - $timestamp)); ?>,
+             remainingSeconds: <?php echo max(0, 180 - ($currentTime - $timestamp)); ?>,
              isExpired: <?php echo $isExpired ? 'true' : 'false'; ?>,
              init() {
                  if (this.isExpired || this.remainingSeconds <= 0) {
@@ -156,7 +156,7 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
                  <div class="text-center py-3">
                      <span class="fs-1 d-block mb-3" style="color: var(--brand-red);">&times;</span>
                      <h2 class="h5 fw-bold text-danger mb-2">QR Code Expired</h2>
-                     <p class="text-muted small mb-0">This booking session expired after 5 minutes. Please scan a fresh QR code from the merchant's screen to try again.</p>
+                     <p class="text-muted small mb-0">This booking session expired after 3 minutes. Please scan a fresh QR code from the merchant's screen to try again.</p>
                  </div>
              </template>
 
