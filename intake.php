@@ -1,6 +1,7 @@
 <?php
 // intake.php
 $sessionId = $_GET['session_id'] ?? '';
+$businessName = $_GET['b'] ?? 'Store';
 $timestamp = intval($_GET['t'] ?? 0);
 $currentTime = time();
 $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
@@ -109,8 +110,8 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
                      this.errorMessage = 'This form session has expired. Please ask the merchant for a new QR code.';
                      return;
                  }
-                 if (!this.name.trim() || !this.phone.trim() || !this.deviceName.trim()) {
-                     this.errorMessage = 'Please fill out Name, Phone, and Device fields.';
+                 if (!this.name.trim() || !this.phone.trim()) {
+                     this.errorMessage = 'Please fill out Name and Phone fields.';
                      return;
                  }
 
@@ -144,16 +145,9 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
          }">
          
         <div class="card p-4">
-            <!-- Brand Logo -->
-            <div class="d-flex align-items-center justify-content-center gap-2 mb-4">
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; width: 18px; height: 18px;">
-                    <div style="width: 8px; height: 8px; background-color: #f25022;"></div>
-                    <div style="width: 8px; height: 8px; background-color: #7fba00;"></div>
-                    <div style="width: 8px; height: 8px; background-color: #00a4ef;"></div>
-                    <div style="width: 8px; height: 8px; background-color: #ffb900;"></div>
-                </div>
-                <span class="fs-5 fw-bold text-dark mb-0">TechInbox</span>
-            </div>
+             <div class="text-center mb-4">
+                 <span class="fs-5 fw-bold text-dark mb-0"><?php echo htmlspecialchars($businessName); ?></span>
+             </div>
 
             <!-- Form Intake / Success / Expired Cards -->
             <template x-if="isExpired">
@@ -172,16 +166,15 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
                 </div>
             </template>
 
-            <template x-if="!success && !isExpired">
-                <div>
-                    <h2 class="h5 fw-bold text-center text-dark mb-1">Device Intake Form</h2>
-                    <p class="text-muted text-center small mb-3">Enter your details below to populate the shop's booking sheet instantly.</p>
-                    
-                    <div class="text-center mb-3">
-                        <span class="badge bg-secondary-subtle text-secondary px-2 py-1" style="font-size: 11px;">
-                            Time Remaining: <span x-text="Math.floor(remainingSeconds / 60) + ':' + String(remainingSeconds % 60).padStart(2, '0')"></span>
-                        </span>
-                    </div>
+             <template x-if="!success && !isExpired">
+                 <div>
+                     <h2 class="h6 fw-bold text-center text-dark mb-3">please write down you detail to Book you device</h2>
+                     
+                     <div class="text-center mb-3">
+                         <span class="badge bg-secondary-subtle text-secondary px-2 py-1" style="font-size: 11px;">
+                             Time Remaining: <span x-text="Math.floor(remainingSeconds / 60) + ':' + String(remainingSeconds % 60).padStart(2, '0')"></span>
+                         </span>
+                     </div>
                     
                     <form @submit.prevent="submitForm">
                         <template x-if="errorMessage">
@@ -203,10 +196,10 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
                             <input type="email" id="email" x-model="email" class="form-control" placeholder="e.g. customer@example.com" autocomplete="off">
                         </div>
 
-                        <div class="mb-4">
-                            <label for="device" class="form-label small fw-bold text-secondary">Device Name</label>
-                            <input type="text" id="device" x-model="deviceName" class="form-control" placeholder="e.g. iPhone 15 Pro Max" required autocomplete="off">
-                        </div>
+                         <div class="mb-4">
+                             <label for="device" class="form-label small fw-bold text-secondary">Device Name <span class="text-muted fw-normal">(Optional)</span></label>
+                             <input type="text" id="device" x-model="deviceName" class="form-control" placeholder="e.g. iPhone 15 Pro Max" autocomplete="off">
+                         </div>
 
                         <button type="submit" class="btn btn-submit" :disabled="isSubmitting">
                             <span x-show="!isSubmitting">Submit Form</span>
@@ -217,7 +210,7 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
             </template>
         </div>
         
-        <p class="text-center text-muted mt-3" style="font-size: 11px;">Powered by TechInbox Workspace</p>
+                <p class="text-center text-muted mt-3" style="font-size: 11px;">Powered by <?php echo htmlspecialchars($businessName); ?></p>
     </div>
 
 </body>
