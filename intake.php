@@ -145,34 +145,40 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 300);
          }">
          
         <div class="card p-4">
-             <div class="text-center mb-4">
-                 <span class="fs-5 fw-bold text-dark mb-0"><?php echo htmlspecialchars($businessName); ?></span>
+             <!-- Premium Business Header -->
+             <div class="text-center mb-4 pb-3 border-bottom" style="border-bottom-color: var(--card-border) !important;">
+                 <div class="d-inline-block px-3 py-1 rounded-pill mb-2" style="background-color: rgba(0, 130, 114, 0.08); border: 1px solid rgba(0, 130, 114, 0.15);">
+                     <span class="small fw-semibold text-uppercase" style="color: var(--brand-teal); font-size: 10px; letter-spacing: 0.8px;">Repair Partner</span>
+                 </div>
+                 <h1 class="h4 fw-bold text-dark mb-0" style="letter-spacing: -0.3px;"><?php echo htmlspecialchars($businessName); ?></h1>
              </div>
 
-            <!-- Form Intake / Success / Expired Cards -->
-            <template x-if="isExpired">
-                <div class="text-center py-3">
-                    <span class="fs-1 d-block mb-3" style="color: var(--brand-red);">&times;</span>
-                    <h2 class="h5 fw-bold text-danger mb-2">QR Code Expired</h2>
-                    <p class="text-muted small mb-0">This booking session expired after 5 minutes. Please scan a fresh QR code from the merchant's screen to try again.</p>
-                </div>
-            </template>
+             <!-- Form Intake / Success / Expired Cards -->
+             <template x-if="isExpired">
+                 <div class="text-center py-3">
+                     <span class="fs-1 d-block mb-3" style="color: var(--brand-red);">&times;</span>
+                     <h2 class="h5 fw-bold text-danger mb-2">QR Code Expired</h2>
+                     <p class="text-muted small mb-0">This booking session expired after 5 minutes. Please scan a fresh QR code from the merchant's screen to try again.</p>
+                 </div>
+             </template>
 
-            <template x-if="success && !isExpired">
-                <div class="text-center py-3">
-                    <span class="fs-1 d-block mb-3" style="color: var(--brand-teal);">&check;</span>
-                    <h2 class="h5 fw-bold text-dark mb-2">Thank you!</h2>
-                    <p class="text-muted small mb-0">Your details have been successfully transmitted. You can put down your phone now.</p>
-                </div>
-            </template>
+             <template x-if="success && !isExpired">
+                 <div class="text-center py-3">
+                     <span class="fs-1 d-block mb-3" style="color: var(--brand-teal);">&check;</span>
+                     <h2 class="h5 fw-bold text-dark mb-2">Thank you!</h2>
+                     <p class="text-muted small mb-0">Your details have been successfully transmitted. You can put down your phone now.</p>
+                 </div>
+             </template>
 
              <template x-if="!success && !isExpired">
                  <div>
-                     <h2 class="h6 fw-bold text-center text-dark mb-3">please write down you detail to Book you device</h2>
-                     
-                     <div class="text-center mb-3">
-                         <span class="badge bg-secondary-subtle text-secondary px-2 py-1" style="font-size: 11px;">
-                             Time Remaining: <span x-text="Math.floor(remainingSeconds / 60) + ':' + String(remainingSeconds % 60).padStart(2, '0')"></span>
+                     <!-- Professional Heading & Instructions -->
+                     <div class="text-center mb-4">
+                         <h2 class="h5 fw-bold text-dark mb-1">Book Your Device</h2>
+                         <p class="text-muted mb-3" style="font-size: 12px; line-height: 1.4;">Please enter your contact and device details below to register your repair.</p>
+                         
+                         <span class="badge bg-secondary-subtle text-secondary px-2 py-1" style="font-size: 10px; border: 1px solid var(--card-border);">
+                             Session Expires In: <span class="fw-bold text-dark" x-text="Math.floor(remainingSeconds / 60) + ':' + String(remainingSeconds % 60).padStart(2, '0')"></span>
                          </span>
                      </div>
                     
