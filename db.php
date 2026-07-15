@@ -178,9 +178,17 @@ $db->exec("
         name VARCHAR(255),
         phone VARCHAR(255),
         device_name VARCHAR(255),
+        email VARCHAR(255) DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
+
+try {
+    $q = $db->query("SELECT email FROM booking_intakes LIMIT 1");
+    if ($q) $q->closeCursor();
+} catch (Exception $e) {
+    $db->exec("ALTER TABLE booking_intakes ADD COLUMN email VARCHAR(255) DEFAULT NULL");
+}
 
 // Check if categories is empty to decide if seeding is needed
 $count = $db->query("SELECT COUNT(*) FROM categories")->fetchColumn();

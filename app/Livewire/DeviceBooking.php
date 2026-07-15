@@ -10,6 +10,7 @@ class DeviceBooking extends Component
     // Form variables
     public string $customerName = '';
     public string $phoneNumber = '';
+    public string $customerEmail = '';
     public string $deviceModel = '';
     public string $problemDescription = '';
     public float $totalQuote = 0.00;

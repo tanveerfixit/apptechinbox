@@ -82,12 +82,13 @@ $sessionId = $_GET['session_id'] ?? '';
              name: '',
              phone: '',
              deviceName: '',
+             email: '',
              isSubmitting: false,
              success: false,
              errorMessage: '',
              async submitForm() {
                  if (!this.name.trim() || !this.phone.trim() || !this.deviceName.trim()) {
-                     this.errorMessage = 'Please fill out all fields.';
+                     this.errorMessage = 'Please fill out Name, Phone, and Device fields.';
                      return;
                  }
 
@@ -102,7 +103,8 @@ $sessionId = $_GET['session_id'] ?? '';
                              session_id: this.sessionId,
                              name: this.name,
                              phone: this.phone,
-                             device_name: this.deviceName
+                             device_name: this.deviceName,
+                             email: this.email
                          })
                      });
                      const data = await res.json();
@@ -158,6 +160,11 @@ $sessionId = $_GET['session_id'] ?? '';
                         <div class="mb-3">
                             <label for="phone" class="form-label small fw-bold text-secondary">Phone Number</label>
                             <input type="tel" id="phone" x-model="phone" class="form-control" placeholder="e.g. 0891234567" required autocomplete="off">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label small fw-bold text-secondary">Email Address <span class="text-muted fw-normal">(Optional)</span></label>
+                            <input type="email" id="email" x-model="email" class="form-control" placeholder="e.g. customer@example.com" autocomplete="off">
                         </div>
 
                         <div class="mb-4">

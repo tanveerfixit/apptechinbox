@@ -301,6 +301,7 @@ try {
             $name = $input['name'] ?? '';
             $phone = $input['phone'] ?? '';
             $deviceName = $input['device_name'] ?? '';
+            $email = $input['email'] ?? '';
 
             if (empty($sessionId)) {
                 echo json_encode(['status' => 'error', 'message' => 'Session ID is required.']);
@@ -311,8 +312,8 @@ try {
             $stmtDel = $db->prepare("DELETE FROM booking_intakes WHERE session_id = ?");
             $stmtDel->execute([$sessionId]);
 
-            $stmtIns = $db->prepare("INSERT INTO booking_intakes (session_id, name, phone, device_name) VALUES (?, ?, ?, ?)");
-            $stmtIns->execute([$sessionId, $name, $phone, $deviceName]);
+            $stmtIns = $db->prepare("INSERT INTO booking_intakes (session_id, name, phone, device_name, email) VALUES (?, ?, ?, ?, ?)");
+            $stmtIns->execute([$sessionId, $name, $phone, $deviceName, $email]);
 
             echo json_encode(['status' => 'success', 'message' => 'Intake submitted.']);
             break;
@@ -324,7 +325,7 @@ try {
                 break;
             }
 
-            $stmt = $db->prepare("SELECT name, phone, device_name FROM booking_intakes WHERE session_id = ?");
+            $stmt = $db->prepare("SELECT name, phone, device_name, email FROM booking_intakes WHERE session_id = ?");
             $stmt->execute([$sessionId]);
             $intake = $stmt->fetch(PDO::FETCH_ASSOC);
 

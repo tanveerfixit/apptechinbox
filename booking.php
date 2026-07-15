@@ -98,6 +98,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               fault: '',
               quote: 0.00,
               deposit: 0.00,
+              email: '',
               sessionId: '',
               init() {
                   this.sessionId = 'INT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -121,6 +122,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                               this.name = data.data.name;
                               this.phone = data.data.phone;
                               this.device = data.data.device_name;
+                              this.email = data.data.email || '';
                               
                               // Play modern notification chime
                               const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -153,6 +155,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                   // Populate print ticket items
                   document.getElementById('rCustomer').textContent = this.name;
                   document.getElementById('rPhone').textContent = this.phone;
+                  document.getElementById('rEmail').textContent = this.email || 'N/A';
                   document.getElementById('rDevice').textContent = this.device;
                   document.getElementById('rFault').textContent = this.fault;
                   document.getElementById('rQuote').textContent = '€' + parseFloat(this.quote || 0).toFixed(2);
@@ -197,15 +200,19 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             <div class="card-body p-4 bg-white">
                 <form x-on:submit.prevent="printReceipt()">
                     
-                    <!-- Customer Name & Phone -->
+                    <!-- Customer Name, Phone & Email -->
                     <div class="row g-3 mb-3">
-                        <div class="col-12 col-md-6">
-                            <label for="customerName" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Customer Name</label>
+                        <div class="col-12 col-md-4">
+                            <label for="customerName" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Customer Name *</label>
                             <input type="text" id="customerName" class="form-control py-2 rounded-1" placeholder="Full Name" required autocomplete="off" x-model="name" style="font-size: 14px;">
                         </div>
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-4">
                             <label for="phoneNumber" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Phone Number *</label>
                             <input type="text" id="phoneNumber" class="form-control py-2 rounded-1" placeholder="08X XXX XXXX" required autocomplete="off" x-model="phone" style="font-size: 14px;">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="customerEmail" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Email Address <span class="text-muted fw-normal">(Optional)</span></label>
+                            <input type="email" id="customerEmail" class="form-control py-2 rounded-1" placeholder="email@example.com" autocomplete="off" x-model="email" style="font-size: 14px;">
                         </div>
                     </div>
 
@@ -278,6 +285,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
         <div class="receipt-details">
             <p><strong>Customer:</strong> <span id="rCustomer"></span></p>
             <p><strong>Phone:</strong> <span id="rPhone"></span></p>
+            <p><strong>Email:</strong> <span id="rEmail"></span></p>
             <p><strong>Device:</strong> <span id="rDevice"></span></p>
             <p><strong>Booked By:</strong> <span id="rUser"><?php echo htmlspecialchars($username ?: 'Guest'); ?></span></p>
         </div>
