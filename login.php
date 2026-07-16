@@ -25,20 +25,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['username'] = $user['username'];
             
             // Update the user's business details dynamically based on selection
-            $selectedBusiness = trim($_POST['business'] ?? '');
-            if ($selectedBusiness) {
-                $bizStmt = $masterDb->prepare("SELECT * FROM businesses WHERE name = ?");
-                $bizStmt->execute([$selectedBusiness]);
+            $selectedBusinessId = trim($_POST['business'] ?? '');
+            if ($selectedBusinessId) {
+                $bizStmt = $masterDb->prepare("SELECT * FROM businesses WHERE id = ?");
+                $bizStmt->execute([$selectedBusinessId]);
                 $bizDetails = $bizStmt->fetch();
                 
                 if ($bizDetails) {
                     $_SESSION['tenant_db_name'] = $bizDetails['db_name'] ?? null;
                     $_SESSION['business_name'] = $bizDetails['name'];
+                    $_SESSION['business_id'] = $bizDetails['id'];
                 }
                 
                 $updateStmt = $masterDb->prepare("UPDATE users SET name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
                 $updateStmt->execute([
-                    $selectedBusiness, 
+                    $bizDetails['name'] ?? $selectedBusinessId, 
                     $bizDetails['contact'] ?? NULL, 
                     $bizDetails['email'] ?? NULL, 
                     $bizDetails['address'] ?? NULL, 
@@ -47,11 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // CENTRALIZED DUTY LOGGING
                 $logStmt = $masterDb->prepare("
-                    INSERT INTO user_duty_history (user_id, business_name, work_date)
+                    INSERT INTO user_duty_history (user_id, business_id, work_date)
                     VALUES (?, ?, ?)
                     ON DUPLICATE KEY UPDATE login_time = CURRENT_TIMESTAMP
                 ");
-                $logStmt->execute([$user['id'], $selectedBusiness, date('Y-m-d')]);
+                $logStmt->execute([$user['id'], $selectedBusinessId, date('Y-m-d')]);
             }
             
             header("Location: index.php");
@@ -69,7 +70,7 @@ $stmtUsers = $masterDb->query("SELECT username FROM users ORDER BY username");
 $allUsers = $stmtUsers->fetchAll();
 
 // Fetch all businesses to populate the business selection dropdown
-$stmtBiz = $masterDb->query("SELECT name FROM businesses ORDER BY name");
+$stmtBiz = $masterDb->query("SELECT id, name FROM businesses ORDER BY name");
 $allBusinesses = $stmtBiz->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -344,7 +345,7 @@ $allBusinesses = $stmtBiz->fetchAll();
                     <select id="business" name="business" required>
                         <option value="" disabled selected>Select business...</option>
                         <?php foreach ($allBusinesses as $biz): ?>
-                            <option value="<?php echo htmlspecialchars($biz['name']); ?>"><?php echo htmlspecialchars($biz['name']); ?></option>
+                            <option value="<?php echo htmlspecialchars($biz['id']); ?>"><?php echo htmlspecialchars($biz['name']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

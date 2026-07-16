@@ -32,10 +32,11 @@ if ($filter === 'week') {
 
 // 1. Fetch detailed duty history logs
 $historyQuery = "
-    SELECT id, business_name, work_date, login_time 
-    FROM user_duty_history 
-    WHERE user_id = ? $dateCondition
-    ORDER BY work_date DESC, login_time DESC
+    SELECT h.id, b.name AS business_name, h.work_date, h.login_time 
+    FROM user_duty_history h
+    JOIN businesses b ON h.business_id = b.id
+    WHERE h.user_id = ? $dateCondition
+    ORDER BY h.work_date DESC, h.login_time DESC
 ";
 $stmt = $masterDb->prepare($historyQuery);
 $stmt->execute($params);
@@ -43,10 +44,11 @@ $shifts = $stmt->fetchAll();
 
 // 2. Fetch summary metrics for selected filter
 $summaryQuery = "
-    SELECT business_name, COUNT(*) as shift_count
-    FROM user_duty_history 
-    WHERE user_id = ? $dateCondition
-    GROUP BY business_name
+    SELECT b.name AS business_name, COUNT(*) as shift_count
+    FROM user_duty_history h
+    JOIN businesses b ON h.business_id = b.id
+    WHERE h.user_id = ? $dateCondition
+    GROUP BY b.name
     ORDER BY shift_count DESC
 ";
 $stmtSum = $masterDb->prepare($summaryQuery);

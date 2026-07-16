@@ -86,10 +86,27 @@ if ($tenantDbName) {
     $db = $masterDb;
 }
 
+// Check if businesses table needs migration to VARCHAR id
+$needsMigration = false;
+try {
+    $stmtCheck = $masterDb->query("DESCRIBE businesses id");
+    $colCheck = $stmtCheck->fetch();
+    if ($colCheck && strpos(strtolower($colCheck['Type']), 'varchar') === false) {
+        $needsMigration = true;
+    }
+} catch (Exception $e) {
+    // Table doesn't exist yet, no migration needed
+}
+
+if ($needsMigration) {
+    $masterDb->exec("DROP TABLE IF EXISTS user_duty_history");
+    $masterDb->exec("DROP TABLE IF EXISTS businesses");
+}
+
 // 3. Initialize Master Schema on $masterDb
 $masterDb->exec("
     CREATE TABLE IF NOT EXISTS businesses (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id VARCHAR(100) PRIMARY KEY,
         name VARCHAR(255) UNIQUE NOT NULL,
         db_name VARCHAR(255) DEFAULT NULL,
         contact VARCHAR(255) DEFAULT NULL,
@@ -114,11 +131,12 @@ $masterDb->exec("
     CREATE TABLE IF NOT EXISTS user_duty_history (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
-        business_name VARCHAR(255) NOT NULL,
+        business_id VARCHAR(100) NOT NULL,
         work_date DATE NOT NULL,
         login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY idx_user_biz_date (user_id, business_name, work_date),
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        UNIQUE KEY idx_user_biz_date (user_id, business_id, work_date),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
@@ -177,15 +195,15 @@ if ($userCount == 0) {
 // Seed businesses table if empty on Master
 $bizCount = $masterDb->query("SELECT COUNT(*) FROM businesses")->fetchColumn();
 if ($bizCount == 0) {
-    $stmtBiz = $masterDb->prepare("INSERT INTO businesses (name, db_name, contact, email, address) VALUES (?, ?, ?, ?, ?)");
+    $stmtBiz = $masterDb->prepare("INSERT INTO businesses (id, name, db_name, contact, email, address) VALUES (?, ?, ?, ?, ?, ?)");
     
     $defaultBusinesses = [
-        ['Phone Lab', sanitizeTenantDbName('Phone Lab', $masterDbName), '(065) 672 4192', 'phone.lab.ennis@gmail.com', '32 O\'Connell Street, Clonroad Beg, Ennis, Co. Clare, V95 EW74'],
-        ['FIXD GORT', sanitizeTenantDbName('FIXD GORT', $masterDbName), '(089) 981 5157', 'fixd.gort@gmail.com', '1 Bridge St, Ballyhugh, Gort, Co. Galway, H91 FRC8'],
-        ['Gadget Repair & Vape shop', sanitizeTenantDbName('Gadget Repair & Vape shop', $masterDbName), '(089) 961 7473', 'istoreirl@gmail.com', 'Apartment 1, Unit 1, Millennium House, Loughrea, Co. Galway, H62 H573'],
-        ['iPear Ennis', sanitizeTenantDbName('iPear Ennis', $masterDbName), '(065) 682 2900', '', '6 Parnell St, Clonroad Beg, Ennis, Co. Clare, V95 X073'],
-        ['iPear in Tesco', sanitizeTenantDbName('iPear in Tesco', $masterDbName), '(065) 672 4446', 'ipear.ennis@gmail.com', 'Unit 20, Francis St, Clonroad Beg, Ennis, Co. Clare, V95 EP8K'],
-        ['Phone Shop Town Loughrea', sanitizeTenantDbName('Phone Shop Town Loughrea', $masterDbName), '', '', '']
+        ['phone-lab', 'Phone Lab', sanitizeTenantDbName('Phone Lab', $masterDbName), '(065) 672 4192', 'phone.lab.ennis@gmail.com', '32 O\'Connell Street, Clonroad Beg, Ennis, Co. Clare, V95 EW74'],
+        ['fixd-gort', 'FIXD GORT', sanitizeTenantDbName('FIXD GORT', $masterDbName), '(089) 981 5157', 'fixd.gort@gmail.com', '1 Bridge St, Ballyhugh, Gort, Co. Galway, H91 FRC8'],
+        ['gadget-repair', 'Gadget Repair & Vape shop', sanitizeTenantDbName('Gadget Repair & Vape shop', $masterDbName), '(089) 961 7473', 'istoreirl@gmail.com', 'Apartment 1, Unit 1, Millennium House, Loughrea, Co. Galway, H62 H573'],
+        ['ipear-ennis', 'iPear Ennis', sanitizeTenantDbName('iPear Ennis', $masterDbName), '(065) 682 2900', '', '6 Parnell St, Clonroad Beg, Ennis, Co. Clare, V95 X073'],
+        ['ipear-tesco', 'iPear in Tesco', sanitizeTenantDbName('iPear in Tesco', $masterDbName), '(065) 672 4446', 'ipear.ennis@gmail.com', 'Unit 20, Francis St, Clonroad Beg, Ennis, Co. Clare, V95 EP8K'],
+        ['phone-shop-loughrea', 'Phone Shop Town Loughrea', sanitizeTenantDbName('Phone Shop Town Loughrea', $masterDbName), '', '', '']
     ];
 
     foreach ($defaultBusinesses as $b) {

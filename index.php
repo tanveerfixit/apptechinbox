@@ -29,20 +29,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
             $_SESSION['username'] = $user['username'];
             
             // Update the user's business details dynamically based on selection
-            $selectedBusiness = trim($_POST['business'] ?? '');
-            if ($selectedBusiness) {
-                $bizStmt = $masterDb->prepare("SELECT * FROM businesses WHERE name = ?");
-                $bizStmt->execute([$selectedBusiness]);
+            $selectedBusinessId = trim($_POST['business'] ?? '');
+            if ($selectedBusinessId) {
+                $bizStmt = $masterDb->prepare("SELECT * FROM businesses WHERE id = ?");
+                $bizStmt->execute([$selectedBusinessId]);
                 $bizDetails = $bizStmt->fetch();
                 
                 if ($bizDetails) {
                     $_SESSION['tenant_db_name'] = $bizDetails['db_name'] ?? null;
                     $_SESSION['business_name'] = $bizDetails['name'];
+                    $_SESSION['business_id'] = $bizDetails['id'];
                 }
                 
                 $updateStmt = $masterDb->prepare("UPDATE users SET name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
                 $updateStmt->execute([
-                    $selectedBusiness, 
+                    $bizDetails['name'] ?? $selectedBusinessId, 
                     $bizDetails['contact'] ?? NULL, 
                     $bizDetails['email'] ?? NULL, 
                     $bizDetails['address'] ?? NULL, 
@@ -51,11 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
 
                 // CENTRALIZED DUTY LOGGING
                 $logStmt = $masterDb->prepare("
-                    INSERT INTO user_duty_history (user_id, business_name, work_date)
+                    INSERT INTO user_duty_history (user_id, business_id, work_date)
                     VALUES (?, ?, ?)
                     ON DUPLICATE KEY UPDATE login_time = CURRENT_TIMESTAMP
                 ");
-                $logStmt->execute([$user['id'], $selectedBusiness, date('Y-m-d')]);
+                $logStmt->execute([$user['id'], $selectedBusinessId, date('Y-m-d')]);
             }
             
             // Clear skip login session since user successfully signed in
@@ -76,7 +77,7 @@ $stmtUsers = $masterDb->query("SELECT username FROM users ORDER BY username");
 $allUsers = $stmtUsers->fetchAll();
 
 // Fetch all businesses to populate login selectors
-$stmtBiz = $masterDb->query("SELECT name FROM businesses ORDER BY name");
+$stmtBiz = $masterDb->query("SELECT id, name FROM businesses ORDER BY name");
 $allBusinesses = $stmtBiz->fetchAll();
 
 // Define the apps with Microsoft-inspired brand colors and simple styling
@@ -177,7 +178,7 @@ $apps = [
                     <select class="form-select py-2" name="business" required>
                         <option value="" disabled selected>Select business...</option>
                         <?php foreach ($allBusinesses as $biz): ?>
-                            <option value="<?php echo htmlspecialchars($biz['name']); ?>"><?php echo htmlspecialchars($biz['name']); ?></option>
+                            <option value="<?php echo htmlspecialchars($biz['id']); ?>"><?php echo htmlspecialchars($biz['name']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
