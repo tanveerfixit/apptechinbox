@@ -66,6 +66,28 @@ function sanitizeTenantDbName($businessName, $masterDbName) {
     return $dbPrefix . 'biz_' . $sanitized;
 }
 
+// Self-healing session check: if logged in but business configuration is not fully loaded in legacy active sessions
+if (isset($_SESSION['user_id']) && (!isset($_SESSION['business_id']) || !isset($_SESSION['tenant_db_user']))) {
+    try {
+        $stmt = $masterDb->prepare("SELECT assigned_business_id FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $uData = $stmt->fetch();
+        
+        if ($uData && !empty($uData['assigned_business_id'])) {
+            $bizStmt = $masterDb->prepare("SELECT * FROM businesses WHERE id = ?");
+            $bizStmt->execute([$uData['assigned_business_id']]);
+            $bizDetails = $bizStmt->fetch();
+            if ($bizDetails) {
+                $_SESSION['tenant_db_name'] = $bizDetails['db_name'];
+                $_SESSION['tenant_db_user'] = $bizDetails['db_user'];
+                $_SESSION['tenant_db_password'] = $bizDetails['db_password'];
+                $_SESSION['business_name'] = $bizDetails['name'];
+                $_SESSION['business_id'] = $bizDetails['id'];
+            }
+        }
+    } catch (Exception $e) {}
+}
+
 // 2. Connect to Tenant Database if session is active
 $tenantDbName = $_SESSION['tenant_db_name'] ?? null;
 $tenantDbUser = $_SESSION['tenant_db_user'] ?? $user;
