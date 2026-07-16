@@ -129,6 +129,12 @@ $apps = [
 
     <!-- Main Container Dashboard -->
     <main class="container py-5 flex-grow-1">
+        <?php if (!empty($tenantConnectionFailed)): ?>
+            <div class="alert alert-danger border-0 shadow-sm mb-5 text-start mx-auto" role="alert" style="border-left: 4px solid #f25022 !important; max-width: 600px;">
+                ⚠️ <strong>Database Setup Required:</strong> The isolated database <code><?php echo htmlspecialchars($_SESSION['tenant_db_name']); ?></code> for your active branch has not been created on Hostinger yet. Please configure it to enable full access to workspace utilities.
+            </div>
+        <?php endif; ?>
+
         <div class="text-center mx-auto mb-5" style="max-width: 600px;">
             <h1 class="h2 fw-semibold text-dark mb-2">Applications Dashboard</h1>
             <p class="small text-muted">Select an application below to get started with your TechInbox workspace utilities.</p>

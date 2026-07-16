@@ -308,6 +308,12 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               }
           }">
           
+        <?php if (!empty($tenantConnectionFailed)): ?>
+            <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert" style="border-left: 4px solid #f25022 !important;">
+                ⚠️ <strong>Database Connection Failed:</strong> The isolated database <code><?php echo htmlspecialchars($_SESSION['tenant_db_name']); ?></code> has not been created on Hostinger yet. Please configure it to enable saving.
+            </div>
+        <?php endif; ?>
+
         <div class="row g-4 align-items-start">
             <!-- Left Side / Sidebar: QR Customer Intake Code Block -->
             <div class="col-12 col-md-5 col-lg-4 col-xl-3">
@@ -431,12 +437,12 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                             <!-- Action Buttons -->
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <button type="button" @click="saveBooking(false)" class="btn btn-secondary w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px; background-color: #5c5c5c; border-color: #5c5c5c; color: #ffffff;">
+                                    <button type="button" @click="saveBooking(false)" class="btn btn-secondary w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px; background-color: #5c5c5c; border-color: #5c5c5c; color: #ffffff;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
                                         Save
                                     </button>
                                 </div>
                                 <div class="col-6">
-                                    <button type="submit" class="btn btn-brand w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">
+                                    <button type="submit" class="btn btn-brand w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
                                         Save and Print
                                     </button>
                                 </div>

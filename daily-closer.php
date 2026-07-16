@@ -43,35 +43,40 @@ $fixedVal = $todayClosure ? (float)$todayClosure['card_fixed'] : 0.00;
 
 // Handle Save Action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
-    $cashInput = floatval($_POST['cash_sale'] ?? 0);
-    $boiInput = floatval($_POST['card_boi'] ?? 0);
-    $fixedInput = floatval($_POST['card_fixed'] ?? 0);
-    $totalInput = $cashInput + $boiInput + $fixedInput;
+    if (!empty($tenantConnectionFailed)) {
+        $suggestedDb = $_SESSION['tenant_db_name'] ?? 'u583652021_biz_[businessname]';
+        $errorMsg = "Database connection error! The isolated database '{$suggestedDb}' has not been created on Hostinger yet. Please configure it to enable saving.";
+    } else {
+        $cashInput = floatval($_POST['cash_sale'] ?? 0);
+        $boiInput = floatval($_POST['card_boi'] ?? 0);
+        $fixedInput = floatval($_POST['card_fixed'] ?? 0);
+        $totalInput = $cashInput + $boiInput + $fixedInput;
 
-    try {
-        // Fallback-friendly updateOrInsert
-        $saveStmt = $db->prepare("
-            INSERT INTO daily_closures (user_id, business_name, closure_date, cash_sale, card_boi, card_fixed, total_sale)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE 
-                user_id = VALUES(user_id),
-                business_name = VALUES(business_name),
-                cash_sale = VALUES(cash_sale),
-                card_boi = VALUES(card_boi),
-                card_fixed = VALUES(card_fixed),
-                total_sale = VALUES(total_sale)
-        ");
-        
-        if ($saveStmt->execute([$userId, $businessName, $todayIso, $cashInput, $boiInput, $fixedInput, $totalInput])) {
-            $successMsg = "Daily closure saved successfully!";
-            $cashVal = $cashInput;
-            $boiVal = $boiInput;
-            $fixedVal = $fixedInput;
-        } else {
-            $errorMsg = "Failed to save daily closure.";
+        try {
+            // Fallback-friendly updateOrInsert
+            $saveStmt = $db->prepare("
+                INSERT INTO daily_closures (user_id, business_name, closure_date, cash_sale, card_boi, card_fixed, total_sale)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE 
+                    user_id = VALUES(user_id),
+                    business_name = VALUES(business_name),
+                    cash_sale = VALUES(cash_sale),
+                    card_boi = VALUES(card_boi),
+                    card_fixed = VALUES(card_fixed),
+                    total_sale = VALUES(total_sale)
+            ");
+            
+            if ($saveStmt->execute([$userId, $businessName, $todayIso, $cashInput, $boiInput, $fixedInput, $totalInput])) {
+                $successMsg = "Daily closure saved successfully!";
+                $cashVal = $cashInput;
+                $boiVal = $boiInput;
+                $fixedVal = $fixedInput;
+            } else {
+                $errorMsg = "Failed to save daily closure.";
+            }
+        } catch (PDOException $e) {
+            $errorMsg = "Database error: " . $e->getMessage();
         }
-    } catch (PDOException $e) {
-        $errorMsg = "Database error: " . $e->getMessage();
     }
 }
 ?>
@@ -178,22 +183,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
                     </div>
                 <?php endif; ?>
 
+                <?php if (!empty($tenantConnectionFailed)): ?>
+                    <div class="alert alert-danger py-3 px-3 small mb-3" style="font-size: 13px; border-radius: 4px; border-left: 4px solid #f25022 !important;">
+                        ⚠️ <strong>Database Connection Failed:</strong> The isolated database <code><?php echo htmlspecialchars($_SESSION['tenant_db_name']); ?></code> has not been created on Hostinger yet. Please configure it to enable saving.
+                    </div>
+                <?php endif; ?>
+
                 <form id="closureForm" method="POST" action="daily-closer.php">
                     <input type="hidden" name="save_action" value="1">
                     
                     <div class="mb-3">
                         <label for="cash_sale" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Cash Sale (€)</label>
-                        <input type="number" step="0.01" min="0" name="cash_sale" id="cash_sale" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="cash" style="font-size: 18px;">
+                        <input type="number" step="0.01" min="0" name="cash_sale" id="cash_sale" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="cash" style="font-size: 18px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
                     </div>
 
                     <div class="mb-3">
                         <label for="card_boi" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Card BOI (€)</label>
-                        <input type="number" step="0.01" min="0" name="card_boi" id="card_boi" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="boi" style="font-size: 18px;">
+                        <input type="number" step="0.01" min="0" name="card_boi" id="card_boi" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="boi" style="font-size: 18px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
                     </div>
 
                     <div class="mb-4">
                         <label for="card_fixed" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Card Fixed (€)</label>
-                        <input type="number" step="0.01" min="0" name="card_fixed" id="card_fixed" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="fixed" style="font-size: 18px;">
+                        <input type="number" step="0.01" min="0" name="card_fixed" id="card_fixed" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="fixed" style="font-size: 18px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center bg-light border p-3 rounded mb-4" style="border-radius: 4px;">
@@ -202,7 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
                     </div>
 
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-brand py-2 flex-grow-1 fw-bold text-uppercase rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">Save</button>
+                        <button type="submit" class="btn btn-brand py-2 flex-grow-1 fw-bold text-uppercase rounded-1" style="font-size: 13px; letter-spacing: 0.5px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>Save</button>
                         <button type="button" x-on:click="printTicket()" class="btn btn-outline-secondary py-2 flex-grow-1 fw-bold text-uppercase rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">Print</button>
                     </div>
                 </form>

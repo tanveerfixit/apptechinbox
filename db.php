@@ -71,6 +71,7 @@ $tenantDbName = $_SESSION['tenant_db_name'] ?? null;
 $tenantDbUser = $_SESSION['tenant_db_user'] ?? $user;
 $tenantDbPass = $_SESSION['tenant_db_password'] ?? $password;
 $db = null;
+$tenantConnectionFailed = false;
 
 if ($tenantDbName) {
     try {
@@ -83,6 +84,7 @@ if ($tenantDbName) {
     } catch (PDOException $e) {
         // Fallback to master if tenant database does not exist or connection fails
         $db = $masterDb;
+        $tenantConnectionFailed = true;
     }
 } else {
     $db = $masterDb;
