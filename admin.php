@@ -24,13 +24,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $assignedBiz = trim($_POST['assigned_business'] ?? '');
         
         if ($username && $password) {
-            $hashed = password_hash($password, PASSWORD_BCRYPT);
-            try {
-                $stmt = $masterDb->prepare("INSERT INTO users (username, password, is_admin, assigned_business_id) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$username, $hashed, $isAdmin, $assignedBiz ?: null]);
-                $successMsg = "User '" . htmlspecialchars($username) . "' created successfully.";
-            } catch (Exception $e) {
-                $errorMsg = "Failed to create user: " . $e->getMessage();
+            // Generate clean string slug for user ID
+            $userId = preg_replace('/[^a-z0-9\-]/', '', strtolower(str_replace(' ', '-', $username)));
+            
+            // Check if username or slug already exists (case-insensitive check)
+            $checkUser = $masterDb->prepare("SELECT id FROM users WHERE id = ? OR LOWER(username) = LOWER(?)");
+            $checkUser->execute([$userId, $username]);
+            
+            if ($checkUser->fetch()) {
+                $errorMsg = "Username '" . htmlspecialchars($username) . "' is already taken. Please choose a unique username.";
+            } else {
+                $hashed = password_hash($password, PASSWORD_BCRYPT);
+                try {
+                    $stmt = $masterDb->prepare("INSERT INTO users (id, username, password, is_admin, assigned_business_id) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->execute([$userId, $username, $hashed, $isAdmin, $assignedBiz ?: null]);
+                    $successMsg = "User '" . htmlspecialchars($username) . "' created successfully.";
+                } catch (Exception $e) {
+                    $errorMsg = "Failed to create user: " . $e->getMessage();
+                }
             }
         } else {
             $errorMsg = "Username and Password are required.";
@@ -64,11 +75,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     
     // Update User Roles & Privileges
     elseif ($action === 'update_privileges') {
-        $userId = (int)($_POST['user_id'] ?? 0);
+        $userId = trim($_POST['user_id'] ?? '');
         $isAdmin = isset($_POST['is_admin']) ? 1 : 0;
         $assignedBiz = trim($_POST['assigned_business'] ?? '');
         
-        if ($userId) {
+        if (!empty($userId)) {
             try {
                 $stmt = $masterDb->prepare("UPDATE users SET is_admin = ?, assigned_business_id = ? WHERE id = ?");
                 $stmt->execute([$isAdmin, $assignedBiz ?: null, $userId]);

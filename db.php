@@ -98,9 +98,58 @@ try {
     // Table doesn't exist yet, no migration needed
 }
 
-if ($needsMigration) {
+// Check if users table needs migration to VARCHAR id
+$needsUserMigration = false;
+try {
+    $stmtCheckUser = $masterDb->query("DESCRIBE users id");
+    $colCheckUser = $stmtCheckUser->fetch();
+    if ($colCheckUser && strpos(strtolower($colCheckUser['Type']), 'varchar') === false) {
+        $needsUserMigration = true;
+    }
+} catch (Exception $e) {
+    // If users doesn't exist but duty history has INT, we still need to recreate it
+    $needsUserMigration = true;
+}
+
+// Check if user_duty_history needs migration (e.g. if user_id is INT instead of VARCHAR)
+try {
+    $stmtCheckDuty = $masterDb->query("DESCRIBE user_duty_history user_id");
+    $colCheckDuty = $stmtCheckDuty->fetch();
+    if ($colCheckDuty && strpos(strtolower($colCheckDuty['Type']), 'varchar') === false) {
+        $needsUserMigration = true;
+    }
+} catch (Exception $e) {
+    // Table doesn't exist, no migration needed
+}
+
+if ($needsMigration || $needsUserMigration) {
+    $masterDb->exec("SET FOREIGN_KEY_CHECKS = 0;");
     $masterDb->exec("DROP TABLE IF EXISTS user_duty_history");
-    $masterDb->exec("DROP TABLE IF EXISTS businesses");
+    if ($needsUserMigration) {
+        $masterDb->exec("DROP TABLE IF EXISTS users");
+    }
+    if ($needsMigration) {
+        $masterDb->exec("DROP TABLE IF EXISTS businesses");
+    }
+    $masterDb->exec("SET FOREIGN_KEY_CHECKS = 1;");
+}
+
+// Get the collation of businesses.id dynamically to avoid foreign key collation mismatch
+$collation = 'utf8mb4_general_ci';
+try {
+    $colStmt = $masterDb->query("
+        SELECT COLLATION_NAME 
+        FROM information_schema.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+          AND TABLE_NAME = 'businesses' 
+          AND COLUMN_NAME = 'id'
+    ");
+    $colRes = $colStmt->fetchColumn();
+    if ($colRes) {
+        $collation = $colRes;
+    }
+} catch (Exception $e) {
+    // Fallback
 }
 
 // 3. Initialize Master Schema on $masterDb
@@ -117,7 +166,7 @@ $masterDb->exec("
 
 $masterDb->exec("
     CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id VARCHAR(100) CHARACTER SET utf8mb4 COLLATE {$collation} PRIMARY KEY,
         username VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         name VARCHAR(255) DEFAULT NULL,
@@ -125,22 +174,22 @@ $masterDb->exec("
         email VARCHAR(255) DEFAULT NULL,
         address VARCHAR(255) DEFAULT NULL,
         is_admin TINYINT(1) DEFAULT 0,
-        assigned_business_id VARCHAR(100) DEFAULT NULL,
+        assigned_business_id VARCHAR(100) CHARACTER SET utf8mb4 COLLATE {$collation} DEFAULT NULL,
         FOREIGN KEY (assigned_business_id) REFERENCES businesses(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE={$collation};
 ");
 
 $masterDb->exec("
     CREATE TABLE IF NOT EXISTS user_duty_history (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        business_id VARCHAR(100) NOT NULL,
+        user_id VARCHAR(100) CHARACTER SET utf8mb4 COLLATE {$collation} NOT NULL,
+        business_id VARCHAR(100) CHARACTER SET utf8mb4 COLLATE {$collation} NOT NULL,
         work_date DATE NOT NULL,
         login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE KEY idx_user_biz_date (user_id, business_id, work_date),
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE={$collation};
 ");
 
 // Apply master-level migrations
@@ -193,13 +242,13 @@ $masterDb->exec("UPDATE users SET name = 'Phone Lab' WHERE name IS NULL OR name 
 $userCount = $masterDb->query("SELECT COUNT(*) FROM users")->fetchColumn();
 if ($userCount == 0) {
     $hashedPassword = password_hash('lab@123', PASSWORD_BCRYPT);
-    $stmt = $masterDb->prepare("INSERT INTO users (username, password, is_admin, assigned_business_id) VALUES (?, ?, ?, ?)");
+    $stmt = $masterDb->prepare("INSERT INTO users (id, username, password, is_admin, assigned_business_id) VALUES (?, ?, ?, ?, ?)");
     
     $defaultUsers = [
-        ['Tanveer', $hashedPassword, 1, 'phone-lab'],
-        ['Suhail Saif', $hashedPassword, 0, 'phone-lab'],
-        ['Rutvik', $hashedPassword, 0, 'phone-lab'],
-        ['Umar', $hashedPassword, 0, 'phone-lab']
+        ['tanveer', 'Tanveer', $hashedPassword, 1, 'phone-lab'],
+        ['suhail-saif', 'Suhail Saif', $hashedPassword, 0, 'phone-lab'],
+        ['rutvik', 'Rutvik', $hashedPassword, 0, 'phone-lab'],
+        ['umar', 'Umar', $hashedPassword, 0, 'phone-lab']
     ];
 
     foreach ($defaultUsers as $u) {
