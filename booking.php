@@ -576,5 +576,13 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             }
         }
     </style>
+    <script>
+    console.log("=== TECHINBOX DIAGNOSTICS ===");
+    console.log("Session User ID:", "<?php echo htmlspecialchars($_SESSION['user_id'] ?? 'NONE'); ?>");
+    console.log("Session Business ID:", "<?php echo htmlspecialchars($_SESSION['business_id'] ?? 'NONE'); ?>");
+    console.log("Session Tenant DB:", "<?php echo htmlspecialchars($_SESSION['tenant_db_name'] ?? 'NONE'); ?>");
+    console.log("Tenant DB Connected:", "<?php echo $tenantDbConnected ? 'YES' : 'NO'; ?>");
+    console.log("=============================");
+    </script>
 </body>
 </html>
