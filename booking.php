@@ -322,50 +322,46 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                         📲 Mobile Customer Intake
                     </h3>
                     
-                    <template x-if="!isExpired">
-                        <div class="d-flex flex-column flex-grow-1 justify-content-between">
-                            <div>
-                                <div class="mb-3">
-                                    <span class="status-badge">
-                                        <span class="pulse-dot"></span> Active Scan Session
-                                    </span>
-                                </div>
-                                
-                                <p class="text-muted mb-3" style="font-size: 12px; line-height: 1.4;">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
-                                
-                                <div class="d-flex justify-content-center mb-3">
-                                    <div class="scan-frame">
-                                        <canvas id="intakeQr" style="width: 145px; height: 145px; display: block;"></canvas>
-                                    </div>
-                                </div>
+                    <div x-show="!isExpired" class="d-flex flex-column flex-grow-1 justify-content-between">
+                        <div>
+                            <div class="mb-3">
+                                <span class="status-badge">
+                                    <span class="pulse-dot"></span> Active Scan Session
+                                </span>
                             </div>
                             
-                            <div>
-                                <div class="small text-muted d-flex align-items-center justify-content-center gap-2 mb-3" style="font-size: 11px; background: #f8f9fa; padding: 6px; border-radius: 4px; border: 1px solid var(--card-border);">
-                                    <span>ID: <strong class="text-dark" x-text="sessionId"></strong></span>
-                                    <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp + '&b=' + encodeURIComponent(businessName) + '&bid=' + encodeURIComponent(businessId)); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    </button>
+                            <p class="text-muted mb-3" style="font-size: 12px; line-height: 1.4;">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
+                            
+                            <div class="d-flex justify-content-center mb-3">
+                                <div class="scan-frame">
+                                    <canvas id="intakeQr" style="width: 145px; height: 145px; display: block;"></canvas>
                                 </div>
-                                
-                                <button type="button" @click="checkIntake()" class="btn btn-sm btn-light border w-100 py-2 text-teal d-inline-flex align-items-center justify-content-center gap-2 rounded-1" style="font-size: 11.5px; border-color: var(--card-border) !important; color: var(--brand-teal) !important;" :disabled="isPulling">
-                                    <span x-show="!isPulling">⚡ Check Submission</span>
-                                    <span x-show="isPulling" class="spinner-border spinner-border-sm" role="status"></span>
-                                </button>
                             </div>
                         </div>
-                    </template>
-                    
-                    <template x-if="isExpired">
-                        <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
-                            <span class="fs-4 mb-2">⏳</span>
-                            <h4 class="h6 fw-bold text-secondary mb-1">QR Code Expired</h4>
-                            <p class="text-muted small mb-4" style="font-size: 11px; max-width: 200px; line-height: 1.4;">This intake session has timed out or has not been generated yet.</p>
-                            <button type="button" @click="refreshSession()" class="btn btn-sm btn-teal text-white w-100 py-2 rounded-1" style="font-size: 12px; background-color: var(--brand-teal); border: 0; font-weight: 600; letter-spacing: 0.3px;">
-                                Generate QR Code
+                        
+                        <div>
+                            <div class="small text-muted d-flex align-items-center justify-content-center gap-2 mb-3" style="font-size: 11px; background: #f8f9fa; padding: 6px; border-radius: 4px; border: 1px solid var(--card-border);">
+                                <span>ID: <strong class="text-dark" x-text="sessionId"></strong></span>
+                                <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp + '&b=' + encodeURIComponent(businessName) + '&bid=' + encodeURIComponent(businessId)); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                </button>
+                            </div>
+                            
+                            <button type="button" @click="checkIntake()" class="btn btn-sm btn-light border w-100 py-2 text-teal d-inline-flex align-items-center justify-content-center gap-2 rounded-1" style="font-size: 11.5px; border-color: var(--card-border) !important; color: var(--brand-teal) !important;" :disabled="isPulling">
+                                <span x-show="!isPulling">⚡ Check Submission</span>
+                                <span x-show="isPulling" class="spinner-border spinner-border-sm" role="status"></span>
                             </button>
                         </div>
-                    </template>
+                    </div>
+                    
+                    <div x-show="isExpired" class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
+                        <span class="fs-4 mb-2">⏳</span>
+                        <h4 class="h6 fw-bold text-secondary mb-1">QR Code Expired</h4>
+                        <p class="text-muted small mb-4" style="font-size: 11px; max-width: 200px; line-height: 1.4;">This intake session has timed out or has not been generated yet.</p>
+                        <button type="button" @click="refreshSession()" class="btn btn-sm btn-teal text-white w-100 py-2 rounded-1" style="font-size: 12px; background-color: var(--brand-teal); border: 0; font-weight: 600; letter-spacing: 0.3px;">
+                            Generate QR Code
+                        </button>
+                    </div>
                 </div>
             </div>
 
