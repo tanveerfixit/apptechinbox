@@ -14,7 +14,7 @@ $successMsg = '';
 $errorMsg = '';
 
 // Fetch current user details
-$stmt = $db->prepare("SELECT username, name, contact, email, address FROM users WHERE id = ?");
+$stmt = $masterDb->prepare("SELECT username, name, contact, email, address FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
@@ -34,13 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMsg = "Username cannot be empty.";
     } else {
         // Check if username is already taken by another user
-        $checkStmt = $db->prepare("SELECT id FROM users WHERE LOWER(username) = LOWER(?) AND id <> ?");
+        $checkStmt = $masterDb->prepare("SELECT id FROM users WHERE LOWER(username) = LOWER(?) AND id <> ?");
         $checkStmt->execute([$newUsername, $userId]);
         if ($checkStmt->fetch()) {
             $errorMsg = "Username is already taken.";
         } else {
             // Update user details
-            $updateStmt = $db->prepare("UPDATE users SET username = ?, name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
+            $updateStmt = $masterDb->prepare("UPDATE users SET username = ?, name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
             if ($updateStmt->execute([$newUsername, $newName, $newContact, $newEmail, $newAddress, $userId])) {
                 $_SESSION['username'] = $newUsername;
                 $successMsg = "Profile updated successfully!";

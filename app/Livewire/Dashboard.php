@@ -8,14 +8,6 @@ class Dashboard extends Component
 {
     public array $apps = [
         [
-            'name' => 'Vap Order',
-            'url' => 'vape.php',
-            'desc' => 'Build vape orders, manage categories, brands, lines and track current order items.',
-            'icon' => '💨',
-            'color' => '#f25022', // Microsoft Red/Orange
-            'badge' => 'Active'
-        ],
-        [
             'name' => 'Daily Closer',
             'url' => 'daily-closer.php',
             'desc' => 'Track daily end-of-day closings, registers, safe drops, and financial reports.',
@@ -23,14 +15,7 @@ class Dashboard extends Component
             'color' => '#7fba00', // Microsoft Green
             'badge' => 'Utility'
         ],
-        [
-            'name' => 'POS',
-            'url' => '/pos',
-            'desc' => 'Access point of sale terminal, process orders, checkout, and view live transactions.',
-            'icon' => '💻',
-            'color' => '#00a4ef', // Microsoft Blue
-            'badge' => 'Terminal'
-        ],
+
         [
             'name' => 'Screen Protector Finder',
             'url' => '/screen-protector-finder',

@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
     $passwordInput = trim($_POST['password'] ?? '');
 
     if ($usernameInput && $passwordInput) {
-        $stmt = $db->prepare("SELECT id, username, password FROM users WHERE LOWER(username) = LOWER(?)");
+        $stmt = $masterDb->prepare("SELECT id, username, password FROM users WHERE LOWER(username) = LOWER(?)");
         $stmt->execute([$usernameInput]);
         $user = $stmt->fetch();
 
@@ -31,11 +31,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
             // Update the user's business details dynamically based on selection
             $selectedBusiness = trim($_POST['business'] ?? '');
             if ($selectedBusiness) {
-                $bizStmt = $db->prepare("SELECT * FROM businesses WHERE name = ?");
+                $bizStmt = $masterDb->prepare("SELECT * FROM businesses WHERE name = ?");
                 $bizStmt->execute([$selectedBusiness]);
                 $bizDetails = $bizStmt->fetch();
                 
-                $updateStmt = $db->prepare("UPDATE users SET name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
+                if ($bizDetails) {
+                    $_SESSION['tenant_db_name'] = $bizDetails['db_name'] ?? null;
+                    $_SESSION['business_name'] = $bizDetails['name'];
+                }
+                
+                $updateStmt = $masterDb->prepare("UPDATE users SET name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
                 $updateStmt->execute([
                     $selectedBusiness, 
                     $bizDetails['contact'] ?? NULL, 
@@ -43,6 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
                     $bizDetails['address'] ?? NULL, 
                     $user['id']
                 ]);
+
+                // CENTRALIZED DUTY LOGGING
+                $logStmt = $masterDb->prepare("
+                    INSERT INTO user_duty_history (user_id, business_name, work_date)
+                    VALUES (?, ?, ?)
+                    ON DUPLICATE KEY UPDATE login_time = CURRENT_TIMESTAMP
+                ");
+                $logStmt->execute([$user['id'], $selectedBusiness, date('Y-m-d')]);
             }
             
             // Clear skip login session since user successfully signed in
@@ -59,23 +72,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
 }
 
 // Fetch all users to populate login selectors
-$stmtUsers = $db->query("SELECT username FROM users ORDER BY username");
+$stmtUsers = $masterDb->query("SELECT username FROM users ORDER BY username");
 $allUsers = $stmtUsers->fetchAll();
 
 // Fetch all businesses to populate login selectors
-$stmtBiz = $db->query("SELECT name FROM businesses ORDER BY name");
+$stmtBiz = $masterDb->query("SELECT name FROM businesses ORDER BY name");
 $allBusinesses = $stmtBiz->fetchAll();
 
 // Define the apps with Microsoft-inspired brand colors and simple styling
 $apps = [
-    [
-        'name' => 'Vap Order',
-        'url' => 'vape.php',
-        'desc' => 'Build vape orders, manage categories, brands, lines and track current order items.',
-        'icon' => '💨',
-        'color' => '#f25022', // Microsoft Red/Orange
-        'badge' => 'Active'
-    ],
     [
         'name' => 'Daily Closer',
         'url' => 'daily-closer.php',
@@ -84,14 +89,7 @@ $apps = [
         'color' => '#7fba00', // Microsoft Green
         'badge' => 'Utility'
     ],
-    [
-        'name' => 'POS',
-        'url' => '/pos',
-        'desc' => 'Access point of sale terminal, process orders, checkout, and view live transactions.',
-        'icon' => '💻',
-        'color' => '#00a4ef', // Microsoft Blue
-        'badge' => 'Terminal'
-    ],
+
     [
         'name' => 'Screen Protector Finder',
         'url' => '/screen-protector-finder',

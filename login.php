@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password'] ?? '');
 
     if ($username && $password) {
-        $stmt = $db->prepare("SELECT id, username, password FROM users WHERE LOWER(username) = LOWER(?)");
+        $stmt = $masterDb->prepare("SELECT id, username, password FROM users WHERE LOWER(username) = LOWER(?)");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
 
@@ -27,11 +27,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Update the user's business details dynamically based on selection
             $selectedBusiness = trim($_POST['business'] ?? '');
             if ($selectedBusiness) {
-                $bizStmt = $db->prepare("SELECT * FROM businesses WHERE name = ?");
+                $bizStmt = $masterDb->prepare("SELECT * FROM businesses WHERE name = ?");
                 $bizStmt->execute([$selectedBusiness]);
                 $bizDetails = $bizStmt->fetch();
                 
-                $updateStmt = $db->prepare("UPDATE users SET name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
+                if ($bizDetails) {
+                    $_SESSION['tenant_db_name'] = $bizDetails['db_name'] ?? null;
+                    $_SESSION['business_name'] = $bizDetails['name'];
+                }
+                
+                $updateStmt = $masterDb->prepare("UPDATE users SET name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
                 $updateStmt->execute([
                     $selectedBusiness, 
                     $bizDetails['contact'] ?? NULL, 
@@ -39,6 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $bizDetails['address'] ?? NULL, 
                     $user['id']
                 ]);
+
+                // CENTRALIZED DUTY LOGGING
+                $logStmt = $masterDb->prepare("
+                    INSERT INTO user_duty_history (user_id, business_name, work_date)
+                    VALUES (?, ?, ?)
+                    ON DUPLICATE KEY UPDATE login_time = CURRENT_TIMESTAMP
+                ");
+                $logStmt->execute([$user['id'], $selectedBusiness, date('Y-m-d')]);
             }
             
             header("Location: index.php");
@@ -52,11 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch all users to populate the username selection dropdown
-$stmtUsers = $db->query("SELECT username FROM users ORDER BY username");
+$stmtUsers = $masterDb->query("SELECT username FROM users ORDER BY username");
 $allUsers = $stmtUsers->fetchAll();
 
 // Fetch all businesses to populate the business selection dropdown
-$stmtBiz = $db->query("SELECT name FROM businesses ORDER BY name");
+$stmtBiz = $masterDb->query("SELECT name FROM businesses ORDER BY name");
 $allBusinesses = $stmtBiz->fetchAll();
 ?>
 <!DOCTYPE html>

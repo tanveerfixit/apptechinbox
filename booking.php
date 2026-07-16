@@ -18,7 +18,7 @@ $userId = $_SESSION['user_id'];
 $username = $_SESSION['username'] ?? '';
 
 // Fetch active user details
-$stmtUser = $db->prepare("SELECT name, contact, email, address FROM users WHERE id = ?");
+$stmtUser = $masterDb->prepare("SELECT name, contact, email, address FROM users WHERE id = ?");
 $stmtUser->execute([$userId]);
 $profile = $stmtUser->fetch();
 $businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
