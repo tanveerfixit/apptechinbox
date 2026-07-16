@@ -257,7 +257,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               },
                async saveBooking(andPrint = false) {
                    if (!this.isDbConnected) {
-                       alert("⚠️ Database Connection Error\n\nThis business is not connected to its relevant database.\n\nPlease create the database '" + this.suggestedDbName + "' in Hostinger and assign user privileges to save bookings.");
+                       alert('⚠️ Database Connection Error\n\nThis business is not connected to its relevant database.\n\nPlease create the database \'' + this.suggestedDbName + '\' in Hostinger and assign user privileges to save bookings.');
                        return;
                    }
                    if (!this.name || !this.phone || !this.device || !this.fault) {
