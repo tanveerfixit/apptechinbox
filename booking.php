@@ -51,6 +51,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             --text-secondary: #5c5c5c;
             --brand-teal: #008272;
             --brand-blue: #00a4ef;
+            --brand-green: #7fba00;
             --font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
         }
 
@@ -79,6 +80,43 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             background-color: #d83b01;
             border-color: #d83b01;
             color: #ffffff;
+        }
+
+        /* Pulse Status Animation */
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--brand-green);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.8s infinite ease-in-out;
+        }
+        .status-badge {
+            background-color: #f3f3f3;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Scan viewfinder styling */
+        .scan-frame {
+            border: 2px dashed var(--brand-teal);
+            border-radius: 8px;
+            padding: 8px;
+            background: #fafafa;
+            display: inline-block;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
         }
     </style>
     <!-- QR Code Generator Library -->
@@ -269,30 +307,40 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               }
           }">
           
-        <div class="row g-4">
+        <div class="row g-4 align-items-start">
             <!-- Left Side / Sidebar: QR Customer Intake Code Block -->
-            <div class="col-12 col-lg-4 col-xl-3">
-                <div class="card shadow-sm border-1 p-3 bg-white text-center" style="border-radius: 6px; border-color: var(--card-border) !important; height: 100%; min-height: 290px; display: flex; flex-direction: column; justify-content: center;">
-                    <h3 class="small fw-bold text-uppercase text-muted mb-2" style="font-size: 11px; letter-spacing: 0.5px; color: var(--brand-teal) !important;">
+            <div class="col-12 col-md-5 col-lg-4 col-xl-3">
+                <div class="card shadow-sm border-1 p-4 bg-white text-center" style="border-radius: 6px; border-color: var(--card-border) !important; height: auto;">
+                    <h3 class="small fw-bold text-uppercase text-muted mb-3" style="font-size: 11px; letter-spacing: 0.5px; color: var(--brand-teal) !important;">
                         📲 Mobile Customer Intake
                     </h3>
                     
                     <template x-if="!isExpired">
-                        <div class="flex-grow-1 d-flex flex-column justify-content-center">
-                            <p class="text-muted mb-3" style="font-size: 12px; max-width: 420px; margin: 0 auto;">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
-                            <div class="d-flex justify-content-center mb-2">
-                                <canvas id="intakeQr" style="width: 140px; height: 140px;"></canvas>
+                        <div>
+                            <div class="mb-3">
+                                <span class="status-badge">
+                                    <span class="pulse-dot"></span> Active Scan Session
+                                </span>
                             </div>
-                            <div class="small text-muted d-flex align-items-center justify-content-center gap-2" style="font-size: 11px;">
-                                Session: <span class="fw-semibold text-dark" x-text="sessionId"></span>
+                            
+                            <p class="text-muted mb-3" style="font-size: 12px; line-height: 1.4;">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
+                            
+                            <div class="d-flex justify-content-center mb-3">
+                                <div class="scan-frame">
+                                    <canvas id="intakeQr" style="width: 145px; height: 145px; display: block;"></canvas>
+                                </div>
+                            </div>
+                            
+                            <div class="small text-muted d-flex align-items-center justify-content-center gap-2 mb-3" style="font-size: 11px; background: #f8f9fa; padding: 6px; border-radius: 4px; border: 1px solid var(--card-border);">
+                                <span>ID: <strong class="text-dark" x-text="sessionId"></strong></span>
                                 <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp + '&b=' + encodeURIComponent(businessName)); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                 </button>
                             </div>
                             
-                            <div class="mt-2">
-                                <button type="button" @click="checkIntake()" class="btn btn-sm btn-light border px-3 py-1 text-teal d-inline-flex align-items-center gap-1 rounded-1" style="font-size: 11.5px; border-color: var(--card-border) !important; color: var(--brand-teal) !important;" :disabled="isPulling">
-                                    <span x-show="!isPulling">⚡ Check Mobile Submission</span>
+                            <div>
+                                <button type="button" @click="checkIntake()" class="btn btn-sm btn-light border w-100 py-2 text-teal d-inline-flex align-items-center justify-content-center gap-2 rounded-1" style="font-size: 11.5px; border-color: var(--card-border) !important; color: var(--brand-teal) !important;" :disabled="isPulling">
+                                    <span x-show="!isPulling">⚡ Check Submission</span>
                                     <span x-show="isPulling" class="spinner-border spinner-border-sm" role="status"></span>
                                 </button>
                             </div>
@@ -300,12 +348,12 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                     </template>
                     
                     <template x-if="isExpired">
-                        <div class="py-4 px-2 d-flex flex-column align-items-center justify-content-center flex-grow-1">
+                        <div class="py-4 px-2 d-flex flex-column align-items-center justify-content-center">
                             <span class="fs-4 mb-2">⏳</span>
-                            <h4 class="h6 fw-bold text-secondary mb-1">QR Code Expired / Not Generated</h4>
-                            <p class="text-muted small mb-3" style="font-size: 11px; max-width: 250px;">This intake session has timed out or has not been generated yet.</p>
-                            <button type="button" @click="refreshSession()" class="btn btn-sm btn-teal text-white d-inline-flex align-items-center gap-1 px-3 py-1.5 rounded-1" style="font-size: 12px; background-color: var(--brand-teal); border: 0;">
-                                <span>Generate QR/ID</span>
+                            <h4 class="h6 fw-bold text-secondary mb-1">QR Code Expired</h4>
+                            <p class="text-muted small mb-3" style="font-size: 11px; max-width: 200px; line-height: 1.4;">This intake session has timed out or has not been generated yet.</p>
+                            <button type="button" @click="refreshSession()" class="btn btn-sm btn-teal text-white w-100 py-2 rounded-1" style="font-size: 12px; background-color: var(--brand-teal); border: 0; font-weight: 600; letter-spacing: 0.3px;">
+                                Generate QR Code
                             </button>
                         </div>
                     </template>
@@ -313,7 +361,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             </div>
 
             <!-- Right Side / Main: New Repair Booking Form -->
-            <div class="col-12 col-lg-8 col-xl-9">
+            <div class="col-12 col-md-7 col-lg-8 col-xl-9">
                 <div class="card shadow-sm border-1 overflow-hidden" style="border-radius: 6px; border-color: var(--card-border) !important;">
                     <div class="card-header bg-white py-3 px-4 border-bottom" style="border-left: 4px solid var(--brand-teal) !important;">
                         <h1 class="h5 fw-bold text-dark mb-1">New Repair Booking</h1>
