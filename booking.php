@@ -269,124 +269,131 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               }
           }">
           
-        <!-- QR Customer Intake Code Block -->
-        <div class="card shadow-sm border-1 p-3 mb-3 bg-white text-center" style="border-radius: 6px; border-color: var(--card-border) !important;">
-            <h3 class="small fw-bold text-uppercase text-muted mb-2" style="font-size: 11px; letter-spacing: 0.5px; color: var(--brand-teal) !important;">
-                📲 Mobile Customer Intake
-            </h3>
-            
-            <template x-if="!isExpired">
-                <div>
-                    <p class="text-muted mb-3" style="font-size: 12px; max-width: 420px; margin: 0 auto;">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
-                    <div class="d-flex justify-content-center mb-2">
-                        <canvas id="intakeQr" style="width: 140px; height: 140px;"></canvas>
-                    </div>
-                    <div class="small text-muted d-flex align-items-center justify-content-center gap-2" style="font-size: 11px;">
-                        Session: <span class="fw-semibold text-dark" x-text="sessionId"></span>
-                        <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp + '&b=' + encodeURIComponent(businessName)); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                        </button>
-                    </div>
+        <div class="row g-4">
+            <!-- Left Side / Sidebar: QR Customer Intake Code Block -->
+            <div class="col-12 col-lg-4 col-xl-3">
+                <div class="card shadow-sm border-1 p-3 bg-white text-center" style="border-radius: 6px; border-color: var(--card-border) !important; height: 100%; min-height: 290px; display: flex; flex-direction: column; justify-content: center;">
+                    <h3 class="small fw-bold text-uppercase text-muted mb-2" style="font-size: 11px; letter-spacing: 0.5px; color: var(--brand-teal) !important;">
+                        📲 Mobile Customer Intake
+                    </h3>
                     
-                    <div class="mt-2">
-                        <button type="button" @click="checkIntake()" class="btn btn-sm btn-light border px-3 py-1 text-teal d-inline-flex align-items-center gap-1 rounded-1" style="font-size: 11.5px; border-color: var(--card-border) !important; color: var(--brand-teal) !important;" :disabled="isPulling">
-                            <span x-show="!isPulling">⚡ Check Mobile Submission</span>
-                            <span x-show="isPulling" class="spinner-border spinner-border-sm" role="status"></span>
-                        </button>
-                    </div>
+                    <template x-if="!isExpired">
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                            <p class="text-muted mb-3" style="font-size: 12px; max-width: 420px; margin: 0 auto;">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
+                            <div class="d-flex justify-content-center mb-2">
+                                <canvas id="intakeQr" style="width: 140px; height: 140px;"></canvas>
+                            </div>
+                            <div class="small text-muted d-flex align-items-center justify-content-center gap-2" style="font-size: 11px;">
+                                Session: <span class="fw-semibold text-dark" x-text="sessionId"></span>
+                                <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp + '&b=' + encodeURIComponent(businessName)); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                </button>
+                            </div>
+                            
+                            <div class="mt-2">
+                                <button type="button" @click="checkIntake()" class="btn btn-sm btn-light border px-3 py-1 text-teal d-inline-flex align-items-center gap-1 rounded-1" style="font-size: 11.5px; border-color: var(--card-border) !important; color: var(--brand-teal) !important;" :disabled="isPulling">
+                                    <span x-show="!isPulling">⚡ Check Mobile Submission</span>
+                                    <span x-show="isPulling" class="spinner-border spinner-border-sm" role="status"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <template x-if="isExpired">
+                        <div class="py-4 px-2 d-flex flex-column align-items-center justify-content-center flex-grow-1">
+                            <span class="fs-4 mb-2">⏳</span>
+                            <h4 class="h6 fw-bold text-secondary mb-1">QR Code Expired / Not Generated</h4>
+                            <p class="text-muted small mb-3" style="font-size: 11px; max-width: 250px;">This intake session has timed out or has not been generated yet.</p>
+                            <button type="button" @click="refreshSession()" class="btn btn-sm btn-teal text-white d-inline-flex align-items-center gap-1 px-3 py-1.5 rounded-1" style="font-size: 12px; background-color: var(--brand-teal); border: 0;">
+                                <span>Generate QR/ID</span>
+                            </button>
+                        </div>
+                    </template>
                 </div>
-            </template>
-            
-            <template x-if="isExpired">
-                <div class="py-4 px-2 d-flex flex-column align-items-center justify-content-center">
-                    <span class="fs-4 mb-2">⏳</span>
-                    <h4 class="h6 fw-bold text-secondary mb-1">QR Code Expired / Not Generated</h4>
-                    <p class="text-muted small mb-3" style="font-size: 11px; max-width: 250px;">This intake session has timed out or has not been generated yet.</p>
-                    <button type="button" @click="refreshSession()" class="btn btn-sm btn-teal text-white d-inline-flex align-items-center gap-1 px-3 py-1.5 rounded-1" style="font-size: 12px; background-color: var(--brand-teal); border: 0;">
-                        <span>Generate QR/ID</span>
-                    </button>
-                </div>
-            </template>
-        </div>
-
-        <div class="card shadow-sm border-1 overflow-hidden" style="border-radius: 6px;">
-            <div class="card-header bg-white py-3 px-4 border-bottom" style="border-left: 4px solid var(--brand-teal) !important;">
-                <h1 class="h5 fw-bold text-dark mb-1">New Repair Booking</h1>
-                <div class="small text-muted fw-semibold">Enter customer and device details below</div>
             </div>
 
-            <div class="card-body p-4 bg-white">
-                <form x-on:submit.prevent="saveBooking(true)">
-                    
-                    <!-- Customer Name, Phone & Email -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-12 col-md-4">
-                            <label for="customerName" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Customer Name *</label>
-                            <input type="text" id="customerName" class="form-control py-2 rounded-1" placeholder="Full Name" required autocomplete="off" x-model="name" style="font-size: 14px;">
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label for="phoneNumber" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Phone Number *</label>
-                            <input type="text" id="phoneNumber" class="form-control py-2 rounded-1" placeholder="08X XXX XXXX" required autocomplete="off" x-model="phone" style="font-size: 14px;">
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <label for="customerEmail" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Email Address <span class="text-muted fw-normal">(Optional)</span></label>
-                            <input type="email" id="customerEmail" class="form-control py-2 rounded-1" placeholder="email@example.com" autocomplete="off" x-model="email" style="font-size: 14px;">
-                        </div>
+            <!-- Right Side / Main: New Repair Booking Form -->
+            <div class="col-12 col-lg-8 col-xl-9">
+                <div class="card shadow-sm border-1 overflow-hidden" style="border-radius: 6px; border-color: var(--card-border) !important;">
+                    <div class="card-header bg-white py-3 px-4 border-bottom" style="border-left: 4px solid var(--brand-teal) !important;">
+                        <h1 class="h5 fw-bold text-dark mb-1">New Repair Booking</h1>
+                        <div class="small text-muted fw-semibold">Enter customer and device details below</div>
                     </div>
 
-                    <!-- Device Model -->
-                    <div class="mb-3">
-                        <label for="deviceModel" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Device Model *</label>
-                        <input type="text" id="deviceModel" class="form-control py-2 rounded-1" placeholder="e.g. iPhone 13, Samsung S22" required autocomplete="off" x-model="device" style="font-size: 14px;">
-                    </div>
-
-                    <!-- Problem Description -->
-                    <div class="mb-4">
-                        <label for="problemDescription" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Problem Description *</label>
-                        <textarea id="problemDescription" class="form-control rounded-1" rows="3" placeholder="Describe the fault..." required x-model="fault" style="font-size: 14px;"></textarea>
-                    </div>
-
-                    <div class="border-top my-4"></div>
-
-                    <!-- Pricing Block -->
-                    <div class="p-3 rounded-2 mb-4 bg-light border" style="border-radius: 6px;">
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <label for="totalQuote" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px; color: var(--text-secondary) !important;">Total Quote</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0 text-muted" style="font-size: 14px;">€</span>
-                                    <input type="number" step="0.01" min="0" id="totalQuote" class="form-control fw-semibold border-start-0 rounded-end-1 py-2" x-model.number="quote" style="font-size: 15px;">
+                    <div class="card-body p-4 bg-white">
+                        <form x-on:submit.prevent="saveBooking(true)">
+                            
+                            <!-- Customer Name, Phone & Email -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-4">
+                                    <label for="customerName" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Customer Name *</label>
+                                    <input type="text" id="customerName" class="form-control py-2 rounded-1" placeholder="Full Name" required autocomplete="off" x-model="name" style="font-size: 14px;">
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label for="phoneNumber" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Phone Number *</label>
+                                    <input type="text" id="phoneNumber" class="form-control py-2 rounded-1" placeholder="08X XXX XXXX" required autocomplete="off" x-model="phone" style="font-size: 14px;">
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label for="customerEmail" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Email Address <span class="text-muted fw-normal">(Optional)</span></label>
+                                    <input type="email" id="customerEmail" class="form-control py-2 rounded-1" placeholder="email@example.com" autocomplete="off" x-model="email" style="font-size: 14px;">
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <label for="depositPaid" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px; color: var(--text-secondary) !important;">Deposit Paid</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0 text-muted" style="font-size: 14px;">€</span>
-                                    <input type="number" step="0.01" min="0" id="depositPaid" class="form-control fw-semibold border-start-0 rounded-end-1 py-2" x-model.number="deposit" style="font-size: 15px;">
+
+                            <!-- Device Model -->
+                            <div class="mb-3">
+                                <label for="deviceModel" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Device Model *</label>
+                                <input type="text" id="deviceModel" class="form-control py-2 rounded-1" placeholder="e.g. iPhone 13, Samsung S22" required autocomplete="off" x-model="device" style="font-size: 14px;">
+                            </div>
+
+                            <!-- Problem Description -->
+                            <div class="mb-4">
+                                <label for="problemDescription" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Problem Description *</label>
+                                <textarea id="problemDescription" class="form-control rounded-1" rows="3" placeholder="Describe the fault..." required x-model="fault" style="font-size: 14px;"></textarea>
+                            </div>
+
+                            <div class="border-top my-4"></div>
+
+                            <!-- Pricing Block -->
+                            <div class="p-3 rounded-2 mb-4 bg-light border" style="border-radius: 6px;">
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <label for="totalQuote" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px; color: var(--text-secondary) !important;">Total Quote</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted" style="font-size: 14px;">€</span>
+                                            <input type="number" step="0.01" min="0" id="totalQuote" class="form-control fw-semibold border-start-0 rounded-end-1 py-2" x-model.number="quote" style="font-size: 15px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="depositPaid" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px; color: var(--text-secondary) !important;">Deposit Paid</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted" style="font-size: 14px;">€</span>
+                                            <input type="number" step="0.01" min="0" id="depositPaid" class="form-control fw-semibold border-start-0 rounded-end-1 py-2" x-model.number="deposit" style="font-size: 15px;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top" style="border-top: 1px solid var(--card-border) !important;">
+                                    <span class="small fw-bold text-uppercase text-muted" style="font-size: 10px; letter-spacing: 0.5px; color: var(--text-secondary) !important;">Remaining Balance Due</span>
+                                    <span class="h4 fw-bold mb-0 text-danger">€<span x-text="balance">0.00</span></span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top" style="border-top: 1px solid var(--card-border) !important;">
-                            <span class="small fw-bold text-uppercase text-muted" style="font-size: 10px; letter-spacing: 0.5px; color: var(--text-secondary) !important;">Remaining Balance Due</span>
-                            <span class="h4 fw-bold mb-0 text-danger">€<span x-text="balance">0.00</span></span>
-                        </div>
-                    </div>
 
-                    <!-- Action Buttons -->
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <button type="button" @click="saveBooking(false)" class="btn btn-secondary w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px; background-color: #5c5c5c; border-color: #5c5c5c; color: #ffffff;">
-                                Save
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button type="submit" class="btn btn-brand w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">
-                                Save and Print
-                            </button>
-                        </div>
-                    </div>
+                            <!-- Action Buttons -->
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <button type="button" @click="saveBooking(false)" class="btn btn-secondary w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px; background-color: #5c5c5c; border-color: #5c5c5c; color: #ffffff;">
+                                        Save
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="submit" class="btn btn-brand w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">
+                                        Save and Print
+                                    </button>
+                                </div>
+                            </div>
 
-                </form>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
