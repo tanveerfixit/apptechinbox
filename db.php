@@ -331,7 +331,7 @@ if ($db !== null && $db !== $masterDb) {
     $db->exec("
         CREATE TABLE IF NOT EXISTS daily_closures (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id INT,
+            user_id VARCHAR(100) DEFAULT NULL,
             business_name VARCHAR(255) NOT NULL,
             closure_date DATE UNIQUE,
             cash_sale DECIMAL(10, 2) DEFAULT 0.00,
@@ -379,6 +379,14 @@ if ($db !== null && $db !== $masterDb) {
     } catch (Exception $e) {
         $db->exec("ALTER TABLE booking_intakes ADD COLUMN email VARCHAR(255) DEFAULT NULL");
     }
+
+    // Migration: Update daily_closures.user_id to VARCHAR(100) if it is INT
+    try {
+        $colType = $db->query("SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'daily_closures' AND COLUMN_NAME = 'user_id'")->fetchColumn();
+        if ($colType && strtolower($colType) === 'int') {
+            $db->exec("ALTER TABLE daily_closures MODIFY user_id VARCHAR(100) DEFAULT NULL");
+        }
+    } catch (Exception $e) {}
 
     // Create indexes to optimize query speeds (Silent fail if index already exists or syntax differences)
     try {
