@@ -18,6 +18,7 @@ try {
         case 'submit_intake':
             $input = json_decode(file_get_contents('php://input'), true);
             $sessionId = $input['session_id'] ?? '';
+            $businessId = $input['business_id'] ?? '';
             $name = $input['name'] ?? '';
             $phone = $input['phone'] ?? '';
             $deviceName = $input['device_name'] ?? '';
@@ -28,11 +29,32 @@ try {
                 break;
             }
 
-            // Remove existing intake session (in case of double submission) and insert fresh entry
-            $stmtDel = $db->prepare("DELETE FROM booking_intakes WHERE session_id = ?");
+            // Route to correct tenant database dynamically using master DB mapping lookup
+            $localDb = $db;
+            if ($businessId) {
+                $bizStmt = $masterDb->prepare("SELECT db_name, db_user, db_password FROM businesses WHERE id = ?");
+                $bizStmt->execute([$businessId]);
+                $bizDetails = $bizStmt->fetch();
+                if ($bizDetails) {
+                    $tName = $bizDetails['db_name'];
+                    $tUser = $bizDetails['db_user'] ?? $user;
+                    $tPass = $bizDetails['db_password'] ?? $password;
+                    try {
+                        $localDb = new PDO("mysql:host=$host;port=$port;dbname={$tName};charset=utf8mb4", $tUser, $tPass, [
+                            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
+                        ]);
+                        $localDb->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    } catch (PDOException $e) {
+                        // Fallback
+                    }
+                }
+            }
+
+            // Remove existing intake session (in case of double submission) and insert fresh entry in tenant DB
+            $stmtDel = $localDb->prepare("DELETE FROM booking_intakes WHERE session_id = ?");
             $stmtDel->execute([$sessionId]);
 
-            $stmtIns = $db->prepare("INSERT INTO booking_intakes (session_id, name, phone, device_name, email) VALUES (?, ?, ?, ?, ?)");
+            $stmtIns = $localDb->prepare("INSERT INTO booking_intakes (session_id, name, phone, device_name, email) VALUES (?, ?, ?, ?, ?)");
             $stmtIns->execute([$sessionId, $name, $phone, $deviceName, $email]);
 
             echo json_encode(['status' => 'success', 'message' => 'Intake submitted.']);

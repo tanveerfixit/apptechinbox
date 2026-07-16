@@ -2,6 +2,7 @@
 // intake.php
 $sessionId = $_GET['session_id'] ?? '';
 $businessName = $_GET['b'] ?? 'Store';
+$businessId = $_GET['bid'] ?? '';
 $timestamp = intval($_GET['t'] ?? 0);
 $currentTime = time();
 $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
@@ -83,6 +84,7 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
     <div class="container" style="max-width: 440px;"
          x-data="{
              sessionId: '<?php echo htmlspecialchars($sessionId); ?>',
+             businessId: '<?php echo htmlspecialchars($businessId); ?>',
              name: '',
              phone: '',
              deviceName: '',
@@ -124,6 +126,7 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
                          headers: { 'Content-Type': 'application/json' },
                          body: JSON.stringify({
                              session_id: this.sessionId,
+                             business_id: this.businessId,
                              name: this.name,
                              phone: this.phone,
                              device_name: this.deviceName,

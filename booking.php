@@ -16,6 +16,7 @@ if (defined('LARAVEL_START')) {
 
 $userId = $_SESSION['user_id'];
 $username = $_SESSION['username'] ?? '';
+$businessId = $_SESSION['business_id'] ?? '';
 
 // Fetch active user details
 $stmtUser = $masterDb->prepare("SELECT name, contact, email, address FROM users WHERE id = ?");
@@ -139,6 +140,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               sessionId: '',
               timestamp: 0,
               businessName: '<?php echo htmlspecialchars($businessName, ENT_QUOTES, 'UTF-8'); ?>',
+              businessId: '<?php echo htmlspecialchars($businessId, ENT_QUOTES, 'UTF-8'); ?>',
               isExpired: true,
               expirationTimeout: null,
               startExpirationTimer() {
@@ -170,7 +172,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               },
               generateQrCode() {
                   this.$nextTick(() => {
-                      const intakeUrl = window.location.origin + '/intake.php?session_id=' + this.sessionId + '&t=' + this.timestamp + '&b=' + encodeURIComponent(this.businessName);
+                      const intakeUrl = window.location.origin + '/intake.php?session_id=' + this.sessionId + '&t=' + this.timestamp + '&b=' + encodeURIComponent(this.businessName) + '&bid=' + encodeURIComponent(this.businessId);
                       new QRious({
                           element: document.getElementById('intakeQr'),
                           value: intakeUrl,
@@ -335,7 +337,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                             <div>
                                 <div class="small text-muted d-flex align-items-center justify-content-center gap-2 mb-3" style="font-size: 11px; background: #f8f9fa; padding: 6px; border-radius: 4px; border: 1px solid var(--card-border);">
                                     <span>ID: <strong class="text-dark" x-text="sessionId"></strong></span>
-                                    <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp + '&b=' + encodeURIComponent(businessName)); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                                    <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp + '&b=' + encodeURIComponent(businessName) + '&bid=' + encodeURIComponent(businessId)); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                     </button>
                                 </div>
