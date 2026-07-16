@@ -389,8 +389,8 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                             <!-- Customer Name, Phone & Email -->
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-4">
-                                    <label for="customerName" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Customer Name *</label>
-                                    <input type="text" id="customerName" class="form-control py-2 rounded-1" placeholder="Full Name" required autocomplete="off" x-model="name" style="font-size: 14px;">
+                                    <label for="c_cust_name" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Customer Name *</label>
+                                    <input type="text" id="c_cust_name" name="c_cust_name" class="form-control py-2 rounded-1" placeholder="Full Name" required autocomplete="new-password" x-model="name" style="font-size: 14px;">
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <label for="phoneNumber" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Phone Number *</label>
