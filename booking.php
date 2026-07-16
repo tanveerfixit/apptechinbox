@@ -127,8 +127,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
-    <!-- Main Container -->
-    <main class="container-fluid px-2 px-sm-3 py-3 py-md-4 flex-grow-1" style="max-width: 600px; margin: 0 auto;" 
+    <main class="container py-3 py-md-4 flex-grow-1" 
           x-data="{
               name: '',
               phone: '',
