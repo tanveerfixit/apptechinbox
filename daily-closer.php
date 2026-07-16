@@ -32,10 +32,15 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
 $currentDateStr = date('l j F Y');
 $todayIso = date('Y-m-d');
 
-// Fetch today's closure details
-$fetchStmt = $db->prepare("SELECT cash_sale, card_boi, card_fixed, total_sale FROM daily_closures WHERE closure_date = ?");
-$fetchStmt->execute([$todayIso]);
-$todayClosure = $fetchStmt->fetch();
+// Fetch today's closure details if tenant database is connected
+$todayClosure = null;
+if ($tenantDbConnected && $db !== null) {
+    try {
+        $fetchStmt = $db->prepare("SELECT cash_sale, card_boi, card_fixed, total_sale FROM daily_closures WHERE closure_date = ?");
+        $fetchStmt->execute([$todayIso]);
+        $todayClosure = $fetchStmt->fetch();
+    } catch (PDOException $e) {}
+}
 
 $cashVal = $todayClosure ? (float)$todayClosure['cash_sale'] : 0.00;
 $boiVal = $todayClosure ? (float)$todayClosure['card_boi'] : 0.00;
@@ -43,9 +48,8 @@ $fixedVal = $todayClosure ? (float)$todayClosure['card_fixed'] : 0.00;
 
 // Handle Save Action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
-    if (!empty($tenantConnectionFailed)) {
-        $suggestedDb = $_SESSION['tenant_db_name'] ?? 'u583652021_biz_[businessname]';
-        $errorMsg = "Database connection error! The isolated database '{$suggestedDb}' has not been created on Hostinger yet. Please configure it to enable saving.";
+    if (!$tenantDbConnected || $db === null) {
+        $errorMsg = "Database Connection Error: This business is not connected to its relevant database. Please create the database '{$tenantDbName}' in Hostinger to resolve this.";
     } else {
         $cashInput = floatval($_POST['cash_sale'] ?? 0);
         $boiInput = floatval($_POST['card_boi'] ?? 0);
@@ -53,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
         $totalInput = $cashInput + $boiInput + $fixedInput;
 
         try {
-            // Fallback-friendly updateOrInsert
             $saveStmt = $db->prepare("
                 INSERT INTO daily_closures (user_id, business_name, closure_date, cash_sale, card_boi, card_fixed, total_sale)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -144,6 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
     <!-- Main Container -->
     <main class="container-fluid px-2 px-sm-3 py-3 py-md-4 flex-grow-1" style="max-width: 550px; margin: 0 auto;" 
           x-data="{ 
+              isDbConnected: <?php echo $tenantDbConnected ? 'true' : 'false'; ?>,
+              suggestedDbName: '<?php echo htmlspecialchars($tenantDbName); ?>',
               cash: <?php echo $cashVal; ?>, 
               boi: <?php echo $boiVal; ?>, 
               fixed: <?php echo $fixedVal; ?>,
@@ -171,6 +176,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
             </div>
 
             <div class="card-body p-4 bg-white">
+                <?php if (!$tenantDbConnected): ?>
+                    <div class="alert alert-danger p-3 mb-4 border-0 shadow-sm" style="font-size: 13.5px; border-radius: 6px; border-left: 4px solid var(--brand-red) !important; background-color: #fdf2f2; color: #9b1c1c;">
+                        <strong>⚠️ Database Not Connected</strong><br>
+                        This business is not connected to its relevant database. Please create the database <strong>`<?php echo htmlspecialchars($tenantDbName); ?>`</strong> in Hostinger and assign user privileges to allow saving daily closing records.
+                    </div>
+                <?php endif; ?>
                 <?php if ($successMsg): ?>
                     <div class="alert alert-success py-2 px-3 small text-center mb-3" style="font-size: 13px; border-radius: 4px;">
                         <?php echo htmlspecialchars($successMsg); ?>
@@ -183,28 +194,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
                     </div>
                 <?php endif; ?>
 
-                <?php if (!empty($tenantConnectionFailed)): ?>
-                    <div class="alert alert-danger py-3 px-3 small mb-3" style="font-size: 13px; border-radius: 4px; border-left: 4px solid #f25022 !important;">
-                        ⚠️ <strong>Database Connection Failed:</strong> The isolated database <code><?php echo htmlspecialchars($_SESSION['tenant_db_name']); ?></code> has not been created on Hostinger yet. Please configure it to enable saving.
-                    </div>
-                <?php endif; ?>
-
-                <form id="closureForm" method="POST" action="daily-closer.php">
+                <form id="closureForm" method="POST" action="daily-closer.php" x-on:submit="if (!isDbConnected) { event.preventDefault(); alert('⚠️ Database Connection Error\n\nThis business is not connected to its relevant database.\n\nPlease create the database \'' + suggestedDbName + '\' in Hostinger and assign user privileges to save closing records.'); }">
                     <input type="hidden" name="save_action" value="1">
                     
                     <div class="mb-3">
                         <label for="cash_sale" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Cash Sale (€)</label>
-                        <input type="number" step="0.01" min="0" name="cash_sale" id="cash_sale" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="cash" style="font-size: 18px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
+                        <input type="number" step="0.01" min="0" name="cash_sale" id="cash_sale" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="cash" style="font-size: 18px;">
                     </div>
 
                     <div class="mb-3">
                         <label for="card_boi" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Card BOI (€)</label>
-                        <input type="number" step="0.01" min="0" name="card_boi" id="card_boi" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="boi" style="font-size: 18px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
+                        <input type="number" step="0.01" min="0" name="card_boi" id="card_boi" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="boi" style="font-size: 18px;">
                     </div>
 
                     <div class="mb-4">
                         <label for="card_fixed" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Card Fixed (€)</label>
-                        <input type="number" step="0.01" min="0" name="card_fixed" id="card_fixed" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="fixed" style="font-size: 18px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
+                        <input type="number" step="0.01" min="0" name="card_fixed" id="card_fixed" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="fixed" style="font-size: 18px;">
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center bg-light border p-3 rounded mb-4" style="border-radius: 4px;">
@@ -213,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
                     </div>
 
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-brand py-2 flex-grow-1 fw-bold text-uppercase rounded-1" style="font-size: 13px; letter-spacing: 0.5px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>Save</button>
+                        <button type="submit" class="btn btn-brand py-2 flex-grow-1 fw-bold text-uppercase rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">Save</button>
                         <button type="button" x-on:click="printTicket()" class="btn btn-outline-secondary py-2 flex-grow-1 fw-bold text-uppercase rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">Print</button>
                     </div>
                 </form>

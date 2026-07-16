@@ -71,7 +71,8 @@ $tenantDbName = $_SESSION['tenant_db_name'] ?? null;
 $tenantDbUser = $_SESSION['tenant_db_user'] ?? $user;
 $tenantDbPass = $_SESSION['tenant_db_password'] ?? $password;
 $db = null;
-$tenantConnectionFailed = false;
+$tenantDbConnected = false;
+$tenantDbError = '';
 
 if ($tenantDbName) {
     try {
@@ -81,10 +82,11 @@ if ($tenantDbName) {
         ]);
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $tenantDbConnected = true;
     } catch (PDOException $e) {
-        // Fallback to master if tenant database does not exist or connection fails
-        $db = $masterDb;
-        $tenantConnectionFailed = true;
+        $db = null;
+        $tenantDbConnected = false;
+        $tenantDbError = "Could not connect to database '{$tenantDbName}'. Make sure it is created in Hostinger and user privileges are assigned.";
     }
 } else {
     $db = $masterDb;
@@ -302,62 +304,64 @@ if ($bizCount == 0) {
 }
 
 
-// 4. Initialize Tenant Schema on $db (which is either a tenant DB or falls back to master DB)
-$db->exec("
-    CREATE TABLE IF NOT EXISTS daily_closures (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT,
-        business_name VARCHAR(255) NOT NULL,
-        closure_date DATE UNIQUE,
-        cash_sale DECIMAL(10, 2) DEFAULT 0.00,
-        card_boi DECIMAL(10, 2) DEFAULT 0.00,
-        card_fixed DECIMAL(10, 2) DEFAULT 0.00,
-        total_sale DECIMAL(10, 2) DEFAULT 0.00,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-");
+// 4. Initialize Tenant Schema on $db (if connected to a distinct tenant database)
+if ($db !== null && $db !== $masterDb) {
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS daily_closures (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT,
+            business_name VARCHAR(255) NOT NULL,
+            closure_date DATE UNIQUE,
+            cash_sale DECIMAL(10, 2) DEFAULT 0.00,
+            card_boi DECIMAL(10, 2) DEFAULT 0.00,
+            card_fixed DECIMAL(10, 2) DEFAULT 0.00,
+            total_sale DECIMAL(10, 2) DEFAULT 0.00,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
 
-$db->exec("
-    CREATE TABLE IF NOT EXISTS booking_intakes (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        session_id VARCHAR(100) NOT NULL UNIQUE,
-        name VARCHAR(255),
-        phone VARCHAR(255),
-        device_name VARCHAR(255),
-        email VARCHAR(255) DEFAULT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-");
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS booking_intakes (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            session_id VARCHAR(100) NOT NULL UNIQUE,
+            name VARCHAR(255),
+            phone VARCHAR(255),
+            device_name VARCHAR(255),
+            email VARCHAR(255) DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
 
-$db->exec("
-    CREATE TABLE IF NOT EXISTS bookings (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        ticket_id VARCHAR(50) UNIQUE NOT NULL,
-        customer_name VARCHAR(255) NOT NULL,
-        phone_number VARCHAR(255) NOT NULL,
-        email VARCHAR(255) DEFAULT NULL,
-        device_model VARCHAR(255) NOT NULL,
-        problem_description TEXT NOT NULL,
-        total_quote DECIMAL(10, 2) DEFAULT 0.00,
-        deposit_paid DECIMAL(10, 2) DEFAULT 0.00,
-        balance_due DECIMAL(10, 2) DEFAULT 0.00,
-        business_name VARCHAR(255) NOT NULL,
-        booked_by VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-");
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS bookings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            ticket_id VARCHAR(50) UNIQUE NOT NULL,
+            customer_name VARCHAR(255) NOT NULL,
+            phone_number VARCHAR(255) NOT NULL,
+            email VARCHAR(255) DEFAULT NULL,
+            device_model VARCHAR(255) NOT NULL,
+            problem_description TEXT NOT NULL,
+            total_quote DECIMAL(10, 2) DEFAULT 0.00,
+            deposit_paid DECIMAL(10, 2) DEFAULT 0.00,
+            balance_due DECIMAL(10, 2) DEFAULT 0.00,
+            business_name VARCHAR(255) NOT NULL,
+            booked_by VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
 
-// Apply tenant-level migrations
-try {
-    $q = $db->query("SELECT email FROM booking_intakes LIMIT 1");
-    if ($q) $q->closeCursor();
-} catch (Exception $e) {
-    $db->exec("ALTER TABLE booking_intakes ADD COLUMN email VARCHAR(255) DEFAULT NULL");
+    // Apply tenant-level migrations
+    try {
+        $q = $db->query("SELECT email FROM booking_intakes LIMIT 1");
+        if ($q) $q->closeCursor();
+    } catch (Exception $e) {
+        $db->exec("ALTER TABLE booking_intakes ADD COLUMN email VARCHAR(255) DEFAULT NULL");
+    }
+
+    // Create indexes to optimize query speeds (Silent fail if index already exists or syntax differences)
+    try {
+        $db->exec("CREATE INDEX idx_daily_closures_date ON daily_closures (closure_date)");
+    } catch (Exception $e) {}
 }
-
-// Create indexes to optimize query speeds (Silent fail if index already exists or syntax differences)
-try {
-    $db->exec("CREATE INDEX idx_daily_closures_date ON daily_closures (closure_date)");
-} catch (Exception $e) {}
 
 

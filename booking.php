@@ -130,6 +130,8 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
 
     <main class="container py-3 py-md-4 flex-grow-1" 
           x-data="{
+              isDbConnected: <?php echo $tenantDbConnected ? 'true' : 'false'; ?>,
+              suggestedDbName: '<?php echo htmlspecialchars($tenantDbName); ?>',
               name: '',
               phone: '',
               device: '',
@@ -253,8 +255,12 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
 
                   window.print();
               },
-              async saveBooking(andPrint = false) {
-                  if (!this.name || !this.phone || !this.device || !this.fault) {
+               async saveBooking(andPrint = false) {
+                   if (!this.isDbConnected) {
+                       alert("⚠️ Database Connection Error\n\nThis business is not connected to its relevant database.\n\nPlease create the database '" + this.suggestedDbName + "' in Hostinger and assign user privileges to save bookings.");
+                       return;
+                   }
+                   if (!this.name || !this.phone || !this.device || !this.fault) {
                       alert('Please fill in all required fields (Name, Phone, Device, and Description).');
                       return;
                   }
@@ -308,12 +314,6 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               }
           }">
           
-        <?php if (!empty($tenantConnectionFailed)): ?>
-            <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert" style="border-left: 4px solid #f25022 !important;">
-                ⚠️ <strong>Database Connection Failed:</strong> The isolated database <code><?php echo htmlspecialchars($_SESSION['tenant_db_name']); ?></code> has not been created on Hostinger yet. Please configure it to enable saving.
-            </div>
-        <?php endif; ?>
-
         <div class="row g-4 align-items-start">
             <!-- Left Side / Sidebar: QR Customer Intake Code Block -->
             <div class="col-12 col-md-5 col-lg-4 col-xl-3">
@@ -378,6 +378,12 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                     </div>
 
                     <div class="card-body p-4 bg-white">
+                        <?php if (!$tenantDbConnected): ?>
+                            <div class="alert alert-danger p-3 mb-4 border-0 shadow-sm" style="font-size: 13.5px; border-radius: 6px; border-left: 4px solid var(--brand-teal) !important; background-color: #fdf2f2; color: #9b1c1c;">
+                                <strong>⚠️ Database Not Connected</strong><br>
+                                This business is not connected to its relevant database. Please create the database <strong>`<?php echo htmlspecialchars($tenantDbName); ?>`</strong> in Hostinger and assign user privileges to allow saving repair bookings.
+                            </div>
+                        <?php endif; ?>
                         <form x-on:submit.prevent="saveBooking(true)">
                             
                             <!-- Customer Name, Phone & Email -->
@@ -437,12 +443,12 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                             <!-- Action Buttons -->
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <button type="button" @click="saveBooking(false)" class="btn btn-secondary w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px; background-color: #5c5c5c; border-color: #5c5c5c; color: #ffffff;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
+                                    <button type="button" @click="saveBooking(false)" class="btn btn-secondary w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px; background-color: #5c5c5c; border-color: #5c5c5c; color: #ffffff;">
                                         Save
                                     </button>
                                 </div>
                                 <div class="col-6">
-                                    <button type="submit" class="btn btn-brand w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;" <?php echo !empty($tenantConnectionFailed) ? 'disabled' : ''; ?>>
+                                    <button type="submit" class="btn btn-brand w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">
                                         Save and Print
                                     </button>
                                 </div>

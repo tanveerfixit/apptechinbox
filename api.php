@@ -13,17 +13,6 @@ if ($action !== 'submit_intake' && !isset($_SESSION['user_id'])) {
 
 require_once __DIR__ . '/db.php';
 
-// Enforce database connectivity check on all merchant actions
-if ($action !== 'submit_intake' && !empty($tenantConnectionFailed)) {
-    $suggestedDb = $_SESSION['tenant_db_name'] ?? 'u583652021_biz_[businessname]';
-    http_response_code(500);
-    echo json_encode([
-        'status' => 'error', 
-        'message' => "Database connection error! The isolated tenant database '{$suggestedDb}' has not been created on Hostinger yet. Please configure this database to proceed."
-    ]);
-    exit();
-}
-
 try {
     switch ($action) {
         case 'submit_intake':
@@ -56,11 +45,7 @@ try {
                         ]);
                         $localDb->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                     } catch (PDOException $e) {
-                        echo json_encode([
-                            'status' => 'error', 
-                            'message' => "Database connection error! The merchant's database '{$tName}' has not been created on Hostinger yet. Please ask them to set it up."
-                        ]);
-                        exit();
+                        // Fallback
                     }
                 }
             }
@@ -98,6 +83,10 @@ try {
             break;
 
         case 'save_booking':
+            if ($db === null || !$tenantDbConnected) {
+                echo json_encode(['status' => 'error', 'message' => "Database Connection Error: This business is not connected to its relevant database. Please create the database '{$tenantDbName}' in Hostinger and assign user privileges."]);
+                break;
+            }
             $input = json_decode(file_get_contents('php://input'), true);
             $customer_name = trim($input['name'] ?? '');
             $phone_number = trim($input['phone'] ?? '');
