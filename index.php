@@ -39,6 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
                 
                 if ($bizDetails) {
                     $_SESSION['tenant_db_name'] = $bizDetails['db_name'] ?? null;
+                    $_SESSION['tenant_db_user'] = $bizDetails['db_user'] ?? null;
+                    $_SESSION['tenant_db_password'] = $bizDetails['db_password'] ?? null;
                     $_SESSION['business_name'] = $bizDetails['name'];
                     $_SESSION['business_id'] = $bizDetails['id'];
                 }

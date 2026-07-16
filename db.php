@@ -68,11 +68,13 @@ function sanitizeTenantDbName($businessName, $masterDbName) {
 
 // 2. Connect to Tenant Database if session is active
 $tenantDbName = $_SESSION['tenant_db_name'] ?? null;
+$tenantDbUser = $_SESSION['tenant_db_user'] ?? $user;
+$tenantDbPass = $_SESSION['tenant_db_password'] ?? $password;
 $db = null;
 
 if ($tenantDbName) {
     try {
-        $db = new PDO("mysql:host=$host;port=$port;dbname=$tenantDbName;charset=utf8mb4", $user, $password, [
+        $db = new PDO("mysql:host=$host;port=$port;dbname=$tenantDbName;charset=utf8mb4", $tenantDbUser, $tenantDbPass, [
             PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
             PDO::ATTR_PERSISTENT => true
         ]);
@@ -158,6 +160,8 @@ $masterDb->exec("
         id VARCHAR(100) PRIMARY KEY,
         name VARCHAR(255) UNIQUE NOT NULL,
         db_name VARCHAR(255) DEFAULT NULL,
+        db_user VARCHAR(255) DEFAULT NULL,
+        db_password VARCHAR(255) DEFAULT NULL,
         contact VARCHAR(255) DEFAULT NULL,
         email VARCHAR(255) DEFAULT NULL,
         address VARCHAR(255) DEFAULT NULL
@@ -198,6 +202,12 @@ try {
     if ($q) $q->closeCursor();
 } catch (Exception $e) {
     $masterDb->exec("ALTER TABLE businesses ADD COLUMN db_name VARCHAR(255) DEFAULT NULL");
+}
+try {
+    $q = $masterDb->query("SELECT db_user FROM businesses LIMIT 1");
+    if ($q) $q->closeCursor();
+} catch (Exception $e) {
+    $masterDb->exec("ALTER TABLE businesses ADD COLUMN db_user VARCHAR(255) DEFAULT NULL, ADD COLUMN db_password VARCHAR(255) DEFAULT NULL");
 }
 try {
     $q = $masterDb->query("SELECT name FROM users LIMIT 1");
@@ -262,15 +272,15 @@ if ($userCount == 0) {
 // Seed businesses table if empty on Master
 $bizCount = $masterDb->query("SELECT COUNT(*) FROM businesses")->fetchColumn();
 if ($bizCount == 0) {
-    $stmtBiz = $masterDb->prepare("INSERT INTO businesses (id, name, db_name, contact, email, address) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmtBiz = $masterDb->prepare("INSERT INTO businesses (id, name, db_name, db_user, db_password, contact, email, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     
     $defaultBusinesses = [
-        ['phone-lab', 'Phone Lab', sanitizeTenantDbName('Phone Lab', $masterDbName), '(065) 672 4192', 'phone.lab.ennis@gmail.com', '32 O\'Connell Street, Clonroad Beg, Ennis, Co. Clare, V95 EW74'],
-        ['fixd-gort', 'FIXD GORT', sanitizeTenantDbName('FIXD GORT', $masterDbName), '(089) 981 5157', 'fixd.gort@gmail.com', '1 Bridge St, Ballyhugh, Gort, Co. Galway, H91 FRC8'],
-        ['gadget-repair', 'Gadget Repair & Vape shop', sanitizeTenantDbName('Gadget Repair & Vape shop', $masterDbName), '(089) 961 7473', 'istoreirl@gmail.com', 'Apartment 1, Unit 1, Millennium House, Loughrea, Co. Galway, H62 H573'],
-        ['ipear-ennis', 'iPear Ennis', sanitizeTenantDbName('iPear Ennis', $masterDbName), '(065) 682 2900', '', '6 Parnell St, Clonroad Beg, Ennis, Co. Clare, V95 X073'],
-        ['ipear-tesco', 'iPear in Tesco', sanitizeTenantDbName('iPear in Tesco', $masterDbName), '(065) 672 4446', 'ipear.ennis@gmail.com', 'Unit 20, Francis St, Clonroad Beg, Ennis, Co. Clare, V95 EP8K'],
-        ['phone-shop-loughrea', 'Phone Shop Town Loughrea', sanitizeTenantDbName('Phone Shop Town Loughrea', $masterDbName), '', '', '']
+        ['phone-lab', 'Phone Lab', sanitizeTenantDbName('Phone Lab', $masterDbName), 'u583652021_phone_lab', 'Techinbox@8877', '(065) 672 4192', 'phone.lab.ennis@gmail.com', '32 O\'Connell Street, Clonroad Beg, Ennis, Co. Clare, V95 EW74'],
+        ['fixd-gort', 'FIXD GORT', sanitizeTenantDbName('FIXD GORT', $masterDbName), null, null, '(089) 981 5157', 'fixd.gort@gmail.com', '1 Bridge St, Ballyhugh, Gort, Co. Galway, H91 FRC8'],
+        ['gadget-repair', 'Gadget Repair & Vape shop', sanitizeTenantDbName('Gadget Repair & Vape shop', $masterDbName), null, null, '(089) 961 7473', 'istoreirl@gmail.com', 'Apartment 1, Unit 1, Millennium House, Loughrea, Co. Galway, H62 H573'],
+        ['ipear-ennis', 'iPear Ennis', sanitizeTenantDbName('iPear Ennis', $masterDbName), null, null, '(065) 682 2900', '', '6 Parnell St, Clonroad Beg, Ennis, Co. Clare, V95 X073'],
+        ['ipear-tesco', 'iPear in Tesco', sanitizeTenantDbName('iPear in Tesco', $masterDbName), null, null, '(065) 672 4446', 'ipear.ennis@gmail.com', 'Unit 20, Francis St, Clonroad Beg, Ennis, Co. Clare, V95 EP8K'],
+        ['phone-shop-loughrea', 'Phone Shop Town Loughrea', sanitizeTenantDbName('Phone Shop Town Loughrea', $masterDbName), null, null, '', '', '']
     ];
 
     foreach ($defaultBusinesses as $b) {
@@ -285,6 +295,8 @@ if ($bizCount == 0) {
             $updateBizDb->execute([sanitizeTenantDbName($bz['name'], $masterDbName), $bz['id']]);
         }
     }
+    // Force set the custom db credentials for phone-lab on Hostinger
+    $masterDb->exec("UPDATE businesses SET db_user = 'u583652021_phone_lab', db_password = 'Techinbox@8877' WHERE id = 'phone-lab'");
 }
 
 
