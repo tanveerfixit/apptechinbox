@@ -123,7 +123,10 @@ $masterDb->exec("
         name VARCHAR(255) DEFAULT NULL,
         contact VARCHAR(255) DEFAULT NULL,
         email VARCHAR(255) DEFAULT NULL,
-        address VARCHAR(255) DEFAULT NULL
+        address VARCHAR(255) DEFAULT NULL,
+        is_admin TINYINT(1) DEFAULT 0,
+        assigned_business_id VARCHAR(100) DEFAULT NULL,
+        FOREIGN KEY (assigned_business_id) REFERENCES businesses(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
@@ -171,6 +174,18 @@ try {
 } catch (Exception $e) {
     $masterDb->exec("ALTER TABLE users ADD COLUMN address VARCHAR(255) DEFAULT NULL");
 }
+try {
+    $q = $masterDb->query("SELECT is_admin FROM users LIMIT 1");
+    if ($q) $q->closeCursor();
+} catch (Exception $e) {
+    $masterDb->exec("ALTER TABLE users ADD COLUMN is_admin TINYINT(1) DEFAULT 0");
+}
+try {
+    $q = $masterDb->query("SELECT assigned_business_id FROM users LIMIT 1");
+    if ($q) $q->closeCursor();
+} catch (Exception $e) {
+    $masterDb->exec("ALTER TABLE users ADD COLUMN assigned_business_id VARCHAR(100) DEFAULT NULL");
+}
 
 $masterDb->exec("UPDATE users SET name = 'Phone Lab' WHERE name IS NULL OR name = ''");
 
@@ -178,18 +193,21 @@ $masterDb->exec("UPDATE users SET name = 'Phone Lab' WHERE name IS NULL OR name 
 $userCount = $masterDb->query("SELECT COUNT(*) FROM users")->fetchColumn();
 if ($userCount == 0) {
     $hashedPassword = password_hash('lab@123', PASSWORD_BCRYPT);
-    $stmt = $masterDb->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    $stmt = $masterDb->prepare("INSERT INTO users (username, password, is_admin, assigned_business_id) VALUES (?, ?, ?, ?)");
     
     $defaultUsers = [
-        ['Tanveer', $hashedPassword],
-        ['Suhail Saif', $hashedPassword],
-        ['Rutvik', $hashedPassword],
-        ['Umar', $hashedPassword]
+        ['Tanveer', $hashedPassword, 1, 'phone-lab'],
+        ['Suhail Saif', $hashedPassword, 0, 'phone-lab'],
+        ['Rutvik', $hashedPassword, 0, 'phone-lab'],
+        ['Umar', $hashedPassword, 0, 'phone-lab']
     ];
 
     foreach ($defaultUsers as $u) {
         $stmt->execute($u);
     }
+} else {
+    // Force promote 'Tanveer' to admin and assign default business if not done already
+    $masterDb->exec("UPDATE users SET is_admin = 1, assigned_business_id = 'phone-lab' WHERE LOWER(username) = 'tanveer'");
 }
 
 // Seed businesses table if empty on Master

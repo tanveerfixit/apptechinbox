@@ -20,13 +20,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
     $passwordInput = trim($_POST['password'] ?? '');
 
     if ($usernameInput && $passwordInput) {
-        $stmt = $masterDb->prepare("SELECT id, username, password FROM users WHERE LOWER(username) = LOWER(?)");
+        $stmt = $masterDb->prepare("SELECT id, username, password, is_admin, assigned_business_id FROM users WHERE LOWER(username) = LOWER(?)");
         $stmt->execute([$usernameInput]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($passwordInput, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['is_admin'] = (int)$user['is_admin'];
+            $_SESSION['assigned_business_id'] = $user['assigned_business_id'];
             
             // Update the user's business details dynamically based on selection
             $selectedBusinessId = trim($_POST['business'] ?? '');

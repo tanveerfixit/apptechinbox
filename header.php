@@ -25,6 +25,9 @@ $showBackBtn = ($currentScript !== 'index.php');
         <?php if ($isLoggedIn): ?>
             <span class="small text-muted d-none d-md-inline">Signed in as <a href="profile.php" class="text-dark fw-semibold text-decoration-underline"><?php echo htmlspecialchars($username); ?></a></span>
             <a href="duty_history.php" class="text-decoration-none fw-semibold text-primary ms-2" style="font-size: 14px; color: #0078d4 !important;">Duty History</a>
+            <?php if (!empty($_SESSION['is_admin'])): ?>
+                <a href="admin.php" class="text-decoration-none fw-semibold text-danger ms-2" style="font-size: 14px; color: #d83b01 !important;">Admin Portal</a>
+            <?php endif; ?>
             <a href="logout.php" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 border-0">
                 Sign Out
             </a>
