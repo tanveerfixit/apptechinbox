@@ -101,53 +101,24 @@ if (!$customer) {
             flex-direction: column;
         }
 
-        .card {
-            background-color: var(--card-bg);
-            border: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-        }
-
-        .table-responsive {
-            border-radius: 0 !important;
-            border: none !important;
-        }
-
-        .table {
-            border: none !important;
-        }
-
+        /* Table-specific styles (all global resets handled by header.php) */
         .table thead th {
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 700;
             color: var(--text-secondary);
-            background-color: #fcfcfc;
-            border: none !important;
-            padding: 12px 16px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid var(--card-border) !important;
         }
 
         .table tbody td {
             font-size: 13.5px;
-            padding: 16px;
-            border: none !important;
-        }
-
-        /* Remove border-radius, shadows, and borders universally from inputs, buttons, tables, cards */
-        .card, .table-responsive, .form-control, .form-select, .btn, .badge, textarea, input, select, .table, th, td, .border, .shadow-sm, .border-1 {
-            border-radius: 0 !important;
-            box-shadow: none !important;
-        }
-
-        .card, .btn, .table, .table td, .table th, .table-responsive, .border, .border-1 {
-            border: none !important;
-            border-width: 0 !important;
+            border-bottom: 1px solid var(--card-border) !important;
         }
 
         .form-control:focus, .form-select:focus {
-            border-color: var(--brand-teal);
-            box-shadow: 0 0 0 3px rgba(0, 130, 114, 0.15);
+            border-color: var(--brand-teal) !important;
         }
 
         /* Print formatting overlay styles */
@@ -310,12 +281,12 @@ if (!$customer) {
              
             <!-- Left Panel: Customer Summary & Edit Form -->
             <div class="col-12 col-lg-5 d-print-none">
-                <div class="card shadow-sm border-1 p-4 bg-white" style="border-radius: 6px; border-color: var(--card-border) !important;">
+                <div class="card p-4 bg-white">
                     <h3 class="h5 fw-bold text-dark mb-3">🛠️ Edit Repair & Customer Details</h3>
 
                     <!-- Success / Error alerts -->
-                    <div x-show="successMsg" class="alert alert-success py-2 px-3 small border-0 mb-3" style="background-color: #d1e7dd; color: #0f5132; border-radius: 4px;" x-text="successMsg"></div>
-                    <div x-show="errorMsg" class="alert alert-danger py-2 px-3 small border-0 mb-3" style="background-color: #f8d7da; color: #842029; border-radius: 4px;" x-text="errorMsg"></div>
+                    <div x-show="successMsg" class="alert alert-success py-2 px-3 small border-0 mb-3" style="background-color: #d1e7dd; color: #0f5132;" x-text="successMsg"></div>
+                    <div x-show="errorMsg" class="alert alert-danger py-2 px-3 small border-0 mb-3" style="background-color: #f8d7da; color: #842029;" x-text="errorMsg"></div>
 
                     <form @submit.prevent="saveChanges">
                         <div class="mb-3">
@@ -373,7 +344,7 @@ if (!$customer) {
             <div class="col-12 col-lg-7 d-print-none d-flex flex-column gap-4">
                 
                 <!-- Finances & Collect Payment Panel -->
-                <div class="card shadow-sm border-1 p-4 bg-white">
+                <div class="card p-4 bg-white">
                     <h3 class="h5 fw-bold text-dark mb-3">💰 Finances & Collect Payment</h3>
                     
                     <div class="row g-3 mb-4">
@@ -445,7 +416,7 @@ if (!$customer) {
                 </div>
 
                 <!-- Payment Receipts Ledger List -->
-                <div class="card shadow-sm border-1 p-4 bg-white">
+                <div class="card p-4 bg-white">
                     <h3 class="h5 fw-bold text-dark mb-3">🧾 Issued Payment Receipts</h3>
                     
                     <div class="table-responsive border">
@@ -486,7 +457,7 @@ if (!$customer) {
                 </div>
 
                 <!-- Historical Repair Jobs -->
-                <div class="card shadow-sm border-1 bg-white p-4">
+                <div class="card bg-white p-4">
                     <h3 class="h5 fw-bold text-dark mb-3">🛠️ Repair Job History</h3>
                     <p class="text-muted small mb-4">Detailed lists of all repair bookings corresponding to this customer's registered phone number.</p>
 

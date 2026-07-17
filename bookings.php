@@ -72,51 +72,28 @@ try {
             flex-direction: column;
         }
 
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 0;
-        }
-
-        .table-responsive {
-            border-radius: 0;
-        }
-
-        /* Remove border radius universally on this page */
-        .card, .table-responsive, .form-control, .form-select, .btn, .modal-content, .badge {
-            border-radius: 0 !important;
-        }
-
+        /* Table-specific styles (all global resets handled by header.php) */
         .table thead th {
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 700;
             color: var(--text-secondary);
-            background-color: #fcfcfc;
-            border-bottom: 1px solid var(--card-border);
-            padding: 12px 16px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid var(--card-border) !important;
         }
 
         .table tbody td {
             font-size: 13.5px;
-            padding: 16px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        /* Modal dialog Fluent overrides */
-        .modal-content {
-            border-radius: 6px;
-            border: 1px solid var(--card-border);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border-bottom: 1px solid var(--card-border) !important;
         }
 
         .modal-header {
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--card-border) !important;
         }
 
         .modal-footer {
-            border-top: 1px solid #f0f0f0;
+            border-top: 1px solid var(--card-border) !important;
         }
 
         /* Receipt print format overrides */
@@ -306,7 +283,7 @@ try {
         </div>
 
         <!-- Bookings Table Card -->
-        <div class="card shadow-sm border-1 bg-white flex-grow-1">
+        <div class="card bg-white flex-grow-1">
             <div x-show="loading" class="text-center py-5">
                 <div class="spinner-border text-secondary spinner-border-sm" role="status"></div>
                 <span class="ms-2 text-muted small">Loading bookings data...</span>
@@ -339,13 +316,12 @@ try {
                                      <div>
                                          <a :href="'customer_detail.php?id=' + job.id" class="fw-bold text-decoration-none text-primary" x-text="job.customer_name"></a>
                                      </div>
-                                     <div class="text-muted small" style="font-size: 12px;" x-text="job.phone_number"></div>
                                  </td>
                                 <td>
                                     <span class="fw-semibold text-dark" x-text="job.device_model"></span>
                                 </td>
                                 <td>
-                                     <select class="form-select form-select-sm" :value="job.status" @change="updateStatus(job, $event.target.value)" style="font-size: 12.5px; border-radius: 4px;">
+                                     <select class="form-select form-select-sm" :value="job.status" @change="updateStatus(job, $event.target.value)" style="font-size: 12.5px;">
                                          <option value="Pending">Pending</option>
                                          <option value="Processing">Processing</option>
                                          <option value="Completed">Completed</option>
@@ -353,10 +329,10 @@ try {
                                 </td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-1">
-                                        <button class="btn btn-sm btn-outline-secondary" style="font-size: 12px; border-radius: 4px;" @click="printReceipt(job)">
+                                        <button class="btn btn-sm btn-outline-secondary" style="font-size: 12px;" @click="printReceipt(job)">
                                             🖨️ Print
                                         </button>
-                                         <a :href="'customer_detail.php?id=' + job.id" class="btn btn-sm btn-outline-primary" style="font-size: 12px; border-radius: 4px; display: inline-flex; align-items: center; text-decoration: none;">
+                                         <a :href="'customer_detail.php?id=' + job.id" class="btn btn-sm btn-outline-primary" style="font-size: 12px; display: inline-flex; align-items: center; text-decoration: none;">
                                              ✏️ Edit
                                          </a>
                                     </div>

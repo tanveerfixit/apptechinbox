@@ -77,12 +77,7 @@ try {
             flex-direction: column;
         }
 
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
-        }
-
+        /* Page-specific styles only (global resets handled by header.php) */
         .btn-brand {
             background-color: #f25022;
             border-color: #f25022;
@@ -95,28 +90,20 @@ try {
             color: #ffffff;
         }
 
-        /* Pulse Status Animation */
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.5; }
-        }
         .pulse-dot {
             width: 8px;
             height: 8px;
             background-color: var(--brand-green);
-            border-radius: 50%;
             display: inline-block;
-            animation: pulse 1.8s infinite ease-in-out;
         }
+
         .status-badge {
             background-color: #f3f3f3;
             color: var(--text-secondary);
             font-size: 11px;
             font-weight: 600;
             padding: 6px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
+            border: 1px solid var(--card-border) !important;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -124,7 +111,7 @@ try {
 
         /* Scan viewfinder styling */
         .scan-frame {
-            border: 2px dotted #242424;
+            border: 2px dotted #242424 !important;
             padding: 16px;
             background: #ffffff;
             display: inline-flex;
@@ -332,7 +319,7 @@ try {
         <div class="row g-4 align-items-start">
             <!-- Left Side / Sidebar: QR Customer Intake Code Block -->
             <div class="col-12 col-md-5 col-lg-4 col-xl-3">
-                <div class="card shadow-sm border-1 p-4 bg-white text-center" style="border-radius: 6px; border-color: var(--card-border) !important; min-height: 425px; display: flex; flex-direction: column;">
+                <div class="card p-4 bg-white text-center" style="min-height: 425px; display: flex; flex-direction: column;">
                     <h3 class="small fw-bold text-uppercase text-muted mb-3" style="font-size: 11px; letter-spacing: 0.5px; color: var(--brand-teal) !important;">
                         📲 Mobile Customer Intake
                     </h3>
@@ -382,7 +369,7 @@ try {
 
             <!-- Right Side / Main: New Repair Booking Form -->
             <div class="col-12 col-md-7 col-lg-8 col-xl-9">
-                <div class="card shadow-sm border-1 overflow-hidden" style="border-radius: 6px; border-color: var(--card-border) !important;">
+                <div class="card overflow-hidden bg-white">
                     <div class="card-header bg-white py-3 px-4 border-bottom" style="border-left: 4px solid var(--brand-teal) !important;">
                         <h1 class="h5 fw-bold text-dark mb-1">New Repair Booking</h1>
                         <div class="small text-muted fw-semibold">Enter customer and device details below</div>
@@ -390,7 +377,7 @@ try {
 
                     <div class="card-body p-4 bg-white">
                         <?php if (!$tenantDbConnected): ?>
-                            <div class="alert alert-danger p-3 mb-4 border-0 shadow-sm" style="font-size: 13.5px; border-radius: 6px; border-left: 4px solid var(--brand-teal) !important; background-color: #fdf2f2; color: #9b1c1c;">
+                            <div class="alert alert-danger p-3 mb-4 border-0" style="font-size: 13.5px; border-left: 4px solid var(--brand-teal) !important; background-color: #fdf2f2; color: #9b1c1c;">
                                 <strong>⚠️ Database Not Connected</strong><br>
                                 This business is not connected to its relevant database. Please create the database <strong>`<?php echo htmlspecialchars($tenantDbName); ?>`</strong> in Hostinger and assign user privileges to allow saving repair bookings.
                             </div>

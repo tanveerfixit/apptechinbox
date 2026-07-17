@@ -117,6 +117,34 @@ $showBackBtn = ($currentScript !== 'index.php');
 </div>
 
 <style>
+/* Universal flat layout resets */
+*, *::before, *::after {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Strip borders and shadows from cards, buttons, tables, and modals */
+.card, .btn, .table, .table td, .table th, .table-responsive, .modal-content, .border, .border-1, .shadow, .shadow-sm, .shadow-lg {
+    border: none !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Ensure inputs remain legible with a flat, clean border */
+.form-control, .form-select {
+    border: 1px solid #d1d1d1 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Compact Table Padding Reset */
+.table thead th, .table tbody td, table th, table td {
+    padding: 8px 12px !important;
+}
+
 .offcanvas.showing, .offcanvas.hiding, .offcanvas.show {
     transition: transform 0.15s ease-in-out !important;
 }
