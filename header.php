@@ -5,7 +5,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 $currentScript = basename($_SERVER['PHP_SELF']);
 $showBackBtn = ($currentScript !== 'index.php');
 ?>
-<header class="navbar navbar-light bg-white border-bottom py-3 px-3 px-md-4 d-flex justify-content-between align-items-center shadow-sm">
+<header class="navbar navbar-light bg-light border-bottom py-2 px-3 px-md-4 d-flex justify-content-between align-items-center shadow-sm" style="background-color: #f3f3f3 !important; border-color: #e0e0e0 !important; min-height: 56px;">
     <div class="d-flex align-items-center gap-2">
         <!-- Hamburger Button (Mobile only) -->
         <button class="btn btn-link p-0 text-dark d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavDrawer" aria-controls="mobileNavDrawer" style="display: inline-flex; align-items: center;">
@@ -23,31 +23,38 @@ $showBackBtn = ($currentScript !== 'index.php');
                 <div style="width: 8px; height: 8px; background-color: #00a4ef;"></div>
                 <div style="width: 8px; height: 8px; background-color: #ffb900;"></div>
             </div>
-            <span class="fs-5 fw-bold text-dark mb-0">TechInbox</span>
-            <span class="text-muted border-start ps-2 mb-0 d-none d-sm-inline" style="font-size: 14px;">Portal</span>
+            <span class="fs-5 fw-bold mb-0" style="color: #005a9e; letter-spacing: -0.3px;">TechInbox</span>
         </a>
     </div>
     
-    <div class="d-flex align-items-center gap-3">
-        <?php if ($showBackBtn): ?>
-            <a href="index.php" class="text-decoration-none fw-semibold text-primary d-none d-sm-inline" style="font-size: 14px; color: var(--brand-blue) !important;">&larr; Back to Portal</a>
-        <?php endif; ?>
+    <!-- Centered Search Bar matching the reference -->
+    <div class="d-none d-md-flex align-items-center bg-white border px-3 rounded" style="width: 320px; height: 32px; border-color: #d1d1d1 !important;">
+        <span class="text-muted small me-2" style="font-size: 11px;">🔍</span>
+        <input type="text" placeholder="Search here..." class="border-0 w-100 small" style="outline: none; font-size: 12px; height: 26px;">
+    </div>
+    
+    <!-- Right side options -->
+    <div class="d-flex align-items-center gap-2">
+        <a href="#" class="btn btn-sm text-white px-3 py-1 fw-semibold text-decoration-none" style="background-color: #b31010; border-radius: 4px; font-size: 12.5px;">Support?</a>
         
-        <?php if ($isLoggedIn): ?>
-            <span class="small text-muted d-none d-md-inline">Signed in as <a href="profile.php" class="text-dark fw-semibold text-decoration-underline"><?php echo htmlspecialchars($username); ?></a></span>
-            <a href="duty_history.php" class="text-decoration-none fw-semibold text-primary ms-2 d-none d-md-inline" style="font-size: 14px; color: #0078d4 !important;">Duty History</a>
-            <?php if (!empty($_SESSION['is_admin'])): ?>
-                <a href="admin.php" class="text-decoration-none fw-semibold text-danger ms-2 d-none d-md-inline" style="font-size: 14px; color: #d83b01 !important;">Admin Portal</a>
-            <?php endif; ?>
-            <a href="logout.php" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 border-0">
-                Sign Out
-            </a>
-        <?php else: ?>
-            <span class="small text-muted d-none d-sm-inline">Not signed in</span>
-            <a href="login.php" class="btn btn-sm btn-primary px-3 rounded-1" onclick="event.preventDefault(); document.getElementById('loginModal').style.setProperty('display', 'flex', 'important');">
-                Sign In
-            </a>
-        <?php endif; ?>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-link text-decoration-none dropdown-toggle fw-semibold px-2" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="color: #005a9e; font-size: 13px;">
+                👤 <?php echo htmlspecialchars($username ?: 'Staff'); ?>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border" aria-labelledby="userMenuButton">
+                <?php if ($isLoggedIn): ?>
+                    <li><a class="dropdown-item small" href="profile.php">My Profile</a></li>
+                    <li><a class="dropdown-item small" href="duty_history.php">Duty History</a></li>
+                    <?php if (!empty($_SESSION['is_admin'])): ?>
+                        <li><a class="dropdown-item small text-danger" href="admin.php">Admin Portal</a></li>
+                    <?php endif; ?>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item small text-danger" href="logout.php">Sign Out</a></li>
+                <?php else: ?>
+                    <li><a class="dropdown-item small" href="login.php">Sign In</a></li>
+                <?php endif; ?>
+            </ul>
+        </div>
     </div>
 </header>
 
@@ -121,41 +128,50 @@ $showBackBtn = ($currentScript !== 'index.php');
     transition: transform 0.15s ease-in-out !important;
 }
 .nav-link-sidebar {
-    color: #242424 !important;
-    font-size: 14px;
+    color: #5c5c5c !important;
+    font-size: 11px;
     font-weight: 500;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 4px;
+    gap: 4px;
     transition: background-color 0.15s ease, color 0.15s ease;
-    border-left: 4px solid transparent;
+    border-left: 3px solid transparent;
 }
 .nav-link-sidebar:hover {
     background-color: #f3f3f3;
+    color: #242424 !important;
 }
 .active-sidebar {
     background-color: #f3f3f3;
+    color: #005a9e !important;
     font-weight: 600;
-    border-left-color: #00a4ef !important;
+    border-left-color: #005a9e !important;
 }
 </style>
 
 <div class="d-flex flex-grow-1">
     <!-- Sidebar Navigation (Desktop only) -->
-    <aside class="bg-white border-end d-none d-lg-flex flex-column py-4 px-2" style="width: 250px; min-height: calc(100vh - 73px); border-color: var(--card-border) !important;">
-        <div class="d-flex flex-column gap-1">
-            <a href="bookings.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'bookings.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #00a4ef;">🛠️</span>
-                <span>Booked Jobs</span>
+    <aside class="bg-white border-end d-none d-lg-flex flex-column py-3 px-1" style="width: 100px; min-height: calc(100vh - 56px); border-color: var(--card-border) !important;">
+        <div class="d-flex flex-column gap-2">
+            <a href="bookings.php" class="nav-link-sidebar rounded-1 text-decoration-none <?php echo ($currentScript === 'bookings.php') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 18px;">🛠️</span>
+                <span style="line-height: 1.2;">Repairs</span>
             </a>
-            <a href="booking.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'booking.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #008272;">📋</span>
-                <span>Device Booking</span>
+            <a href="booking.php" class="nav-link-sidebar rounded-1 text-decoration-none <?php echo ($currentScript === 'booking.php') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 18px;">📋</span>
+                <span style="line-height: 1.2;">Booking</span>
             </a>
-            <a href="daily-closer.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'daily-closer.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #7fba00;">📊</span>
-                <span>Daily Closer</span>
+            <a href="daily-closer.php" class="nav-link-sidebar rounded-1 text-decoration-none <?php echo ($currentScript === 'daily-closer.php') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 18px;">📊</span>
+                <span style="line-height: 1.2;">Closer</span>
             </a>
-            <a href="screen-protector-finder" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'screen-protector-finder') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #ffb900;">📱</span>
-                <span>Screen Protector</span>
+            <a href="screen-protector-finder" class="nav-link-sidebar rounded-1 text-decoration-none <?php echo ($currentScript === 'screen-protector-finder') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 18px;">📱</span>
+                <span style="line-height: 1.2;">Protector</span>
             </a>
         </div>
     </aside>
