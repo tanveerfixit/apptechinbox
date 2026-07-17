@@ -242,38 +242,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
     <div id="printArea" style="display: none;">
         <div class="receipt-header">
             <h2>DAILY CLOSURE</h2>
-            <p style="font-weight: bold; font-size: 11px; margin-bottom: 4px;"><?php echo htmlspecialchars(strtoupper($businessName)); ?></p>
-            <?php if (!empty($businessAddress)): ?>
-                <p><?php echo htmlspecialchars($businessAddress); ?></p>
-            <?php endif; ?>
+            <p style="font-weight: bold; font-size: 14px; margin-bottom: 4px;"><?php echo htmlspecialchars(strtoupper($businessName)); ?></p>
             <?php if (!empty($businessContact)): ?>
-                <p>Phone: <?php echo htmlspecialchars($businessContact); ?></p>
+                <p style="font-size: 13px;">Phone: <?php echo htmlspecialchars($businessContact); ?></p>
             <?php endif; ?>
             <?php if (!empty($businessEmail)): ?>
-                <p>Email: <?php echo htmlspecialchars($businessEmail); ?></p>
+                <p style="font-size: 13px;">Email: <?php echo htmlspecialchars($businessEmail); ?></p>
             <?php endif; ?>
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-details">
-            <p><strong>Business:</strong> <span><?php echo htmlspecialchars($businessName); ?></span></p>
-            <p><strong>Staff Name:</strong> <span><?php echo htmlspecialchars($username); ?></span></p>
-            <p><strong>Date & Time:</strong> <span id="receiptDateTime"></span></p>
+            <p style="font-size: 13px;"><strong>Business:</strong> <span><?php echo htmlspecialchars($businessName); ?></span></p>
+            <p style="font-size: 13px;"><strong>Staff Name:</strong> <span><?php echo htmlspecialchars($username); ?></span></p>
+            <p style="font-size: 13px;"><strong>Date & Time:</strong> <span id="receiptDateTime"></span></p>
         </div>
         <div class="receipt-divider"></div>
-        <div class="receipt-row">
+        <div class="receipt-row" style="font-size: 14px;">
             <span>Cash Sale:</span>
             <span id="pCash">€0.00</span>
         </div>
-        <div class="receipt-row">
+        <div class="receipt-row" style="font-size: 14px;">
             <span>Card BOI:</span>
             <span id="pBoi">€0.00</span>
         </div>
-        <div class="receipt-row">
+        <div class="receipt-row" style="font-size: 14px;">
             <span>Card Fixed:</span>
             <span id="pFixed">€0.00</span>
         </div>
         <div class="receipt-divider"></div>
-        <div class="receipt-row" style="font-weight: bold; font-size: 14px;">
+        <div class="receipt-row" style="font-weight: bold; font-size: 18px;">
             <span>Total Sale:</span>
             <span id="pTotal">€0.00</span>
         </div>
@@ -317,8 +314,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
                 color: #000000;
                 background-color: #ffffff;
                 padding: 4mm 2mm;
-                font-size: <?php echo $printerFontSize; ?>px !important;
-                line-height: 1.25;
+                font-size: <?php echo $printerFontSize + 3; ?>px !important;
+                line-height: 1.35;
             }
             #printArea p, #printArea h2, #printArea h3, #printArea span, #printArea div {
                 margin: 0;
@@ -326,34 +323,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
             }
             .receipt-header {
                 text-align: center;
-                margin-bottom: 8px;
+                margin-bottom: 10px;
             }
             .receipt-header h2 {
-                font-size: 14px;
-                margin-bottom: 3px;
+                font-size: 18px;
+                margin-bottom: 4px;
                 font-weight: bold;
             }
             .receipt-header p {
-                font-size: 11px;
-                margin-bottom: 2px;
+                font-size: 14px;
+                margin-bottom: 3px;
             }
             .receipt-row {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 4px;
+                margin-bottom: 5px;
+                font-size: 14px;
             }
             .receipt-divider {
                 border-top: 1px dashed #000000;
-                margin: 6px 0;
+                margin: 8px 0;
             }
             .receipt-details {
-                margin-bottom: 6px;
+                margin-bottom: 8px;
             }
             .receipt-details p {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 3px;
-                font-size: 11.5px;
+                margin-bottom: 4px;
+                font-size: 14px;
             }
             .receipt-details strong {
                 font-weight: bold;

@@ -113,7 +113,8 @@ try {
                  color: #000;
                  background: #fff;
                  padding: 10px;
-                 font-size: <?php echo $printerFontSize; ?>px !important;
+                 font-size: <?php echo $printerFontSize + 3; ?>px !important;
+                 line-height: 1.35;
              }
             aside, header, main, footer, .modal {
                 display: none !important;
@@ -397,42 +398,42 @@ try {
         <!-- Receipt Print Template (Hidden standard 80mm format) -->
         <div id="printTicketArea" class="d-none d-print-block">
             <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
-                <h3 style="margin: 0; font-size: 16px; font-weight: bold;"><?php echo htmlspecialchars($businessName); ?></h3>
+                <h3 style="margin: 0; font-size: 20px; font-weight: bold;"><?php echo htmlspecialchars($businessName); ?></h3>
                 <?php if ($businessAddress): ?>
-                    <p style="margin: 3px 0 0 0; font-size: 11px;"><?php echo htmlspecialchars($businessAddress); ?></p>
+                    <p style="margin: 3px 0 0 0; font-size: 14px;"><?php echo htmlspecialchars($businessAddress); ?></p>
                 <?php endif; ?>
                 <?php if ($businessContact): ?>
-                    <p style="margin: 2px 0 0 0; font-size: 11px;">Ph: <?php echo htmlspecialchars($businessContact); ?></p>
+                    <p style="margin: 2px 0 0 0; font-size: 14px;">Ph: <?php echo htmlspecialchars($businessContact); ?></p>
                 <?php endif; ?>
             </div>
             
-            <div style="font-size: 11px; margin-bottom: 8px;">
+            <div style="font-size: 14px; margin-bottom: 8px;">
                 <span id="receiptDate">Date: </span><br>
                 <span id="receiptTicketNum">Ticket #: </span>
             </div>
 
-            <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+            <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
                 <strong>CUSTOMER DETAILS</strong><br>
                 Name: <span id="rCustomer"></span><br>
                 Phone: <span id="rPhone"></span><br>
                 Email: <span id="rEmail"></span>
             </div>
 
-            <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+            <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
                 <strong>DEVICE & FAULT</strong><br>
                 Device: <span id="rDevice"></span><br>
                 Problem: <span id="rFault"></span>
             </div>
 
-            <div style="text-align: right; font-size: 12px; line-height: 1.5;">
+            <div style="text-align: right; font-size: 15px; line-height: 1.5;">
                 Quote: <span id="rQuote"></span><br>
                 Deposit: <span id="rDeposit"></span><br>
-                <div style="border-top: 1px dashed #000; margin-top: 4px; font-weight: bold; font-size: 13px;">
+                <div style="border-top: 1px dashed #000; margin-top: 4px; font-weight: bold; font-size: 18px;">
                     Balance: <span id="rBalance"></span>
                 </div>
             </div>
 
-            <div style="text-align: center; margin-top: 20px; font-size: 10px; border-top: 1px dashed #000; padding-top: 8px;">
+            <div style="text-align: center; margin-top: 20px; font-size: 13px; border-top: 1px dashed #000; padding-top: 8px;">
                 Thank you for choosing <?php echo htmlspecialchars($businessName); ?>!<br>
                 Please retain this ticket to collect your device.
             </div>

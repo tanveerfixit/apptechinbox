@@ -135,7 +135,8 @@ if (!$customer) {
                 top: 0;
                 width: 80mm;
                 font-family: <?php echo $printerFontFamily; ?> !important;
-                font-size: <?php echo $printerFontSize; ?>px !important;
+                font-size: <?php echo $printerFontSize + 3; ?>px !important;
+                line-height: 1.35;
             }
         }
     </style>
@@ -512,27 +513,27 @@ if (!$customer) {
     <!-- Payment Receipt Print Template (Standard thermal voucher style) -->
     <div id="printPaymentReceiptArea" class="d-none d-print-block" style="font-family: monospace; line-height: 1.4; color: #000; width: 80mm; margin: 0 auto; padding: 10px;">
         <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
-            <h3 style="margin: 0; font-size: 16px; font-weight: bold;" id="pRecStore">Store</h3>
-            <p style="margin: 3px 0 0 0; font-size: 11px;">PAYMENT RECEIPT</p>
+            <h3 style="margin: 0; font-size: 20px; font-weight: bold;" id="pRecStore">Store</h3>
+            <p style="margin: 3px 0 0 0; font-size: 14px;">PAYMENT RECEIPT</p>
         </div>
         
-        <div style="font-size: 11px; margin-bottom: 8px;">
+        <div style="font-size: 14px; margin-bottom: 8px;">
             <strong>Date:</strong> <span id="pRecPayDate"></span><br>
             <strong>Job Ticket ID:</strong> <span id="pRecTicket"></span>
         </div>
 
-        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
             <strong>CUSTOMER DETAILS</strong><br>
             Name: <span id="pRecCust"></span><br>
             Phone: <span id="pRecPhone"></span>
         </div>
 
-        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
             <strong>DEVICE</strong><br>
             Model: <span id="pRecDevice"></span>
         </div>
 
-        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
             <strong>TRANSACTION DETAILS</strong><br>
             Amount Received: <span id="pRecPayAmt" style="font-weight: bold;"></span><br>
             Payment Method: <span id="pRecPayMethod"></span><br>
@@ -540,15 +541,15 @@ if (!$customer) {
             Received By: <span id="pRecStaff"></span>
         </div>
 
-        <div style="text-align: right; font-size: 11px; line-height: 1.5; margin-top: 8px;">
+        <div style="text-align: right; font-size: 14px; line-height: 1.5; margin-top: 8px;">
             Total Job Quote: <span id="pRecQuote"></span><br>
             Cumulative Paid: <span id="pRecTotalPaid"></span><br>
-            <div style="border-top: 1px dashed #000; margin-top: 4px; font-weight: bold; font-size: 12px;">
+            <div style="border-top: 1px dashed #000; margin-top: 4px; font-weight: bold; font-size: 16px;">
                 Remaining Balance: <span id="pRecBalDue"></span>
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 20px; font-size: 10px; border-top: 1px dashed #000; padding-top: 8px;">
+        <div style="text-align: center; margin-top: 20px; font-size: 13px; border-top: 1px dashed #000; padding-top: 8px;">
             Thank you for your payment!<br>
             Keep this receipt for account reference.
         </div>

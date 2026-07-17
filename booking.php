@@ -463,43 +463,43 @@ try {
     <div id="printArea" style="display: none;">
         <div class="receipt-header">
             <h2><?php echo htmlspecialchars(strtoupper($businessName)); ?></h2>
-            <p style="font-weight: bold; font-size: 12px; margin-bottom: 4px;">REPAIR TICKET</p>
+            <p style="font-weight: bold; font-size: 15px; margin-bottom: 4px;">REPAIR TICKET</p>
             <?php if (!empty($businessAddress)): ?>
-                <p><?php echo htmlspecialchars($businessAddress); ?></p>
+                <p style="font-size: 13px;"><?php echo htmlspecialchars($businessAddress); ?></p>
             <?php endif; ?>
             <?php if (!empty($businessContact)): ?>
-                <p>Phone: <?php echo htmlspecialchars($businessContact); ?></p>
+                <p style="font-size: 13px;">Phone: <?php echo htmlspecialchars($businessContact); ?></p>
             <?php endif; ?>
             <?php if (!empty($businessEmail)): ?>
-                <p>Email: <?php echo htmlspecialchars($businessEmail); ?></p>
+                <p style="font-size: 13px;">Email: <?php echo htmlspecialchars($businessEmail); ?></p>
             <?php endif; ?>
-            <p id="receiptDate" style="margin-top: 4px;"></p>
-            <p id="receiptTicketNum" style="font-weight: bold;"></p>
+            <p id="receiptDate" style="margin-top: 4px; font-size: 13px;"></p>
+            <p id="receiptTicketNum" style="font-weight: bold; font-size: 14px;"></p>
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-details">
-            <p><strong>Customer:</strong> <span id="rCustomer"></span></p>
-            <p><strong>Phone:</strong> <span id="rPhone"></span></p>
-            <p><strong>Email:</strong> <span id="rEmail"></span></p>
-            <p><strong>Device:</strong> <span id="rDevice"></span></p>
-            <p><strong>Booked By:</strong> <span id="rUser"><?php echo htmlspecialchars($username ?: 'Guest'); ?></span></p>
+            <p style="font-size: 14px;"><strong>Customer:</strong> <span id="rCustomer"></span></p>
+            <p style="font-size: 14px;"><strong>Phone:</strong> <span id="rPhone"></span></p>
+            <p style="font-size: 14px;"><strong>Email:</strong> <span id="rEmail"></span></p>
+            <p style="font-size: 14px;"><strong>Device:</strong> <span id="rDevice"></span></p>
+            <p style="font-size: 14px;"><strong>Booked By:</strong> <span id="rUser"><?php echo htmlspecialchars($username ?: 'Guest'); ?></span></p>
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-details" style="display: block;">
-            <p style="display: block; font-weight: bold; margin-bottom: 2px;">Fault Description:</p>
-            <p id="rFault" style="display: block; padding-left: 4px; font-style: italic; font-size: 11px; white-space: pre-wrap; line-height: 1.3;"></p>
+            <p style="display: block; font-weight: bold; margin-bottom: 2px; font-size: 14px;">Fault Description:</p>
+            <p id="rFault" style="display: block; padding-left: 4px; font-style: italic; font-size: 14px; white-space: pre-wrap; line-height: 1.3;"></p>
         </div>
         <div class="receipt-divider"></div>
-        <div class="receipt-row">
+        <div class="receipt-row" style="font-size: 14px;">
             <span>Total Quote:</span>
             <span id="rQuote">€0.00</span>
         </div>
-        <div class="receipt-row">
+        <div class="receipt-row" style="font-size: 14px;">
             <span>Deposit Paid:</span>
             <span id="rDeposit">€0.00</span>
         </div>
         <div class="receipt-divider"></div>
-        <div class="receipt-row" style="font-weight: bold; font-size: 14px;">
+        <div class="receipt-row" style="font-weight: bold; font-size: 18px;">
             <span>Balance Due:</span>
             <span id="rBalance">€0.00</span>
         </div>
@@ -535,8 +535,8 @@ try {
                 color: #000000;
                 background-color: #ffffff;
                 padding: 4mm 2mm;
-                font-size: <?php echo $printerFontSize; ?>px !important;
-                line-height: 1.25;
+                font-size: <?php echo $printerFontSize + 3; ?>px !important;
+                line-height: 1.35;
             }
             #printArea p, #printArea h2, #printArea h3, #printArea span, #printArea div {
                 margin: 0;
@@ -544,34 +544,35 @@ try {
             }
             .receipt-header {
                 text-align: center;
-                margin-bottom: 8px;
+                margin-bottom: 10px;
             }
             .receipt-header h2 {
-                font-size: 14px;
-                margin-bottom: 3px;
+                font-size: 18px;
+                margin-bottom: 4px;
                 font-weight: bold;
             }
             .receipt-header p {
-                font-size: 11px;
-                margin-bottom: 2px;
+                font-size: 14px;
+                margin-bottom: 3px;
             }
             .receipt-row {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 4px;
+                margin-bottom: 5px;
+                font-size: 14px;
             }
             .receipt-divider {
                 border-top: 1px dashed #000000;
-                margin: 6px 0;
+                margin: 8px 0;
             }
             .receipt-details {
-                margin-bottom: 6px;
+                margin-bottom: 8px;
             }
             .receipt-details p {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 3px;
-                font-size: 11.5px;
+                margin-bottom: 4px;
+                font-size: 14px;
             }
             .receipt-details strong {
                 font-weight: bold;
