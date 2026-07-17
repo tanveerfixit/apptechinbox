@@ -291,6 +291,27 @@ try {
             $ticketId = $bookingData['ticket_id'];
             $quote = floatval($bookingData['total_quote']);
             
+            // Check for duplicate payment (same booking, amount, and method within the last 10 seconds)
+            $stmtCheckDup = $db->prepare("SELECT id FROM booking_payments WHERE booking_id = ? AND amount = ? AND payment_method = ? AND created_at >= NOW() - INTERVAL 10 SECOND LIMIT 1");
+            $stmtCheckDup->execute([$bookingId, $amount, $method]);
+            if ($stmtCheckDup->fetch()) {
+                throw new Exception('Duplicate payment detected. Please wait a moment.');
+            }
+
+            // Check remaining balance before adding payment
+            $stmtSumBefore = $db->prepare("SELECT SUM(amount) FROM booking_payments WHERE booking_id = ?");
+            $stmtSumBefore->execute([$bookingId]);
+            $totalPaidBefore = floatval($stmtSumBefore->fetchColumn() ?: 0);
+            $currentBalanceDue = max(0, $quote - $totalPaidBefore);
+            
+            if ($currentBalanceDue <= 0) {
+                throw new Exception('This booking has already been fully paid.');
+            }
+            
+            if ($amount > $currentBalanceDue + 0.01) {
+                throw new Exception('Payment amount (€' . number_format($amount, 2) . ') cannot exceed the remaining balance due (€' . number_format($currentBalanceDue, 2) . ').');
+            }
+
             // Insert ledger entry
             $username = $_SESSION['username'] ?? 'System';
             $stmtIns = $db->prepare("INSERT INTO booking_payments (booking_id, ticket_id, amount, payment_method, payment_type, reference_code, received_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -321,6 +342,7 @@ try {
                     'balance_due' => $balanceDue
                 ]
             ]);
+            break;
         case 'get_printer_settings':
             $stmt = $db->query("SELECT font_size, font_family FROM printer_settings LIMIT 1");
             $settings = $stmt->fetch(PDO::FETCH_ASSOC);
