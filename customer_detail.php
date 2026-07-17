@@ -23,6 +23,7 @@ $businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
 $bookingId = intval($_GET['id'] ?? 0);
 $customer = null;
 $historyJobs = [];
+$payments = [];
 
 if ($bookingId && $db !== null && $tenantDbConnected) {
     try {
@@ -36,6 +37,11 @@ if ($bookingId && $db !== null && $tenantDbConnected) {
             $stmtHist = $db->prepare("SELECT * FROM bookings WHERE phone_number = ? ORDER BY created_at DESC");
             $stmtHist->execute([$customer['phone_number']]);
             $historyJobs = $stmtHist->fetchAll(PDO::FETCH_ASSOC);
+
+            // Fetch payment receipts ledger
+            $stmtPay = $db->prepare("SELECT * FROM booking_payments WHERE booking_id = ? ORDER BY created_at ASC");
+            $stmtPay->execute([$bookingId]);
+            $payments = $stmtPay->fetchAll(PDO::FETCH_ASSOC);
         }
     } catch (Exception $e) {}
 }
@@ -114,6 +120,22 @@ if (!$customer) {
             border-color: var(--brand-teal);
             box-shadow: 0 0 0 3px rgba(0, 130, 114, 0.15);
         }
+
+        /* Print formatting overlay styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printPaymentReceiptArea, #printPaymentReceiptArea * {
+                visibility: visible;
+            }
+            #printPaymentReceiptArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -123,7 +145,7 @@ if (!$customer) {
 
     <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1">
         <!-- Breadcrumb back link -->
-        <div class="mb-3">
+        <div class="mb-3 d-print-none">
             <a href="bookings.php" class="text-decoration-none fw-semibold text-primary" style="font-size: 14px; color: var(--brand-blue) !important;">&larr; Back to Bookings</a>
         </div>
 
@@ -142,6 +164,16 @@ if (!$customer) {
                  isSaving: false,
                  successMsg: '',
                  errorMsg: '',
+
+                 // Payments Ledger state
+                 payments: <?php echo json_encode($payments); ?>,
+                 payAmount: '<?php echo htmlspecialchars($customer['balance_due'], ENT_QUOTES, 'UTF-8'); ?>',
+                 payMethod: 'Cash',
+                 payType: 'Final Balance',
+                 payRef: '',
+                 isAddingPayment: false,
+                 paySuccessMsg: '',
+                 payErrorMsg: '',
 
                  async saveChanges() {
                      this.isSaving = true;
@@ -178,11 +210,75 @@ if (!$customer) {
                      } finally {
                          this.isSaving = false;
                      }
+                 },
+
+                 async collectPayment() {
+                     if (parseFloat(this.payAmount) <= 0) {
+                         this.payErrorMsg = 'Please enter a valid amount.';
+                         return;
+                     }
+                     this.isAddingPayment = true;
+                     this.paySuccessMsg = '';
+                     this.payErrorMsg = '';
+                     try {
+                         const res = await fetch('api.php?action=add_payment', {
+                             method: 'POST',
+                             headers: { 'Content-Type': 'application/json' },
+                             body: JSON.stringify({
+                                 booking_id: this.id,
+                                 amount: parseFloat(this.payAmount),
+                                 payment_method: this.payMethod,
+                                 payment_type: this.payType,
+                                 reference_code: this.payRef
+                             })
+                         });
+                         const result = await res.json();
+                         if (result.status === 'success') {
+                             this.paySuccessMsg = 'Payment recorded successfully!';
+                             this.payments = result.data.payments;
+                             this.deposit = result.data.deposit_paid;
+                             this.payAmount = result.data.balance_due;
+                             this.payRef = '';
+                             setTimeout(() => {
+                                 window.location.reload();
+                             }, 1000);
+                         } else {
+                             this.payErrorMsg = result.message || 'Failed to add payment.';
+                         }
+                     } catch(e) {
+                         this.payErrorMsg = 'Network error.';
+                     } finally {
+                         this.isAddingPayment = false;
+                     }
+                 },
+
+                 printPaymentReceipt(pay) {
+                     document.getElementById('pRecStore').textContent = '<?php echo htmlspecialchars($businessName, ENT_QUOTES, 'UTF-8'); ?>';
+                     document.getElementById('pRecTicket').textContent = '<?php echo htmlspecialchars($customer['ticket_id'], ENT_QUOTES, 'UTF-8'); ?>';
+                     document.getElementById('pRecCust').textContent = '<?php echo htmlspecialchars($customer['customer_name'], ENT_QUOTES, 'UTF-8'); ?>';
+                     document.getElementById('pRecPhone').textContent = '<?php echo htmlspecialchars($customer['phone_number'], ENT_QUOTES, 'UTF-8'); ?>';
+                     document.getElementById('pRecDevice').textContent = this.device;
+                     
+                     document.getElementById('pRecPayDate').textContent = new Date(pay.created_at).toLocaleString();
+                     document.getElementById('pRecPayAmt').textContent = '€' + parseFloat(pay.amount).toFixed(2);
+                     document.getElementById('pRecPayMethod').textContent = pay.payment_method + ' (' + pay.payment_type + ')';
+                     document.getElementById('pRecPayRef').textContent = pay.reference_code || 'N/A';
+                     document.getElementById('pRecStaff').textContent = pay.received_by;
+                     
+                     const currentPaid = parseFloat(this.deposit);
+                     const totalQuote = parseFloat(this.quote);
+                     const balanceLeft = Math.max(0, totalQuote - currentPaid);
+                     
+                     document.getElementById('pRecQuote').textContent = '€' + totalQuote.toFixed(2);
+                     document.getElementById('pRecTotalPaid').textContent = '€' + currentPaid.toFixed(2);
+                     document.getElementById('pRecBalDue').textContent = '€' + balanceLeft.toFixed(2);
+                     
+                     window.print();
                  }
              }">
              
             <!-- Left Panel: Customer Summary & Edit Form -->
-            <div class="col-12 col-lg-5">
+            <div class="col-12 col-lg-5 d-print-none">
                 <div class="card shadow-sm border-1 p-4 bg-white" style="border-radius: 6px; border-color: var(--card-border) !important;">
                     <h3 class="h5 fw-bold text-dark mb-3">🛠️ Edit Repair & Customer Details</h3>
 
@@ -218,7 +314,7 @@ if (!$customer) {
                             </div>
                             <div class="col-6">
                                 <label class="form-label small fw-bold text-secondary">Deposit (€)</label>
-                                <input type="number" step="0.01" x-model="deposit" class="form-control form-control-sm">
+                                <input type="number" step="0.01" x-model="deposit" class="form-control form-control-sm" disabled title="Deposit/Total Paid is dynamically updated via the Payments ledger.">
                             </div>
                         </div>
                         <div class="mb-3">
@@ -242,8 +338,123 @@ if (!$customer) {
                 </div>
             </div>
 
-            <!-- Right Panel: Jobs list History Table -->
-            <div class="col-12 col-lg-7">
+            <!-- Right Panel: Payments, Finances & History -->
+            <div class="col-12 col-lg-7 d-print-none d-flex flex-column gap-4">
+                
+                <!-- Finances & Collect Payment Panel -->
+                <div class="card shadow-sm border-1 p-4 bg-white">
+                    <h3 class="h5 fw-bold text-dark mb-3">💰 Finances & Collect Payment</h3>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-4">
+                            <div class="p-3 border rounded text-center" style="background: #fafafa;">
+                                <div class="text-muted small" style="font-size: 11px; text-transform: uppercase;">Total Quote</div>
+                                <div class="h5 fw-bold mb-0 mt-1">€<span x-text="parseFloat(quote).toFixed(2)"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 border rounded text-center" style="background: #fafafa;">
+                                <div class="text-success small" style="font-size: 11px; text-transform: uppercase;">Total Paid</div>
+                                <div class="h5 fw-bold text-success mb-0 mt-1">€<span x-text="parseFloat(deposit).toFixed(2)"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 border rounded text-center" style="background: #fdf2f2; border-color: #fde8e8 !important;">
+                                <div class="text-danger small" style="font-size: 11px; text-transform: uppercase;">Balance Due</div>
+                                <div class="h5 fw-bold text-danger mb-0 mt-1">€<span x-text="Math.max(0, parseFloat(quote) - parseFloat(deposit)).toFixed(2)"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Collection Form -->
+                    <template x-if="parseFloat(quote) - parseFloat(deposit) > 0">
+                        <form @submit.prevent="collectPayment" class="border-top pt-3">
+                            <span class="d-block fw-bold text-secondary mb-2" style="font-size: 13px;">Record Receipt / Payment</span>
+                            
+                            <div x-show="paySuccessMsg" class="alert alert-success py-2 px-3 small border-0 mb-3" x-text="paySuccessMsg"></div>
+                            <div x-show="payErrorMsg" class="alert alert-danger py-2 px-3 small border-0 mb-3" x-text="payErrorMsg"></div>
+
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label small text-secondary">Amount (€)</label>
+                                    <input type="number" step="0.01" x-model="payAmount" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label small text-secondary">Method</label>
+                                    <select x-model="payMethod" class="form-select form-select-sm">
+                                        <option value="Cash">Cash</option>
+                                        <option value="Card BOI">Card BOI</option>
+                                        <option value="Card Fixed">Card Fixed</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label small text-secondary">Payment Type</label>
+                                    <select x-model="payType" class="form-select form-select-sm">
+                                        <option value="Deposit">Deposit</option>
+                                        <option value="Partial">Partial</option>
+                                        <option value="Final Balance">Final Balance</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label small text-secondary">Reference Code</label>
+                                    <input type="text" x-model="payRef" class="form-control form-control-sm" placeholder="e.g. Card Auth">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-sm mt-3 w-100 py-2" style="background-color: var(--brand-green); border-color: var(--brand-green);" :disabled="isAddingPayment">
+                                <span x-show="!isAddingPayment">💳 Record Payment Receipt</span>
+                                <span x-show="isAddingPayment" class="spinner-border spinner-border-sm" role="status"></span>
+                            </button>
+                        </form>
+                    </template>
+                    <template x-if="parseFloat(quote) - parseFloat(deposit) <= 0">
+                        <div class="alert alert-success border-0 py-2 text-center mb-0 small">
+                            🎉 This repair job is fully paid. Balance is €0.00.
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Payment Receipts Ledger List -->
+                <div class="card shadow-sm border-1 p-4 bg-white">
+                    <h3 class="h5 fw-bold text-dark mb-3">🧾 Issued Payment Receipts</h3>
+                    
+                    <div class="table-responsive border">
+                        <table class="table align-middle mb-0" style="font-size: 13px;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Type</th>
+                                    <th>Staff</th>
+                                    <th class="text-end">Voucher</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="pay in payments" :key="pay.id">
+                                    <tr>
+                                        <td class="text-muted" x-text="new Date(pay.created_at).toLocaleDateString() + ' ' + new Date(pay.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></td>
+                                        <td><strong class="text-dark">€<span x-text="parseFloat(pay.amount).toFixed(2)"></span></strong></td>
+                                        <td x-text="pay.payment_method"></td>
+                                        <td x-text="pay.payment_type"></td>
+                                        <td x-text="pay.received_by"></td>
+                                        <td class="text-end">
+                                            <button @click="printPaymentReceipt(pay)" class="btn btn-sm btn-light border" style="font-size: 11px;">
+                                                🖨️ Print
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-if="payments.length === 0">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-3">No payments recorded.</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Historical Repair Jobs -->
                 <div class="card shadow-sm border-1 bg-white p-4">
                     <h3 class="h5 fw-bold text-dark mb-3">🛠️ Repair Job History</h3>
                     <p class="text-muted small mb-4">Detailed lists of all repair bookings corresponding to this customer's registered phone number.</p>
@@ -295,6 +506,51 @@ if (!$customer) {
             </div>
         </div>
     </main>
+
+    <!-- Payment Receipt Print Template (Standard thermal voucher style) -->
+    <div id="printPaymentReceiptArea" class="d-none d-print-block" style="font-family: monospace; line-height: 1.4; color: #000; width: 80mm; margin: 0 auto; padding: 10px;">
+        <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: bold;" id="pRecStore">Store</h3>
+            <p style="margin: 3px 0 0 0; font-size: 11px;">PAYMENT RECEIPT</p>
+        </div>
+        
+        <div style="font-size: 11px; margin-bottom: 8px;">
+            <strong>Date:</strong> <span id="pRecPayDate"></span><br>
+            <strong>Job Ticket ID:</strong> <span id="pRecTicket"></span>
+        </div>
+
+        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+            <strong>CUSTOMER DETAILS</strong><br>
+            Name: <span id="pRecCust"></span><br>
+            Phone: <span id="pRecPhone"></span>
+        </div>
+
+        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+            <strong>DEVICE</strong><br>
+            Model: <span id="pRecDevice"></span>
+        </div>
+
+        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+            <strong>TRANSACTION DETAILS</strong><br>
+            Amount Received: <span id="pRecPayAmt" style="font-weight: bold;"></span><br>
+            Payment Method: <span id="pRecPayMethod"></span><br>
+            Reference Code: <span id="pRecPayRef"></span><br>
+            Received By: <span id="pRecStaff"></span>
+        </div>
+
+        <div style="text-align: right; font-size: 11px; line-height: 1.5; margin-top: 8px;">
+            Total Job Quote: <span id="pRecQuote"></span><br>
+            Cumulative Paid: <span id="pRecTotalPaid"></span><br>
+            <div style="border-top: 1px dashed #000; margin-top: 4px; font-weight: bold; font-size: 12px;">
+                Remaining Balance: <span id="pRecBalDue"></span>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 10px; border-top: 1px dashed #000; padding-top: 8px;">
+            Thank you for your payment!<br>
+            Keep this receipt for account reference.
+        </div>
+    </div>
 
     <!-- Standard Footer -->
     <?php require_once __DIR__ . '/footer.php'; ?>

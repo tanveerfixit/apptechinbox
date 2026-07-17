@@ -409,6 +409,33 @@ if ($db !== null && $db !== $masterDb) {
             $db->exec("ALTER TABLE bookings ADD COLUMN notes TEXT DEFAULT NULL AFTER status");
         }
     } catch (Exception $e) {}
+
+    // Migration: Create booking_payments ledger table
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS booking_payments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            booking_id INT NOT NULL,
+            ticket_id VARCHAR(50) NOT NULL,
+            amount DECIMAL(10, 2) NOT NULL,
+            payment_method VARCHAR(50) NOT NULL,
+            payment_type VARCHAR(50) NOT NULL,
+            reference_code VARCHAR(100) DEFAULT NULL,
+            received_by VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        
+        // Backfill historical payments
+        $bookings = $db->query("SELECT id, ticket_id, deposit_paid, booked_by, created_at FROM bookings WHERE deposit_paid > 0")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($bookings as $bk) {
+            $check = $db->prepare("SELECT COUNT(*) FROM booking_payments WHERE booking_id = ?");
+            $check->execute([$bk['id']]);
+            if (intval($check->fetchColumn()) === 0) {
+                $ins = $db->prepare("INSERT INTO booking_payments (booking_id, ticket_id, amount, payment_method, payment_type, reference_code, received_by, created_at) VALUES (?, ?, ?, 'Cash', 'Deposit', 'BACKFILL', ?, ?)");
+                $ins->execute([$bk['id'], $bk['ticket_id'], $bk['deposit_paid'], $bk['booked_by'] ?: 'System', $bk['created_at']]);
+            }
+        }
+    } catch (Exception $e) {}
 }
 
 

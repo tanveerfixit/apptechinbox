@@ -247,6 +247,82 @@ try {
             ]);
             break;
 
+        case 'get_payments':
+            if ($db === null || !$tenantDbConnected) {
+                echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
+                break;
+            }
+            $bookingId = intval($_GET['booking_id'] ?? 0);
+            if (!$bookingId) {
+                throw new Exception('Invalid booking ID.');
+            }
+            $stmt = $db->prepare("SELECT * FROM booking_payments WHERE booking_id = ? ORDER BY created_at ASC");
+            $stmt->execute([$bookingId]);
+            $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode(['status' => 'success', 'data' => $payments]);
+            break;
+
+        case 'add_payment':
+            if ($db === null || !$tenantDbConnected) {
+                echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
+                break;
+            }
+            $input = json_decode(file_get_contents('php://input'), true);
+            $bookingId = intval($input['booking_id'] ?? 0);
+            $amount = floatval($input['amount'] ?? 0);
+            $method = trim($input['payment_method'] ?? 'Cash');
+            $type = trim($input['payment_type'] ?? 'Partial');
+            $ref = trim($input['reference_code'] ?? '');
+            
+            if (!$bookingId) {
+                throw new Exception('Invalid booking ID.');
+            }
+            if ($amount <= 0) {
+                throw new Exception('Payment amount must be greater than zero.');
+            }
+
+            // Get Ticket ID
+            $stmtTicket = $db->prepare("SELECT ticket_id, total_quote FROM bookings WHERE id = ?");
+            $stmtTicket->execute([$bookingId]);
+            $bookingData = $stmtTicket->fetch(PDO::FETCH_ASSOC);
+            if (!$bookingData) {
+                throw new Exception('Booking not found.');
+            }
+            $ticketId = $bookingData['ticket_id'];
+            $quote = floatval($bookingData['total_quote']);
+            
+            // Insert ledger entry
+            $username = $_SESSION['username'] ?? 'System';
+            $stmtIns = $db->prepare("INSERT INTO booking_payments (booking_id, ticket_id, amount, payment_method, payment_type, reference_code, received_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmtIns->execute([$bookingId, $ticketId, $amount, $method, $type, $ref, $username]);
+            
+            // Recalculate totals
+            $stmtSum = $db->prepare("SELECT SUM(amount) FROM booking_payments WHERE booking_id = ?");
+            $stmtSum->execute([$bookingId]);
+            $totalPaid = floatval($stmtSum->fetchColumn() ?: 0);
+            
+            $balanceDue = max(0, $quote - $totalPaid);
+            
+            // Update booking table
+            $stmtUpd = $db->prepare("UPDATE bookings SET deposit_paid = ?, balance_due = ? WHERE id = ?");
+            $stmtUpd->execute([$totalPaid, $balanceDue, $bookingId]);
+            
+            // Fetch updated payments list
+            $stmtPayments = $db->prepare("SELECT * FROM booking_payments WHERE booking_id = ? ORDER BY created_at ASC");
+            $stmtPayments->execute([$bookingId]);
+            $payments = $stmtPayments->fetchAll(PDO::FETCH_ASSOC);
+            
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Payment recorded successfully.',
+                'data' => [
+                    'payments' => $payments,
+                    'deposit_paid' => $totalPaid,
+                    'balance_due' => $balanceDue
+                ]
+            ]);
+            break;
+
         default:
             throw new Exception('Invalid action.');
     }
