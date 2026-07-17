@@ -113,11 +113,12 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
         /* Scan viewfinder styling */
         .scan-frame {
             border: 2px dotted #242424;
-            padding: 12px;
+            padding: 16px;
             background: #ffffff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            line-height: 0;
         }
     </style>
     <!-- QR Code Generator Library -->
@@ -181,7 +182,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                            size: 300,
                            foreground: '#000000', // Pure Black for maximum contrast
                            level: 'M',           // Medium error correction for reading robustness
-                           padding: 12           // Margin padding quiet zone
+                           padding: 0            // No internal padding — CSS handles the gap
                        });
                   });
               },
