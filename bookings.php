@@ -63,11 +63,16 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 6px;
+            border-radius: 0;
         }
 
         .table-responsive {
-            border-radius: 6px;
+            border-radius: 0;
+        }
+
+        /* Remove border radius universally on this page */
+        .card, .table-responsive, .form-control, .form-select, .btn, .modal-content, .badge {
+            border-radius: 0 !important;
         }
 
         .table thead th {
@@ -271,8 +276,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
         <!-- Header Panel -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
             <div>
-                <h1 class="h3 fw-bold text-dark mb-1">📋 Booked Repair Jobs</h1>
-                <p class="text-muted small mb-0">Track and manage active device repairs, change statuses, edit job details, and reprint customer receipts.</p>
+                <h1 class="h3 fw-bold text-dark mb-0">📋 Booked Repair Jobs</h1>
             </div>
             
             <!-- Filters -->
@@ -285,10 +289,6 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                     <option value="Processing">Processing</option>
                     <option value="Completed">Completed</option>
                 </select>
-
-                <button @click="fetchBookings()" class="btn btn-sm btn-light border" title="Refresh Table">
-                    🔄 Refresh
-                </button>
             </div>
         </div>
 
