@@ -26,6 +26,18 @@ $businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
 $businessContact = !empty($profile['contact']) ? $profile['contact'] : '';
 $businessEmail = !empty($profile['email']) ? $profile['email'] : '';
 $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
+
+// Retrieve printer configuration from isolated tenant database
+$printerFontSize = 12;
+$printerFontFamily = "'Courier New', Courier, monospace";
+try {
+    $pStmt = $db->query("SELECT font_size, font_family FROM printer_settings LIMIT 1");
+    $pSettings = $pStmt->fetch();
+    if ($pSettings) {
+        $printerFontSize = intval($pSettings['font_size']);
+        $printerFontFamily = $pSettings['font_family'];
+    }
+} catch (Exception $e) {}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -532,11 +544,11 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                 top: 0;
                 width: 72mm;
                 max-width: 72mm;
-                font-family: Arial, Helvetica, sans-serif;
+                font-family: <?php echo $printerFontFamily; ?> !important;
                 color: #000000;
                 background-color: #ffffff;
                 padding: 4mm 2mm;
-                font-size: 12px;
+                font-size: <?php echo $printerFontSize; ?>px !important;
                 line-height: 1.25;
             }
             #printArea p, #printArea h2, #printArea h3, #printArea span, #printArea div {

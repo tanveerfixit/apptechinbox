@@ -21,6 +21,18 @@ $businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
 $businessContact = !empty($profile['contact']) ? $profile['contact'] : '';
 $businessEmail = !empty($profile['email']) ? $profile['email'] : '';
 $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
+
+// Retrieve printer configuration from isolated tenant database
+$printerFontSize = 12;
+$printerFontFamily = "'Courier New', Courier, monospace";
+try {
+    $pStmt = $db->query("SELECT font_size, font_family FROM printer_settings LIMIT 1");
+    $pSettings = $pStmt->fetch();
+    if ($pSettings) {
+        $printerFontSize = intval($pSettings['font_size']);
+        $printerFontFamily = $pSettings['font_family'];
+    }
+} catch (Exception $e) {}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -115,16 +127,17 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             #printTicketArea, #printTicketArea * {
                 visibility: visible;
             }
-            #printTicketArea {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 80mm; /* Standard receipt roll width */
-                font-family: 'Courier New', Courier, monospace;
-                color: #000;
-                background: #fff;
-                padding: 10px;
-            }
+             #printTicketArea {
+                 position: absolute;
+                 left: 0;
+                 top: 0;
+                 width: 80mm; /* Standard receipt roll width */
+                 font-family: <?php echo $printerFontFamily; ?> !important;
+                 color: #000;
+                 background: #fff;
+                 padding: 10px;
+                 font-size: <?php echo $printerFontSize; ?>px !important;
+             }
             aside, header, main, footer, .modal {
                 display: none !important;
             }

@@ -19,6 +19,18 @@ $stmtUser->execute([$userId]);
 $profile = $stmtUser->fetch();
 $businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
 
+// Retrieve printer configuration from isolated tenant database
+$printerFontSize = 12;
+$printerFontFamily = "'Courier New', Courier, monospace";
+try {
+    $pStmt = $db->query("SELECT font_size, font_family FROM printer_settings LIMIT 1");
+    $pSettings = $pStmt->fetch();
+    if ($pSettings) {
+        $printerFontSize = intval($pSettings['font_size']);
+        $printerFontFamily = $pSettings['font_family'];
+    }
+} catch (Exception $e) {}
+
 // Retrieve booking details
 $bookingId = intval($_GET['id'] ?? 0);
 $customer = null;
@@ -150,7 +162,9 @@ if (!$customer) {
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 100%;
+                width: 80mm;
+                font-family: <?php echo $printerFontFamily; ?> !important;
+                font-size: <?php echo $printerFontSize; ?>px !important;
             }
         }
     </style>

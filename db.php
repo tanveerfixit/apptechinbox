@@ -436,6 +436,21 @@ if ($db !== null && $db !== $masterDb) {
             }
         }
     } catch (Exception $e) {}
+
+    // Migration: Create printer_settings table and seed defaults
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS printer_settings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            font_size INT DEFAULT 12,
+            font_family VARCHAR(255) DEFAULT \"'Courier New', Courier, monospace\",
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        
+        $pCount = $db->query("SELECT COUNT(*) FROM printer_settings")->fetchColumn();
+        if (intval($pCount) === 0) {
+            $db->exec("INSERT INTO printer_settings (font_size, font_family) VALUES (12, \"'Courier New', Courier, monospace\")");
+        }
+    } catch (Exception $e) {}
 }
 
 

@@ -12,6 +12,18 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['is_admin'])) {
 $successMsg = "";
 $errorMsg = "";
 
+// Retrieve current printer settings from isolated tenant database
+$printerFontSize = 12;
+$printerFontFamily = "'Courier New', Courier, monospace";
+try {
+    $pStmt = $db->query("SELECT font_size, font_family FROM printer_settings LIMIT 1");
+    $pSettings = $pStmt->fetch();
+    if ($pSettings) {
+        $printerFontSize = intval($pSettings['font_size']);
+        $printerFontFamily = $pSettings['font_family'];
+    }
+} catch (Exception $e) {}
+
 // 1. Handle Form Submissions securely
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
@@ -118,6 +130,9 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
     <style>
         :root {
             --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
@@ -170,7 +185,39 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
-    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1">
+    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1"
+          x-data="{
+              fontSize: <?php echo intval($printerFontSize); ?>,
+              fontFamily: '<?php echo addslashes($printerFontFamily); ?>',
+              isSaving: false,
+              successMsg: '',
+              errorMsg: '',
+              async saveSettings() {
+                  this.isSaving = true;
+                  this.successMsg = '';
+                  this.errorMsg = '';
+                  try {
+                      const res = await fetch('api.php?action=save_printer_settings', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                              font_size: this.fontSize,
+                              font_family: this.fontFamily
+                          })
+                      });
+                      const result = await res.json();
+                      if (result.status === 'success') {
+                          this.successMsg = 'Printer settings saved successfully.';
+                      } else {
+                          this.errorMsg = result.message || 'Failed to save settings.';
+                      }
+                  } catch (e) {
+                      this.errorMsg = 'Connection error.';
+                  } finally {
+                      this.isSaving = false;
+                  }
+              }
+          }">
         
         <!-- Header Title -->
         <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
@@ -203,6 +250,9 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab" aria-controls="history-pane" aria-selected="false">📜 Global Activity Log</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="printer-tab" data-bs-toggle="tab" data-bs-target="#printer-pane" type="button" role="tab" aria-controls="printer-pane" aria-selected="false">🖨️ Printer Settings</button>
             </li>
         </ul>
 
@@ -419,6 +469,94 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
                                 <?php endif; ?>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Printer Settings Pane -->
+            <div class="tab-pane fade" id="printer-pane" role="tabpanel" aria-labelledby="printer-tab">
+                <div class="row g-4">
+                    <div class="col-12 col-md-6">
+                        <div class="card shadow-sm p-4">
+                            <h2 class="h5 fw-bold text-dark mb-3">🖨️ Thermal Printer Configuration</h2>
+                            <p class="text-muted small mb-4">Modify the default font styling and print scaling size applied across all branch customer receipts and shift closing sheets.</p>
+                            
+                            <template x-if="successMsg">
+                                <div class="alert alert-success border-0 py-2 small mb-3 text-success" style="background-color: #d4edda; border-left: 4px solid var(--brand-green) !important;" x-text="successMsg"></div>
+                            </template>
+                            <template x-if="errorMsg">
+                                <div class="alert alert-danger border-0 py-2 small mb-3 text-danger" style="background-color: #f8d7da; border-left: 4px solid var(--brand-red) !important;" x-text="errorMsg"></div>
+                            </template>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-secondary">Default Printer Font</label>
+                                <select class="form-select" x-model="fontFamily">
+                                    <option value="'Courier New', Courier, monospace">Courier Monospace (Default Thermal)</option>
+                                    <option value="Arial, Helvetica, sans-serif">Arial Standard</option>
+                                    <option value="'Outfit', 'Segoe UI', sans-serif">Outfit (Brand Font)</option>
+                                    <option value="Georgia, serif">Georgia Serif</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-secondary d-block">Font Print Size</label>
+                                <div class="d-flex align-items-center gap-3">
+                                    <button type="button" @click="if(fontSize > 8) fontSize--" class="btn btn-outline-secondary px-3" style="font-weight: bold; font-size: 16px;">−</button>
+                                    <span class="fs-5 fw-bold text-dark" style="min-width: 60px; text-align: center;"><span x-text="fontSize"></span> px</span>
+                                    <button type="button" @click="if(fontSize < 24) fontSize++" class="btn btn-outline-secondary px-3" style="font-weight: bold; font-size: 16px;">+</button>
+                                </div>
+                            </div>
+
+                            <button type="button" @click="saveSettings()" class="btn btn-primary px-4 py-2 text-white" :disabled="isSaving">
+                                <span x-show="!isSaving">💾 Save Settings</span>
+                                <span x-show="isSaving" class="spinner-border spinner-border-sm" role="status"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Live Thermal Receipt Preview -->
+                    <div class="col-12 col-md-6">
+                        <div class="card shadow-sm p-4">
+                            <h2 class="h5 fw-bold text-dark mb-3">👁️ Live Ticket Preview</h2>
+                            <p class="text-muted small mb-3">Real-time simulation of receipt ticket scaling. Adjust font sizes or defaults on the left to preview results.</p>
+                            
+                            <div class="border p-3 bg-white" style="width: 80mm; max-width: 100%; border-style: dashed !important; border-color: #c0c0c0 !important; border-radius: 0 !important;">
+                                <div :style="'font-family: ' + fontFamily + '; font-size: ' + fontSize + 'px; line-height: 1.35; color: #000;'">
+                                    <div class="text-center mb-2" style="border-bottom: 1px dashed #000; padding-bottom: 6px;">
+                                        <h3 style="font-size: 1.25em; font-weight: bold; margin: 0;">PHONE LAB</h3>
+                                        <p style="font-size: 0.85em; margin: 2px 0 0 0;">32 O'Connell St, Ennis</p>
+                                    </div>
+                                    
+                                    <div style="font-size: 0.9em; margin-bottom: 6px;">
+                                        <strong>Ticket #:</strong> TKT-9831<br>
+                                        <strong>Date:</strong> 17/07/2026 12:45<br>
+                                        <strong>Client:</strong> John Doe (0891234567)
+                                    </div>
+                                    
+                                    <div style="border-bottom: 1px dashed #000; margin-bottom: 6px;"></div>
+                                    
+                                    <div style="font-size: 0.9em; margin-bottom: 6px;">
+                                        <strong>Device:</strong> iPhone 15 Pro Max<br>
+                                        <strong>Fault:</strong> Screen Replacement
+                                    </div>
+                                    
+                                    <div style="border-bottom: 1px dashed #000; padding-bottom: 4px; margin-bottom: 6px;"></div>
+                                    
+                                    <div style="font-size: 0.9em; display: flex; justify-content: space-between;">
+                                        <span>Total Quote:</span>
+                                        <strong>€150.00</strong>
+                                    </div>
+                                    <div style="font-size: 0.9em; display: flex; justify-content: space-between;">
+                                        <span>Deposit Paid:</span>
+                                        <strong>€50.00</strong>
+                                    </div>
+                                    <div style="font-size: 1em; font-weight: bold; display: flex; justify-content: space-between; border-top: 1px dashed #000; padding-top: 4px; margin-top: 4px;">
+                                        <span>Balance Due:</span>
+                                        <span>€100.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

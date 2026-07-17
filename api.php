@@ -321,6 +321,41 @@ try {
                     'balance_due' => $balanceDue
                 ]
             ]);
+        case 'get_printer_settings':
+            $stmt = $db->query("SELECT font_size, font_family FROM printer_settings LIMIT 1");
+            $settings = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$settings) {
+                $settings = ['font_size' => 12, 'font_family' => "'Courier New', Courier, monospace"];
+            }
+            echo json_encode([
+                'status' => 'success',
+                'data' => $settings
+            ]);
+            break;
+
+        case 'save_printer_settings':
+            $input = json_decode(file_get_contents('php://input'), true);
+            $fontSize = intval($input['font_size'] ?? 12);
+            $fontFamily = trim($input['font_family'] ?? "'Courier New', Courier, monospace");
+            
+            // Check if there is any row
+            $count = intval($db->query("SELECT COUNT(*) FROM printer_settings")->fetchColumn());
+            if ($count === 0) {
+                $stmt = $db->prepare("INSERT INTO printer_settings (font_size, font_family) VALUES (?, ?)");
+                $stmt->execute([$fontSize, $fontFamily]);
+            } else {
+                $stmt = $db->prepare("UPDATE printer_settings SET font_size = ?, font_family = ?");
+                $stmt->execute([$fontSize, $fontFamily]);
+            }
+            
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Printer settings saved successfully.',
+                'data' => [
+                    'font_size' => $fontSize,
+                    'font_family' => $fontFamily
+                ]
+            ]);
             break;
 
         default:
