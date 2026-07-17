@@ -175,12 +175,14 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               generateQrCode() {
                   this.$nextTick(() => {
                       const intakeUrl = window.location.origin + '/intake.php?session_id=' + this.sessionId + '&t=' + this.timestamp + '&b=' + encodeURIComponent(this.businessName) + '&bid=' + encodeURIComponent(this.businessId);
-                      new QRious({
-                          element: document.getElementById('intakeQr'),
-                          value: intakeUrl,
-                          size: 300,
-                          foreground: '#008272' // Teal theme color for QR code
-                      });
+                       new QRious({
+                           element: document.getElementById('intakeQr'),
+                           value: intakeUrl,
+                           size: 300,
+                           foreground: '#000000', // Pure Black for maximum contrast
+                           level: 'M',           // Medium error correction for reading robustness
+                           padding: 12           // Margin padding quiet zone
+                       });
                   });
               },
               init() {
