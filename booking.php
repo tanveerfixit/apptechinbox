@@ -115,7 +115,9 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             border: 2px dotted #242424;
             padding: 12px;
             background: #ffffff;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
     <!-- QR Code Generator Library -->

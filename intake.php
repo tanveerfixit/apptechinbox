@@ -212,14 +212,9 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
                             <input type="tel" id="phone" x-model="phone" class="form-control" placeholder="e.g. 0891234567" required autocomplete="off">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="email" class="form-label small fw-bold text-secondary">Email Address <span class="text-muted fw-normal">(Optional)</span></label>
-                            <input type="email" id="email" x-model="email" class="form-control" placeholder="e.g. customer@example.com" autocomplete="off">
-                        </div>
-
                          <div class="mb-4">
-                             <label for="device" class="form-label small fw-bold text-secondary">Device Name <span class="text-muted fw-normal">(Optional)</span></label>
-                             <input type="text" id="device" x-model="deviceName" class="form-control" placeholder="e.g. iPhone 15 Pro Max" autocomplete="off">
+                             <label for="email" class="form-label small fw-bold text-secondary">Email Address <span class="text-muted fw-normal">(Optional)</span></label>
+                             <input type="email" id="email" x-model="email" class="form-control" placeholder="e.g. customer@example.com" autocomplete="off">
                          </div>
 
                         <button type="submit" class="btn btn-submit" :disabled="isSubmitting">
