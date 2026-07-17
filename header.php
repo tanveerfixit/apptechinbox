@@ -69,6 +69,10 @@ $showBackBtn = ($currentScript !== 'index.php');
         <!-- Navigation Links -->
         <div class="d-flex flex-column gap-1">
             <span class="small text-muted text-uppercase fw-bold px-3 mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Applications</span>
+            <a href="bookings.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'bookings.php') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 16px; color: #00a4ef;">🛠️</span>
+                <span>Booked Jobs</span>
+            </a>
             <a href="booking.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'booking.php') ? 'active-sidebar' : ''; ?>">
                 <span style="font-size: 16px; color: #008272;">📋</span>
                 <span>Device Booking</span>
@@ -137,6 +141,10 @@ $showBackBtn = ($currentScript !== 'index.php');
     <!-- Sidebar Navigation (Desktop only) -->
     <aside class="bg-white border-end d-none d-lg-flex flex-column py-4 px-2" style="width: 250px; min-height: calc(100vh - 73px); border-color: var(--card-border) !important;">
         <div class="d-flex flex-column gap-1">
+            <a href="bookings.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'bookings.php') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 16px; color: #00a4ef;">🛠️</span>
+                <span>Booked Jobs</span>
+            </a>
             <a href="booking.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'booking.php') ? 'active-sidebar' : ''; ?>">
                 <span style="font-size: 16px; color: #008272;">📋</span>
                 <span>Device Booking</span>

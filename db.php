@@ -392,6 +392,15 @@ if ($db !== null && $db !== $masterDb) {
     try {
         $db->exec("CREATE INDEX idx_daily_closures_date ON daily_closures (closure_date)");
     } catch (Exception $e) {}
+
+    // Migration: Add status column to bookings table
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM bookings LIKE 'status'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE bookings ADD COLUMN status VARCHAR(50) DEFAULT 'Pending' AFTER booked_by");
+            $db->exec("CREATE INDEX idx_bookings_status ON bookings (status)");
+        }
+    } catch (Exception $e) {}
 }
 
 

@@ -127,6 +127,83 @@ try {
             ]);
             break;
 
+        case 'get_bookings':
+            if ($db === null || !$tenantDbConnected) {
+                echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
+                break;
+            }
+            $search = trim($_GET['search'] ?? '');
+            $status = trim($_GET['status'] ?? '');
+            
+            $query = "SELECT * FROM bookings WHERE 1=1";
+            $params = [];
+            
+            if ($status !== '') {
+                $query .= " AND status = ?";
+                $params[] = $status;
+            }
+            
+            if ($search !== '') {
+                $query .= " AND (ticket_id LIKE ? OR customer_name LIKE ? OR phone_number LIKE ?)";
+                $like = "%$search%";
+                $params[] = $like;
+                $params[] = $like;
+                $params[] = $like;
+            }
+            
+            $query .= " ORDER BY created_at DESC LIMIT 200";
+            $stmt = $db->prepare($query);
+            $stmt->execute($params);
+            $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $jobs
+            ]);
+            break;
+
+        case 'update_booking':
+            if ($db === null || !$tenantDbConnected) {
+                echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
+                break;
+            }
+            $input = json_decode(file_get_contents('php://input'), true);
+            $id = intval($input['id'] ?? 0);
+            
+            if (!$id) {
+                throw new Exception('Invalid booking ID.');
+            }
+            
+            // Determine if status update only, or full edit
+            if (isset($input['status_only']) && $input['status_only']) {
+                $status = trim($input['status'] ?? 'Pending');
+                $stmt = $db->prepare("UPDATE bookings SET status = ? WHERE id = ?");
+                $stmt->execute([$status, $id]);
+            } else {
+                $name = trim($input['name'] ?? '');
+                $phone = trim($input['phone'] ?? '');
+                $email = trim($input['email'] ?? '');
+                $device = trim($input['device'] ?? '');
+                $fault = trim($input['fault'] ?? '');
+                $quote = floatval($input['quote'] ?? 0);
+                $deposit = floatval($input['deposit'] ?? 0);
+                $status = trim($input['status'] ?? 'Pending');
+                $balance = max(0, $quote - $deposit);
+                
+                if (!$name || !$phone || !$device || !$fault) {
+                    throw new Exception('Name, Phone, Device, and Fault Description are required fields.');
+                }
+                
+                $stmt = $db->prepare("UPDATE bookings SET customer_name = ?, phone_number = ?, email = ?, device_model = ?, problem_description = ?, total_quote = ?, deposit_paid = ?, balance_due = ?, status = ? WHERE id = ?");
+                $stmt->execute([$name, $phone, $email, $device, $fault, $quote, $deposit, $balance, $status, $id]);
+            }
+            
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Booking updated successfully.'
+            ]);
+            break;
+
         default:
             throw new Exception('Invalid action.');
     }

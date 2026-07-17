@@ -1,0 +1,476 @@
+<?php
+// bookings.php
+session_start();
+require_once __DIR__ . '/db.php';
+
+// Enforce login
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$userId = $_SESSION['user_id'];
+$username = $_SESSION['username'] ?? '';
+$businessId = $_SESSION['business_id'] ?? '';
+
+// Fetch active user details
+$stmtUser = $masterDb->prepare("SELECT name, contact, email, address FROM users WHERE id = ?");
+$stmtUser->execute([$userId]);
+$profile = $stmtUser->fetch();
+$businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
+$businessContact = !empty($profile['contact']) ? $profile['contact'] : '';
+$businessEmail = !empty($profile['email']) ? $profile['email'] : '';
+$businessAddress = !empty($profile['address']) ? $profile['address'] : '';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booked Repair Jobs - TechInbox</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Outfit Font & Bootstrap 5 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
+            --card-bg: #ffffff;
+            --card-border: #e0e0e0;
+            --text-primary: #242424;
+            --text-secondary: #5c5c5c;
+            --brand-teal: #008272;
+            --brand-blue: #00a4ef;
+            --brand-green: #7fba00;
+            --font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+        }
+
+        .table-responsive {
+            border-radius: 6px;
+        }
+
+        .table thead th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background-color: #fcfcfc;
+            border-bottom: 1px solid var(--card-border);
+            padding: 12px 16px;
+        }
+
+        .table tbody td {
+            font-size: 13.5px;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* Modal dialog Fluent overrides */
+        .modal-content {
+            border-radius: 6px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* Receipt print format overrides */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printTicketArea, #printTicketArea * {
+                visibility: visible;
+            }
+            #printTicketArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 80mm; /* Standard receipt roll width */
+                font-family: 'Courier New', Courier, monospace;
+                color: #000;
+                background: #fff;
+                padding: 10px;
+            }
+            aside, header, main, footer, .modal {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Header Navigation -->
+    <?php require_once __DIR__ . '/header.php'; ?>
+
+    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1"
+          x-data="{
+              jobs: [],
+              search: '',
+              statusFilter: '',
+              loading: false,
+              
+              // Edit Modal state variables
+              editingJob: {
+                  id: null,
+                  name: '',
+                  phone: '',
+                  email: '',
+                  device: '',
+                  fault: '',
+                  quote: 0,
+                  deposit: 0,
+                  status: 'Pending'
+              },
+
+              async fetchBookings() {
+                  this.loading = true;
+                  try {
+                      const res = await fetch('api.php?action=get_bookings&status=' + this.statusFilter + '&search=' + encodeURIComponent(this.search));
+                      const result = await res.json();
+                      if (result.status === 'success') {
+                          this.jobs = result.data;
+                      }
+                  } catch (e) {
+                      console.error('Error loading bookings:', e);
+                  } finally {
+                      this.loading = false;
+                  }
+              },
+
+              async updateStatus(jobId, newStatus) {
+                  try {
+                      const res = await fetch('api.php?action=update_booking', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                              id: jobId,
+                              status: newStatus,
+                              status_only: true
+                          })
+                      });
+                      const result = await res.json();
+                      if (result.status === 'success') {
+                          this.fetchBookings();
+                      } else {
+                          alert(result.message || 'Error updating status');
+                      }
+                  } catch (e) {
+                      alert('Connection error. Please try again.');
+                  }
+              },
+
+              openEditModal(job) {
+                  this.editingJob = {
+                      id: job.id,
+                      name: job.customer_name,
+                      phone: job.phone_number,
+                      email: job.email || '',
+                      device: job.device_model,
+                      fault: job.problem_description,
+                      quote: parseFloat(job.total_quote),
+                      deposit: parseFloat(job.deposit_paid),
+                      status: job.status
+                  };
+                  const modal = new bootstrap.Modal(document.getElementById('editBookingModal'));
+                  modal.show();
+              },
+
+              async saveBookingEdit() {
+                  try {
+                      const res = await fetch('api.php?action=update_booking', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(this.editingJob)
+                      });
+                      const result = await res.json();
+                      if (result.status === 'success') {
+                          // Hide modal
+                          bootstrap.Modal.getInstance(document.getElementById('editBookingModal')).hide();
+                          this.fetchBookings();
+                      } else {
+                          alert(result.message || 'Error saving edits.');
+                      }
+                  } catch (e) {
+                      alert('Connection error. Please try again.');
+                  }
+              },
+
+              printReceipt(job) {
+                  document.getElementById('rCustomer').textContent = job.customer_name;
+                  document.getElementById('rPhone').textContent = job.phone_number;
+                  document.getElementById('rEmail').textContent = job.email || 'N/A';
+                  document.getElementById('rDevice').textContent = job.device_model;
+                  document.getElementById('rFault').textContent = job.problem_description;
+                  document.getElementById('rQuote').textContent = '€' + parseFloat(job.total_quote).toFixed(2);
+                  document.getElementById('rDeposit').textContent = '€' + parseFloat(job.deposit_paid).toFixed(2);
+                  
+                  const balance = Math.max(0, parseFloat(job.total_quote) - parseFloat(job.deposit_paid));
+                  document.getElementById('rBalance').textContent = '€' + balance.toFixed(2);
+                  
+                  // Date format
+                  const dateObj = new Date(job.created_at || Date.now());
+                  const dateStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                  
+                  document.getElementById('receiptDate').textContent = 'Date: ' + dateStr;
+                  document.getElementById('receiptTicketNum').textContent = 'Ticket #: ' + job.ticket_id;
+                  
+                  // Trigger Print dialog
+                  window.print();
+              },
+
+              init() {
+                  this.fetchBookings();
+              }
+          }">
+
+        <!-- Header Panel -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">📋 Booked Repair Jobs</h1>
+                <p class="text-muted small mb-0">Track and manage active device repairs, change statuses, edit job details, and reprint customer receipts.</p>
+            </div>
+            
+            <!-- Filters -->
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <input type="text" x-model="search" @input.debounce.300ms="fetchBookings()" class="form-control form-control-sm" style="max-width: 230px;" placeholder="Search Customer, Phone, Ticket...">
+                
+                <select x-model="statusFilter" @change="fetchBookings()" class="form-select form-select-sm" style="width: 140px;">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+
+                <button @click="fetchBookings()" class="btn btn-sm btn-light border" title="Refresh Table">
+                    🔄 Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Bookings Table Card -->
+        <div class="card shadow-sm border-1 bg-white flex-grow-1">
+            <div x-show="loading" class="text-center py-5">
+                <div class="spinner-border text-secondary spinner-border-sm" role="status"></div>
+                <span class="ms-2 text-muted small">Loading bookings data...</span>
+            </div>
+
+            <div x-show="!loading && jobs.length === 0" class="text-center py-5">
+                <span class="fs-2 d-block mb-2">📂</span>
+                <h3 class="h6 fw-bold text-secondary mb-1">No Bookings Found</h3>
+                <p class="text-muted small mb-0">Try matching a different keyword or create a new booking first.</p>
+            </div>
+
+            <div x-show="!loading && jobs.length > 0" class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Customer Info</th>
+                            <th>Device Details</th>
+                            <th>Problem / Fault Description</th>
+                            <th>Pricing (EUR)</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="job in jobs" :key="job.id">
+                            <tr :style="job.status === 'Completed' ? 'background-color: #fafafa; opacity: 0.85;' : ''">
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-dark border-1 px-2 py-1 small fw-bold" style="font-size: 11.5px; font-family: monospace;" x-text="job.ticket_id"></span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark" x-text="job.customer_name"></div>
+                                    <div class="text-muted small" style="font-size: 12px;" x-text="job.phone_number"></div>
+                                    <div class="text-muted small" style="font-size: 11px;" x-text="job.email || 'No Email'"></div>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-dark" x-text="job.device_model"></span>
+                                </td>
+                                <td>
+                                    <div class="text-muted" style="font-size: 12.5px; max-width: 250px; white-space: normal;" x-text="job.problem_description"></div>
+                                </td>
+                                <td>
+                                    <div class="small">Quote: <strong class="text-dark">€<span x-text="parseFloat(job.total_quote).toFixed(2)"></span></strong></div>
+                                    <div class="small text-success">Paid: <span>€<span x-text="parseFloat(job.deposit_paid).toFixed(2)"></span></span></div>
+                                    <div class="small border-top mt-1 pt-1" :class="parseFloat(job.balance_due) > 0 ? 'text-danger fw-semibold' : 'text-muted'">
+                                        Due: <span>€<span x-text="parseFloat(job.balance_due).toFixed(2)"></span></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge px-2 py-1 rounded-1 text-uppercase fw-semibold" style="font-size: 10px; letter-spacing: 0.5px;"
+                                          :class="{
+                                              'bg-warning-subtle text-warning border border-warning-subtle': job.status === 'Pending',
+                                              'bg-info-subtle text-primary border border-info-subtle': job.status === 'In Progress',
+                                              'bg-success-subtle text-success border border-success-subtle': job.status === 'Completed'
+                                          }"
+                                          x-text="job.status"></span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <button class="btn btn-sm btn-outline-secondary" style="font-size: 12px; border-radius: 4px;" @click="printReceipt(job)">
+                                            🖨️ Print
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary" style="font-size: 12px; border-radius: 4px;" @click="openEditModal(job)">
+                                            ✏️ Edit
+                                        </button>
+                                        
+                                        <template x-if="job.status !== 'Completed'">
+                                            <button class="btn btn-sm btn-success text-white" style="font-size: 12px; border-radius: 4px; background-color: var(--brand-green); border-color: var(--brand-green);" @click="updateStatus(job.id, 'Completed')">
+                                                ✔️ Complete
+                                            </button>
+                                        </template>
+                                        
+                                        <template x-if="job.status === 'Completed'">
+                                            <button class="btn btn-sm btn-outline-secondary" style="font-size: 12px; border-radius: 4px;" @click="updateStatus(job.id, 'Pending')">
+                                                Reopen
+                                            </button>
+                                        </template>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Edit Modal Dialog -->
+        <div class="modal fade" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold text-dark" id="editBookingModalLabel">Edit Repair Job</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form @submit.prevent="saveBookingEdit()">
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-secondary">Customer Name</label>
+                                    <input type="text" x-model="editingJob.name" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Phone Number</label>
+                                    <input type="tel" x-model="editingJob.phone" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Email Address</label>
+                                    <input type="email" x-model="editingJob.email" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-secondary">Device Model</label>
+                                    <input type="text" x-model="editingJob.device" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-secondary">Problem / Fault Description</label>
+                                    <textarea x-model="editingJob.fault" class="form-control form-control-sm" rows="3" required></textarea>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Total Quote (€)</label>
+                                    <input type="number" step="0.01" x-model="editingJob.quote" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Deposit Paid (€)</label>
+                                    <input type="number" step="0.01" x-model="editingJob.deposit" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-secondary">Repair Status</label>
+                                    <select x-model="editingJob.status" class="form-select form-select-sm">
+                                        <option value="Pending">Pending</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-sm btn-primary" style="background-color: var(--brand-blue); border-color: var(--brand-blue);">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receipt Print Template (Hidden standard 80mm format) -->
+        <div id="printTicketArea" class="d-none d-print-block">
+            <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: bold;"><?php echo htmlspecialchars($businessName); ?></h3>
+                <?php if ($businessAddress): ?>
+                    <p style="margin: 3px 0 0 0; font-size: 11px;"><?php echo htmlspecialchars($businessAddress); ?></p>
+                <?php endif; ?>
+                <?php if ($businessContact): ?>
+                    <p style="margin: 2px 0 0 0; font-size: 11px;">Ph: <?php echo htmlspecialchars($businessContact); ?></p>
+                <?php endif; ?>
+            </div>
+            
+            <div style="font-size: 11px; margin-bottom: 8px;">
+                <span id="receiptDate">Date: </span><br>
+                <span id="receiptTicketNum">Ticket #: </span>
+            </div>
+
+            <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+                <strong>CUSTOMER DETAILS</strong><br>
+                Name: <span id="rCustomer"></span><br>
+                Phone: <span id="rPhone"></span><br>
+                Email: <span id="rEmail"></span>
+            </div>
+
+            <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 11px;">
+                <strong>DEVICE & FAULT</strong><br>
+                Device: <span id="rDevice"></span><br>
+                Problem: <span id="rFault"></span>
+            </div>
+
+            <div style="text-align: right; font-size: 12px; line-height: 1.5;">
+                Quote: <span id="rQuote"></span><br>
+                Deposit: <span id="rDeposit"></span><br>
+                <div style="border-top: 1px dashed #000; margin-top: 4px; font-weight: bold; font-size: 13px;">
+                    Balance: <span id="rBalance"></span>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; font-size: 10px; border-top: 1px dashed #000; padding-top: 8px;">
+                Thank you for choosing <?php echo htmlspecialchars($businessName); ?>!<br>
+                Please retain this ticket to collect your device.
+            </div>
+        </div>
+    </main>
+
+    <!-- Standard Footer -->
+    <?php require_once __DIR__ . '/footer.php'; ?>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
