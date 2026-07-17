@@ -91,12 +91,18 @@ if (!$customer) {
 
         .card {
             background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
         }
 
         .table-responsive {
-            border-radius: 6px;
+            border-radius: 0 !important;
+            border: none !important;
+        }
+
+        .table {
+            border: none !important;
         }
 
         .table thead th {
@@ -106,14 +112,25 @@ if (!$customer) {
             font-weight: 700;
             color: var(--text-secondary);
             background-color: #fcfcfc;
-            border-bottom: 1px solid var(--card-border);
+            border: none !important;
             padding: 12px 16px;
         }
 
         .table tbody td {
             font-size: 13.5px;
             padding: 16px;
-            border-bottom: 1px solid #f0f0f0;
+            border: none !important;
+        }
+
+        /* Remove border-radius, shadows, and borders universally from inputs, buttons, tables, cards */
+        .card, .table-responsive, .form-control, .form-select, .btn, .badge, textarea, input, select, .table, th, td, .border, .shadow-sm, .border-1 {
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .card, .btn, .table, .table td, .table th, .table-responsive, .border, .border-1 {
+            border: none !important;
+            border-width: 0 !important;
         }
 
         .form-control:focus, .form-select:focus {
