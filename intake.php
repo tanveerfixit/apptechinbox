@@ -92,7 +92,7 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
         }
     </style>
 </head>
-<body class="d-flex align-items-center py-4">
+<body class="py-4">
 
     <div class="container" style="max-width: 440px;"
           x-data="{

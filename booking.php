@@ -336,7 +336,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                             
                             <div class="d-flex justify-content-center mb-3">
                                  <div class="scan-frame">
-                                     <canvas id="intakeQr" style="width: 190px; height: 190px; display: block;"></canvas>
+                                     <canvas id="intakeQr" width="300" height="300" style="width: 190px; height: 190px; display: block;"></canvas>
                                  </div>
                             </div>
                         </div>
