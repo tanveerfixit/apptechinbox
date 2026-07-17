@@ -266,7 +266,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                 <select x-model="statusFilter" @change="fetchBookings()" class="form-select form-select-sm" style="width: 140px;">
                     <option value="">All Statuses</option>
                     <option value="Pending">Pending</option>
-                    <option value="In Progress">In Progress</option>
+                    <option value="Processing">Processing</option>
                     <option value="Completed">Completed</option>
                 </select>
 
@@ -294,12 +294,10 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                     <thead>
                         <tr>
                             <th>Ticket ID</th>
-                            <th>Customer Info</th>
-                            <th>Device Details</th>
-                            <th>Problem / Fault Description</th>
-                            <th>Pricing (EUR)</th>
-                            <th>Status</th>
-                            <th class="text-end">Actions</th>
+                            <th>Customer Name</th>
+                            <th>Device Detail</th>
+                            <th style="width: 160px;">Status</th>
+                            <th class="text-end" style="width: 160px;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -311,29 +309,16 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                                 <td>
                                     <div class="fw-bold text-dark" x-text="job.customer_name"></div>
                                     <div class="text-muted small" style="font-size: 12px;" x-text="job.phone_number"></div>
-                                    <div class="text-muted small" style="font-size: 11px;" x-text="job.email || 'No Email'"></div>
                                 </td>
                                 <td>
                                     <span class="fw-semibold text-dark" x-text="job.device_model"></span>
                                 </td>
                                 <td>
-                                    <div class="text-muted" style="font-size: 12.5px; max-width: 250px; white-space: normal;" x-text="job.problem_description"></div>
-                                </td>
-                                <td>
-                                    <div class="small">Quote: <strong class="text-dark">€<span x-text="parseFloat(job.total_quote).toFixed(2)"></span></strong></div>
-                                    <div class="small text-success">Paid: <span>€<span x-text="parseFloat(job.deposit_paid).toFixed(2)"></span></span></div>
-                                    <div class="small border-top mt-1 pt-1" :class="parseFloat(job.balance_due) > 0 ? 'text-danger fw-semibold' : 'text-muted'">
-                                        Due: <span>€<span x-text="parseFloat(job.balance_due).toFixed(2)"></span></span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge px-2 py-1 rounded-1 text-uppercase fw-semibold" style="font-size: 10px; letter-spacing: 0.5px;"
-                                          :class="{
-                                              'bg-warning-subtle text-warning border border-warning-subtle': job.status === 'Pending',
-                                              'bg-info-subtle text-primary border border-info-subtle': job.status === 'In Progress',
-                                              'bg-success-subtle text-success border border-success-subtle': job.status === 'Completed'
-                                          }"
-                                          x-text="job.status"></span>
+                                    <select class="form-select form-select-sm" :value="job.status" @change="updateStatus(job.id, $event.target.value)" style="font-size: 12.5px; border-radius: 4px;">
+                                        <option value="Pending">Pending</option>
+                                        <option value="Processing">Processing</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
                                 </td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-1">
@@ -343,18 +328,6 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                                         <button class="btn btn-sm btn-outline-primary" style="font-size: 12px; border-radius: 4px;" @click="openEditModal(job)">
                                             ✏️ Edit
                                         </button>
-                                        
-                                        <template x-if="job.status !== 'Completed'">
-                                            <button class="btn btn-sm btn-success text-white" style="font-size: 12px; border-radius: 4px; background-color: var(--brand-green); border-color: var(--brand-green);" @click="updateStatus(job.id, 'Completed')">
-                                                ✔️ Complete
-                                            </button>
-                                        </template>
-                                        
-                                        <template x-if="job.status === 'Completed'">
-                                            <button class="btn btn-sm btn-outline-secondary" style="font-size: 12px; border-radius: 4px;" @click="updateStatus(job.id, 'Pending')">
-                                                Reopen
-                                            </button>
-                                        </template>
                                     </div>
                                 </td>
                             </tr>
@@ -407,7 +380,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                                     <label class="form-label small fw-bold text-secondary">Repair Status</label>
                                     <select x-model="editingJob.status" class="form-select form-select-sm">
                                         <option value="Pending">Pending</option>
-                                        <option value="In Progress">In Progress</option>
+                                        <option value="Processing">Processing</option>
                                         <option value="Completed">Completed</option>
                                     </select>
                                 </div>

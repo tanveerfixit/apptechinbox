@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 
 $action = $_GET['action'] ?? '';
 
-if ($action !== 'submit_intake' && !isset($_SESSION['user_id'])) {
+if ($action !== 'submit_intake' && $action !== 'customer_lookup' && !isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit();
@@ -201,6 +201,48 @@ try {
             echo json_encode([
                 'status' => 'success',
                 'message' => 'Booking updated successfully.'
+            ]);
+            break;
+
+        case 'customer_lookup':
+            $businessId = trim($_GET['business_id'] ?? '');
+            $search = trim($_GET['search'] ?? '');
+            
+            if (!$businessId) {
+                throw new Exception('Business ID is required.');
+            }
+            if (!$search) {
+                throw new Exception('Search query is required.');
+            }
+            
+            // Connect to tenant DB dynamically
+            $localDb = $db;
+            $bizStmt = $masterDb->prepare("SELECT db_name, db_user, db_password FROM businesses WHERE id = ?");
+            $bizStmt->execute([$businessId]);
+            $bizDetails = $bizStmt->fetch();
+            if ($bizDetails) {
+                $tName = $bizDetails['db_name'];
+                $tUser = $bizDetails['db_user'] ?? $user;
+                $tPass = $bizDetails['db_password'] ?? $password;
+                try {
+                    $localDb = new PDO("mysql:host=$host;port=$port;dbname={$tName};charset=utf8mb4", $tUser, $tPass, [
+                        PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
+                    ]);
+                } catch (PDOException $e) {
+                    throw new Exception('Could not connect to tenant database.');
+                }
+            } else {
+                throw new Exception('Invalid Business ID.');
+            }
+            
+            // Fetch matching jobs
+            $stmt = $localDb->prepare("SELECT ticket_id, customer_name, device_model, problem_description, status, total_quote, deposit_paid, balance_due, created_at FROM bookings WHERE ticket_id = ? OR phone_number = ? ORDER BY created_at DESC");
+            $stmt->execute([$search, $search]);
+            $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $jobs
             ]);
             break;
 
