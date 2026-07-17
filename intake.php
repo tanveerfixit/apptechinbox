@@ -82,70 +82,80 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
 <body class="d-flex align-items-center py-4">
 
     <div class="container" style="max-width: 440px;"
-         x-data="{
-             sessionId: '<?php echo htmlspecialchars($sessionId); ?>',
-             businessId: '<?php echo htmlspecialchars($businessId); ?>',
-             name: '',
-             phone: '',
-             deviceName: '',
-             email: '',
-             isSubmitting: false,
-             success: false,
-             errorMessage: '',
-             remainingSeconds: <?php echo max(0, 180 - ($currentTime - $timestamp)); ?>,
-             isExpired: <?php echo $isExpired ? 'true' : 'false'; ?>,
-             init() {
-                 if (this.isExpired || this.remainingSeconds <= 0) {
-                     this.isExpired = true;
-                     return;
-                 }
-                 const timer = setInterval(() => {
-                     this.remainingSeconds--;
-                     if (this.remainingSeconds <= 0) {
-                         clearInterval(timer);
-                         this.isExpired = true;
-                     }
-                 }, 1000);
-             },
-             async submitForm() {
-                 if (this.isExpired) {
-                     this.errorMessage = 'This form session has expired. Please ask the merchant for a new QR code.';
-                     return;
-                 }
-                 if (!this.name.trim() || !this.phone.trim()) {
-                     this.errorMessage = 'Please fill out Name and Phone fields.';
-                     return;
-                 }
+          x-data="{
+              sessionId: '<?php echo htmlspecialchars($sessionId); ?>',
+              businessId: '<?php echo htmlspecialchars($businessId); ?>',
+              name: '',
+              phone: '',
+              deviceName: '',
+              email: '',
+              isSubmitting: false,
+              success: false,
+              errorMessage: '',
+              remainingSeconds: <?php echo max(0, 180 - ($currentTime - $timestamp)); ?>,
+              isExpired: <?php echo $isExpired ? 'true' : 'false'; ?>,
+              timerInterval: null,
+              init() {
+                  if (this.isExpired || this.remainingSeconds <= 0) {
+                      this.isExpired = true;
+                      return;
+                  }
+                  this.timerInterval = setInterval(() => {
+                      this.remainingSeconds--;
+                      if (this.remainingSeconds <= 0) {
+                          clearInterval(this.timerInterval);
+                          this.isExpired = true;
+                      }
+                  }, 1000);
+              },
+              async submitForm() {
+                  if (this.isExpired) {
+                      this.errorMessage = 'This form session has expired. Please ask the merchant for a new QR code.';
+                      return;
+                  }
+                  if (!this.name.trim() || !this.phone.trim()) {
+                      this.errorMessage = 'Please fill out Name and Phone fields.';
+                      return;
+                  }
 
-                 this.isSubmitting = true;
-                 this.errorMessage = '';
+                  this.isSubmitting = true;
+                  this.errorMessage = '';
 
-                 try {
-                     const res = await fetch('api.php?action=submit_intake', {
-                         method: 'POST',
-                         headers: { 'Content-Type': 'application/json' },
-                         body: JSON.stringify({
-                             session_id: this.sessionId,
-                             business_id: this.businessId,
-                             name: this.name,
-                             phone: this.phone,
-                             device_name: this.deviceName,
-                             email: this.email
-                         })
-                     });
-                     const data = await res.json();
-                     if (data.status === 'success') {
-                         this.success = true;
-                     } else {
-                         this.errorMessage = data.message || 'Submission failed.';
-                     }
-                 } catch (e) {
-                     this.errorMessage = 'Network connection failed.';
-                 } finally {
-                     this.isSubmitting = false;
-                 }
-             }
-         }">
+                  try {
+                      const res = await fetch('api.php?action=submit_intake', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                              session_id: this.sessionId,
+                              business_id: this.businessId,
+                              name: this.name,
+                              phone: this.phone,
+                              device_name: this.deviceName,
+                              email: this.email
+                          })
+                      });
+                      const data = await res.json();
+                      if (data.status === 'success') {
+                          this.success = true;
+                          if (this.timerInterval) {
+                              clearInterval(this.timerInterval);
+                          }
+                      } else {
+                          this.errorMessage = data.message || 'Submission failed.';
+                      }
+                  } catch (e) {
+                      this.errorMessage = 'Network connection failed.';
+                  } finally {
+                      this.isSubmitting = false;
+                  }
+              },
+              closeWindow() {
+                  window.close();
+                  setTimeout(() => {
+                      window.location.href = 'about:blank';
+                  }, 250);
+              }
+          }">
          
         <div class="card p-4">
              <!-- Form Intake / Success / Expired Cards -->
@@ -162,7 +172,7 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
                      <span class="fs-1 d-block mb-3" style="color: var(--brand-teal);">&check;</span>
                      <h2 class="h5 fw-bold text-dark mb-2">Thank you!</h2>
                      <p class="text-muted small mb-0">Your details have been received successfully. You can now put your phone away.</p>
-                     <button class="btn btn-outline-secondary w-100 mt-4" style="border-radius: 4px;" onclick="window.close()">Close</button>
+                     <button class="btn btn-outline-secondary w-100 mt-4" style="border-radius: 4px;" @click="closeWindow()">Close</button>
                  </div>
              </template>
 
