@@ -269,36 +269,26 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
           }">
 
         <!-- Header Panel -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="h4 fw-bold text-dark mb-0">Repairs</h1>
-            <a href="booking.php" class="btn btn-sm fw-bold text-dark px-3 py-1" style="background-color: var(--brand-yellow); border-radius: 4px; font-size: 13px;">+ Create Ticket</a>
-        </div>
-        
-        <!-- Filters Row -->
-        <div class="row g-2 mb-3 align-items-center">
-            <div class="col-12 col-md-3">
-                <select class="form-select form-select-sm" style="font-size: 12.5px;">
-                    <option>First Name</option>
-                </select>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">📋 Booked Repair Jobs</h1>
+                <p class="text-muted small mb-0">Track and manage active device repairs, change statuses, edit job details, and reprint customer receipts.</p>
             </div>
-            <div class="col-12 col-md-3">
-                <select x-model="statusFilter" @change="fetchBookings()" class="form-select form-select-sm" style="font-size: 12.5px;">
-                    <option value="">Open / All Statuses</option>
+            
+            <!-- Filters -->
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <input type="text" x-model="search" @input.debounce.300ms="fetchBookings()" class="form-control form-control-sm" style="max-width: 230px;" placeholder="Search Customer, Phone, Ticket...">
+                
+                <select x-model="statusFilter" @change="fetchBookings()" class="form-select form-select-sm" style="width: 140px;">
+                    <option value="">All Statuses</option>
                     <option value="Pending">Pending</option>
                     <option value="Processing">Processing</option>
                     <option value="Completed">Completed</option>
                 </select>
-            </div>
-            <div class="col-12 col-md-3">
-                <select class="form-select form-select-sm" style="font-size: 12.5px;">
-                    <option>Assigned to</option>
-                </select>
-            </div>
-            <div class="col-12 col-md-3">
-                <div class="input-group input-group-sm">
-                    <input type="text" x-model="search" @input.debounce.300ms="fetchBookings()" class="form-control form-control-sm" placeholder="Search Repairs..." style="font-size: 12.5px;">
-                    <button @click="fetchBookings()" class="btn btn-secondary border-0" type="button" style="font-size: 12px; background-color: #cbd5e1; color: #334155;">🔍</button>
-                </div>
+
+                <button @click="fetchBookings()" class="btn btn-sm btn-light border" title="Refresh Table">
+                    🔄 Refresh
+                </button>
             </div>
         </div>
 
@@ -316,56 +306,48 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             </div>
 
             <div x-show="!loading && jobs.length > 0" class="table-responsive">
-                <table class="table align-middle mb-0" style="border-collapse: collapse;">
-                    <thead style="background-color: #e9ecef;">
-                        <tr style="border-bottom: 2px solid #dee2e6;">
-                            <th class="py-2 px-3 text-secondary small fw-bold" style="font-size: 12px;">Name</th>
-                            <th class="py-2 px-3 text-secondary small fw-bold" style="font-size: 12px;">Ticket</th>
-                            <th class="py-2 px-3 text-secondary small fw-bold" style="font-size: 12px;">Model/Brand/More info</th>
-                            <th class="py-2 px-3 text-secondary small fw-bold" style="font-size: 12px;">Tech</th>
-                            <th class="py-2 px-3 text-secondary small fw-bold" style="font-size: 12px;">Problem</th>
-                            <th class="py-2 px-3 text-secondary small fw-bold" style="font-size: 12px;">Created</th>
-                            <th class="py-2 px-3 text-secondary small fw-bold" style="font-size: 12px;">Due</th>
-                            <th class="py-2 px-3 text-secondary small fw-bold" style="font-size: 12px; width: 140px;">Status</th>
-                            <th class="py-2 px-3 text-secondary small fw-bold text-end" style="font-size: 12px; width: 140px;">Action</th>
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Customer Name</th>
+                            <th>Device Detail</th>
+                            <th style="width: 160px;">Status</th>
+                            <th class="text-end" style="width: 160px;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <template x-for="job in jobs" :key="job.id">
-                            <tr :style="job.status === 'Completed' ? 'background-color: #fafafa; opacity: 0.85;' : ''" style="border-bottom: 1px solid #dee2e6;">
-                                 <td class="py-2 px-3">
+                            <tr :style="job.status === 'Completed' ? 'background-color: #fafafa; opacity: 0.85;' : ''">
+                                 <td>
+                                     <span class="fw-bold" style="font-size: 13px; font-family: monospace;" x-text="job.ticket_id"></span>
+                                 </td>
+                                 <td>
                                      <div>
                                          <a :href="'customer_detail.php?id=' + job.id" class="fw-bold text-decoration-none text-primary" x-text="job.customer_name"></a>
                                      </div>
-                                     <div class="text-muted" style="font-size: 11px;" x-text="job.phone_number"></div>
+                                     <div class="text-muted small" style="font-size: 12px;" x-text="job.phone_number"></div>
                                  </td>
-                                 <td class="py-2 px-3">
-                                     <span class="fw-bold" style="font-size: 12.5px; font-family: monospace;" x-text="job.ticket_id"></span>
-                                 </td>
-                                 <td class="py-2 px-3">
-                                     <span class="fw-semibold text-dark" x-text="job.device_model"></span>
-                                 </td>
-                                 <td class="py-2 px-3 text-muted" style="font-size: 12px;" x-text="job.business_name || 'Phone Lab'"></td>
-                                 <td class="py-2 px-3 text-muted" style="font-size: 12px;" x-text="job.problem_description"></td>
-                                 <td class="py-2 px-3 text-muted" style="font-size: 12px;" x-text="new Date(job.created_at).toLocaleDateString()"></td>
-                                 <td class="py-2 px-3 text-muted" style="font-size: 12px;">N/A</td>
-                                 <td class="py-2 px-3">
-                                     <select class="form-select form-select-sm" :value="job.status" @change="updateStatus(job, $event.target.value)" style="font-size: 11px; border-radius: 4px; padding: 2px 6px; height: 26px;">
+                                <td>
+                                    <span class="fw-semibold text-dark" x-text="job.device_model"></span>
+                                </td>
+                                <td>
+                                     <select class="form-select form-select-sm" :value="job.status" @change="updateStatus(job, $event.target.value)" style="font-size: 12.5px; border-radius: 4px;">
                                          <option value="Pending">Pending</option>
                                          <option value="Processing">Processing</option>
                                          <option value="Completed">Completed</option>
                                      </select>
-                                 </td>
-                                 <td class="py-2 px-3 text-end">
-                                     <div class="d-inline-flex gap-1">
-                                         <button class="btn btn-sm btn-light border py-0 px-2" style="font-size: 11px; height: 24px; border-radius: 4px;" @click="printReceipt(job)">
-                                             🖨️ Print
-                                         </button>
-                                         <a :href="'customer_detail.php?id=' + job.id" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 11px; height: 24px; border-radius: 4px; display: inline-flex; align-items: center; text-decoration: none;">
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <button class="btn btn-sm btn-outline-secondary" style="font-size: 12px; border-radius: 4px;" @click="printReceipt(job)">
+                                            🖨️ Print
+                                        </button>
+                                         <a :href="'customer_detail.php?id=' + job.id" class="btn btn-sm btn-outline-primary" style="font-size: 12px; border-radius: 4px; display: inline-flex; align-items: center; text-decoration: none;">
                                              ✏️ Edit
                                          </a>
-                                     </div>
-                                 </td>
+                                    </div>
+                                </td>
                             </tr>
                         </template>
                     </tbody>
