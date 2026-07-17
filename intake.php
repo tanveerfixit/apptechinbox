@@ -52,8 +52,8 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
         .form-control {
             border-radius: 4px;
             border-color: #d1d1d1;
-            padding: 10px 12px;
-            font-size: 14.5px;
+            padding: 12px 14px;
+            font-size: 17px; /* Enlarged for clear reading */
         }
 
         .form-control:focus {
@@ -61,12 +61,17 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
             box-shadow: 0 0 0 3px rgba(0, 130, 114, 0.15);
         }
 
+        .form-label {
+            font-size: 16px !important; /* Enlarged for clear reading */
+        }
+
         .btn-submit {
             background-color: var(--brand-teal);
             border-color: var(--brand-teal);
             color: #ffffff;
             font-weight: 600;
-            padding: 10px 16px;
+            padding: 12px 16px;
+            font-size: 17px; /* Enlarged button font size */
             border-radius: 4px;
             width: 100%;
             transition: all 0.15s ease-in-out;
@@ -76,6 +81,14 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
             background-color: #006b5e;
             border-color: #006b5e;
             color: #ffffff;
+        }
+
+        p {
+            font-size: 14.5px !important;
+        }
+
+        h1.h5 {
+            font-size: 1.5rem !important; /* Enlarged business title */
         }
     </style>
 </head>

@@ -112,12 +112,10 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
 
         /* Scan viewfinder styling */
         .scan-frame {
-            border: 2px dashed var(--brand-teal);
-            border-radius: 8px;
-            padding: 8px;
-            background: #fafafa;
+            border: 2px dotted #242424;
+            padding: 12px;
+            background: #ffffff;
             display: inline-block;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
         }
     </style>
     <!-- QR Code Generator Library -->
@@ -335,9 +333,9 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                             <p class="text-muted mb-3" style="font-size: 12px; line-height: 1.4;">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
                             
                             <div class="d-flex justify-content-center mb-3">
-                                <div class="scan-frame">
-                                    <canvas id="intakeQr" style="width: 145px; height: 145px; display: block;"></canvas>
-                                </div>
+                                 <div class="scan-frame">
+                                     <canvas id="intakeQr" style="width: 190px; height: 190px; display: block;"></canvas>
+                                 </div>
                             </div>
                         </div>
                         
