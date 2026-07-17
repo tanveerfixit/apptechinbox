@@ -185,7 +185,6 @@ if (!$customer) {
             <div class="col-12 col-lg-5">
                 <div class="card shadow-sm border-1 p-4 bg-white" style="border-radius: 6px; border-color: var(--card-border) !important;">
                     <h3 class="h5 fw-bold text-dark mb-3">🛠️ Edit Repair & Customer Details</h3>
-                    <p class="text-muted small mb-4">Update client email, device specifications, status, and write technician notes. Name and Phone fields are read-only.</p>
 
                     <!-- Success / Error alerts -->
                     <div x-show="successMsg" class="alert alert-success py-2 px-3 small border-0 mb-3" style="background-color: #d1e7dd; color: #0f5132; border-radius: 4px;" x-text="successMsg"></div>
