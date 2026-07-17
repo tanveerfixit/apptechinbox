@@ -169,7 +169,7 @@ $uniqueBusinessesCount = count($businessStats);
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
-    <main class="container-fluid px-4 py-4 flex-grow-1">
+    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1">
         <div class="row mb-4">
             <div class="col-12 col-md-6">
                 <h1 class="h3 fw-bold text-dark mb-1">My Duty History</h1>

@@ -128,7 +128,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
-    <main class="container-fluid px-4 py-4 flex-grow-1" 
+    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1" 
           x-data="{
               isDbConnected: <?php echo $tenantDbConnected ? 'true' : 'false'; ?>,
               suggestedDbName: '<?php echo htmlspecialchars($tenantDbName); ?>',

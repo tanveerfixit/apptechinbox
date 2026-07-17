@@ -170,7 +170,7 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
-    <main class="container-fluid px-4 py-4 flex-grow-1">
+    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1">
         
         <!-- Header Title -->
         <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
