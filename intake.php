@@ -162,6 +162,7 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
                      <span class="fs-1 d-block mb-3" style="color: var(--brand-teal);">&check;</span>
                      <h2 class="h5 fw-bold text-dark mb-2">Thank you!</h2>
                      <p class="text-muted small mb-0">Your details have been received successfully. You can now put your phone away.</p>
+                     <button class="btn btn-outline-secondary w-100 mt-4" style="border-radius: 4px;" onclick="window.close()">Close</button>
                  </div>
              </template>
 
