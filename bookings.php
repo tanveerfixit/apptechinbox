@@ -137,19 +137,6 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               search: '',
               statusFilter: '',
               loading: false,
-              
-              // Edit Modal state variables
-              editingJob: {
-                  id: null,
-                  name: '',
-                  phone: '',
-                  email: '',
-                  device: '',
-                  fault: '',
-                  quote: 0,
-                  deposit: 0,
-                  status: 'Pending'
-              },
 
               async fetchBookings() {
                   this.loading = true;
@@ -182,42 +169,6 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                           this.fetchBookings();
                       } else {
                           alert(result.message || 'Error updating status');
-                      }
-                  } catch (e) {
-                      alert('Connection error. Please try again.');
-                  }
-              },
-
-              openEditModal(job) {
-                  this.editingJob = {
-                      id: job.id,
-                      name: job.customer_name,
-                      phone: job.phone_number,
-                      email: job.email || '',
-                      device: job.device_model,
-                      fault: job.problem_description,
-                      quote: parseFloat(job.total_quote),
-                      deposit: parseFloat(job.deposit_paid),
-                      status: job.status
-                  };
-                  const modal = new bootstrap.Modal(document.getElementById('editBookingModal'));
-                  modal.show();
-              },
-
-              async saveBookingEdit() {
-                  try {
-                      const res = await fetch('api.php?action=update_booking', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(this.editingJob)
-                      });
-                      const result = await res.json();
-                      if (result.status === 'success') {
-                          // Hide modal
-                          bootstrap.Modal.getInstance(document.getElementById('editBookingModal')).hide();
-                          this.fetchBookings();
-                      } else {
-                          alert(result.message || 'Error saving edits.');
                       }
                   } catch (e) {
                       alert('Connection error. Please try again.');
@@ -327,9 +278,9 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                                         <button class="btn btn-sm btn-outline-secondary" style="font-size: 12px; border-radius: 4px;" @click="printReceipt(job)">
                                             🖨️ Print
                                         </button>
-                                        <button class="btn btn-sm btn-outline-primary" style="font-size: 12px; border-radius: 4px;" @click="openEditModal(job)">
-                                            ✏️ Edit
-                                        </button>
+                                         <a :href="'customer_detail.php?id=' + job.id" class="btn btn-sm btn-outline-primary" style="font-size: 12px; border-radius: 4px; display: inline-flex; align-items: center; text-decoration: none;">
+                                             ✏️ Edit
+                                         </a>
                                     </div>
                                 </td>
                             </tr>
@@ -339,63 +290,7 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
             </div>
         </div>
 
-        <!-- Edit Modal Dialog -->
-        <div class="modal fade" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold text-dark" id="editBookingModalLabel">Edit Repair Job</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form @submit.prevent="saveBookingEdit()">
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label small fw-bold text-secondary">Customer Name</label>
-                                    <input type="text" x-model="editingJob.name" class="form-control form-control-sm" required>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small fw-bold text-secondary">Phone Number</label>
-                                    <input type="tel" x-model="editingJob.phone" class="form-control form-control-sm" required>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small fw-bold text-secondary">Email Address</label>
-                                    <input type="email" x-model="editingJob.email" class="form-control form-control-sm">
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label small fw-bold text-secondary">Device Model</label>
-                                    <input type="text" x-model="editingJob.device" class="form-control form-control-sm" required>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label small fw-bold text-secondary">Problem / Fault Description</label>
-                                    <textarea x-model="editingJob.fault" class="form-control form-control-sm" rows="3" required></textarea>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small fw-bold text-secondary">Total Quote (€)</label>
-                                    <input type="number" step="0.01" x-model="editingJob.quote" class="form-control form-control-sm">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small fw-bold text-secondary">Deposit Paid (€)</label>
-                                    <input type="number" step="0.01" x-model="editingJob.deposit" class="form-control form-control-sm">
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label small fw-bold text-secondary">Repair Status</label>
-                                    <select x-model="editingJob.status" class="form-select form-select-sm">
-                                        <option value="Pending">Pending</option>
-                                        <option value="Processing">Processing</option>
-                                        <option value="Completed">Completed</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-sm btn-primary" style="background-color: var(--brand-blue); border-color: var(--brand-blue);">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Receipt Print Template (Hidden standard 80mm format) -->
         <div id="printTicketArea" class="d-none d-print-block">

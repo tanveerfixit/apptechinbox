@@ -401,6 +401,14 @@ if ($db !== null && $db !== $masterDb) {
             $db->exec("CREATE INDEX idx_bookings_status ON bookings (status)");
         }
     } catch (Exception $e) {}
+
+    // Migration: Add notes column to bookings table
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM bookings LIKE 'notes'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE bookings ADD COLUMN notes TEXT DEFAULT NULL AFTER status");
+        }
+    } catch (Exception $e) {}
 }
 
 

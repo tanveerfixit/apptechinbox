@@ -58,6 +58,9 @@ if (!$customer) {
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
         :root {
             --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
@@ -106,6 +109,11 @@ if (!$customer) {
             padding: 16px;
             border-bottom: 1px solid #f0f0f0;
         }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--brand-teal);
+            box-shadow: 0 0 0 3px rgba(0, 130, 114, 0.15);
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -119,39 +127,124 @@ if (!$customer) {
             <a href="bookings.php" class="text-decoration-none fw-semibold text-primary" style="font-size: 14px; color: var(--brand-blue) !important;">&larr; Back to Bookings</a>
         </div>
 
-        <div class="row g-4">
-            <!-- Left Panel: Customer Summary Profile Card -->
-            <div class="col-12 col-lg-4">
+        <div class="row g-4"
+             x-data="{
+                 id: <?php echo $customer['id']; ?>,
+                 name: '<?php echo htmlspecialchars($customer['customer_name'], ENT_QUOTES, 'UTF-8'); ?>',
+                 phone: '<?php echo htmlspecialchars($customer['phone_number'], ENT_QUOTES, 'UTF-8'); ?>',
+                 email: '<?php echo htmlspecialchars($customer['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>',
+                 device: '<?php echo htmlspecialchars($customer['device_model'], ENT_QUOTES, 'UTF-8'); ?>',
+                 fault: '<?php echo htmlspecialchars($customer['problem_description'], ENT_QUOTES, 'UTF-8'); ?>',
+                 quote: '<?php echo htmlspecialchars($customer['total_quote'], ENT_QUOTES, 'UTF-8'); ?>',
+                 deposit: '<?php echo htmlspecialchars($customer['deposit_paid'], ENT_QUOTES, 'UTF-8'); ?>',
+                 status: '<?php echo htmlspecialchars($customer['status'], ENT_QUOTES, 'UTF-8'); ?>',
+                 notes: '<?php echo htmlspecialchars($customer['notes'] ?? '', ENT_QUOTES, 'UTF-8'); ?>',
+                 isSaving: false,
+                 successMsg: '',
+                 errorMsg: '',
+
+                 async saveChanges() {
+                     this.isSaving = true;
+                     this.successMsg = '';
+                     this.errorMsg = '';
+                     try {
+                         const res = await fetch('api.php?action=update_booking', {
+                             method: 'POST',
+                             headers: { 'Content-Type': 'application/json' },
+                             body: JSON.stringify({
+                                 id: this.id,
+                                 name: this.name,
+                                 phone: this.phone,
+                                 email: this.email,
+                                 device: this.device,
+                                 fault: this.fault,
+                                 quote: parseFloat(this.quote || 0),
+                                 deposit: parseFloat(this.deposit || 0),
+                                 status: this.status,
+                                 notes: this.notes
+                             })
+                         });
+                         const result = await res.json();
+                         if (result.status === 'success') {
+                             this.successMsg = 'Changes saved successfully!';
+                             setTimeout(() => {
+                                 window.location.reload();
+                             }, 1000);
+                         } else {
+                             this.errorMsg = result.message || 'Failed to save changes.';
+                         }
+                     } catch(e) {
+                         this.errorMsg = 'Network connection failed.';
+                     } finally {
+                         this.isSaving = false;
+                     }
+                 }
+             }">
+             
+            <!-- Left Panel: Customer Summary & Edit Form -->
+            <div class="col-12 col-lg-5">
                 <div class="card shadow-sm border-1 p-4 bg-white" style="border-radius: 6px; border-color: var(--card-border) !important;">
-                    <div class="text-center mb-4">
-                        <div class="bg-light d-inline-flex align-items-center justify-content-center rounded-circle text-secondary fw-bold mb-3" style="width: 60px; height: 60px; font-size: 24px;">
-                            👤
-                        </div>
-                        <h2 class="h5 fw-bold text-dark mb-1"><?php echo htmlspecialchars($customer['customer_name']); ?></h2>
-                        <span class="badge bg-secondary-subtle text-dark border-1">Customer Profile</span>
-                    </div>
+                    <h3 class="h5 fw-bold text-dark mb-3">🛠️ Edit Repair & Customer Details</h3>
+                    <p class="text-muted small mb-4">Update client email, device specifications, status, and write technician notes. Name and Phone fields are read-only.</p>
 
-                    <div class="border-top pt-3 text-dark small">
+                    <!-- Success / Error alerts -->
+                    <div x-show="successMsg" class="alert alert-success py-2 px-3 small border-0 mb-3" style="background-color: #d1e7dd; color: #0f5132; border-radius: 4px;" x-text="successMsg"></div>
+                    <div x-show="errorMsg" class="alert alert-danger py-2 px-3 small border-0 mb-3" style="background-color: #f8d7da; color: #842029; border-radius: 4px;" x-text="errorMsg"></div>
+
+                    <form @submit.prevent="saveChanges">
                         <div class="mb-3">
-                            <span class="d-block text-muted fw-semibold mb-1" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Contact Info</span>
-                            <div><strong>Phone:</strong> <?php echo htmlspecialchars($customer['phone_number']); ?></div>
-                            <?php if ($customer['email']): ?>
-                                <div class="mt-1"><strong>Email:</strong> <?php echo htmlspecialchars($customer['email']); ?></div>
-                            <?php endif; ?>
+                            <label class="form-label small fw-bold text-secondary">Customer Name</label>
+                            <input type="text" x-model="name" class="form-control form-control-sm bg-light" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Phone Number</label>
+                            <input type="text" x-model="phone" class="form-control form-control-sm bg-light" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Email Address</label>
+                            <input type="email" x-model="email" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Device Model</label>
+                            <input type="text" x-model="device" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Problem / Fault Description</label>
+                            <textarea x-model="fault" class="form-control form-control-sm" rows="3" required></textarea>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-secondary">Quote (€)</label>
+                                <input type="number" step="0.01" x-model="quote" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-secondary">Deposit (€)</label>
+                                <input type="number" step="0.01" x-model="deposit" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Repair Status</label>
+                            <select x-model="status" class="form-select form-select-sm">
+                                <option value="Pending">Pending</option>
+                                <option value="Processing">Processing</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-secondary">Internal Technician Notes</label>
+                            <textarea x-model="notes" class="form-control form-control-sm" rows="4" placeholder="Enter special notes, parts required, or progress updates..."></textarea>
                         </div>
 
-                        <div class="mb-3 border-top pt-3">
-                            <span class="d-block text-muted fw-semibold mb-1" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Latest Booking Metadata</span>
-                            <div><strong>First Booked:</strong> <?php echo date('d M Y, H:i', strtotime($customer['created_at'])); ?></div>
-                            <div class="mt-1"><strong>Booked By:</strong> <?php echo htmlspecialchars($customer['booked_by']); ?></div>
-                            <div class="mt-1"><strong>Register Store:</strong> <?php echo htmlspecialchars($customer['business_name']); ?></div>
-                        </div>
-                    </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100 py-2" style="background-color: var(--brand-teal); border-color: var(--brand-teal);" :disabled="isSaving">
+                            <span x-show="!isSaving">💾 Save Changes</span>
+                            <span x-show="isSaving" class="spinner-border spinner-border-sm" role="status"></span>
+                        </button>
+                    </form>
                 </div>
             </div>
 
             <!-- Right Panel: Jobs list History Table -->
-            <div class="col-12 col-lg-8">
+            <div class="col-12 col-lg-7">
                 <div class="card shadow-sm border-1 bg-white p-4">
                     <h3 class="h5 fw-bold text-dark mb-3">🛠️ Repair Job History</h3>
                     <p class="text-muted small mb-4">Detailed lists of all repair bookings corresponding to this customer's registered phone number.</p>
@@ -169,7 +262,7 @@ if (!$customer) {
                             </thead>
                             <tbody>
                                 <?php foreach ($historyJobs as $job): ?>
-                                    <tr>
+                                    <tr style="<?php echo $job['id'] == $bookingId ? 'background-color: #f7f9fa; border-left: 3px solid var(--brand-teal);' : ''; ?>">
                                         <td>
                                             <span class="fw-bold" style="font-size: 13px; font-family: monospace;"><?php echo htmlspecialchars($job['ticket_id']); ?></span>
                                         </td>

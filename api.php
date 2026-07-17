@@ -188,14 +188,15 @@ try {
                 $quote = floatval($input['quote'] ?? 0);
                 $deposit = floatval($input['deposit'] ?? 0);
                 $status = trim($input['status'] ?? 'Pending');
+                $notes = trim($input['notes'] ?? '');
                 $balance = max(0, $quote - $deposit);
                 
                 if (!$name || !$phone || !$device || !$fault) {
                     throw new Exception('Name, Phone, Device, and Fault Description are required fields.');
                 }
                 
-                $stmt = $db->prepare("UPDATE bookings SET customer_name = ?, phone_number = ?, email = ?, device_model = ?, problem_description = ?, total_quote = ?, deposit_paid = ?, balance_due = ?, status = ? WHERE id = ?");
-                $stmt->execute([$name, $phone, $email, $device, $fault, $quote, $deposit, $balance, $status, $id]);
+                $stmt = $db->prepare("UPDATE bookings SET customer_name = ?, phone_number = ?, email = ?, device_model = ?, problem_description = ?, total_quote = ?, deposit_paid = ?, balance_due = ?, status = ?, notes = ? WHERE id = ?");
+                $stmt->execute([$name, $phone, $email, $device, $fault, $quote, $deposit, $balance, $status, $notes, $id]);
             }
             
             echo json_encode([
