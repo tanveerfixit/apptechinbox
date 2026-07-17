@@ -138,6 +138,13 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
               statusFilter: '',
               loading: false,
 
+              // Collect Payment validation states
+              paymentJob: null,
+              payAmount: 0,
+              payMethod: 'Cash',
+              payRef: '',
+              isProcessingPayment: false,
+
               async fetchBookings() {
                   this.loading = true;
                   try {
@@ -153,7 +160,21 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                   }
               },
 
-              async updateStatus(jobId, newStatus) {
+              async updateStatus(job, newStatus) {
+                  // Intercept Completed status if balance is due
+                  if (newStatus === 'Completed' && parseFloat(job.balance_due) > 0) {
+                      this.paymentJob = job;
+                      this.payAmount = parseFloat(job.balance_due);
+                      this.payMethod = 'Cash';
+                      this.payRef = '';
+                      const modal = new bootstrap.Modal(document.getElementById('collectPaymentModal'));
+                      modal.show();
+                      return;
+                  }
+                  this.executeStatusUpdate(job.id, newStatus);
+              },
+
+              async executeStatusUpdate(jobId, newStatus) {
                   try {
                       const res = await fetch('api.php?action=update_booking', {
                           method: 'POST',
@@ -169,10 +190,54 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                           this.fetchBookings();
                       } else {
                           alert(result.message || 'Error updating status');
+                          this.fetchBookings();
                       }
                   } catch (e) {
                       alert('Connection error. Please try again.');
+                      this.fetchBookings();
                   }
+              },
+
+              async recordPaymentAndComplete() {
+                  if (parseFloat(this.payAmount) <= 0) {
+                      alert('Please enter a valid amount.');
+                      return;
+                  }
+                  this.isProcessingPayment = true;
+                  try {
+                      const payRes = await fetch('api.php?action=add_payment', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                              booking_id: this.paymentJob.id,
+                              amount: parseFloat(this.payAmount),
+                              payment_method: this.payMethod,
+                              payment_type: 'Final Balance',
+                              reference_code: this.payRef
+                          })
+                      });
+                      const payResult = await payRes.json();
+                      if (payResult.status === 'success') {
+                          await this.executeStatusUpdate(this.paymentJob.id, 'Completed');
+                          bootstrap.Modal.getInstance(document.getElementById('collectPaymentModal')).hide();
+                      } else {
+                          alert(payResult.message || 'Failed to record payment.');
+                      }
+                  } catch (e) {
+                      alert('Connection error.');
+                  } finally {
+                      this.isProcessingPayment = false;
+                  }
+              },
+
+              completeWithoutPayment() {
+                  this.executeStatusUpdate(this.paymentJob.id, 'Completed');
+                  bootstrap.Modal.getInstance(document.getElementById('collectPaymentModal')).hide();
+              },
+
+              cancelStatusChange() {
+                  this.fetchBookings();
+                  bootstrap.Modal.getInstance(document.getElementById('collectPaymentModal')).hide();
               },
 
               printReceipt(job) {
@@ -267,11 +332,11 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                                     <span class="fw-semibold text-dark" x-text="job.device_model"></span>
                                 </td>
                                 <td>
-                                    <select class="form-select form-select-sm" :value="job.status" @change="updateStatus(job.id, $event.target.value)" style="font-size: 12.5px; border-radius: 4px;">
-                                        <option value="Pending">Pending</option>
-                                        <option value="Processing">Processing</option>
-                                        <option value="Completed">Completed</option>
-                                    </select>
+                                     <select class="form-select form-select-sm" :value="job.status" @change="updateStatus(job, $event.target.value)" style="font-size: 12.5px; border-radius: 4px;">
+                                         <option value="Pending">Pending</option>
+                                         <option value="Processing">Processing</option>
+                                         <option value="Completed">Completed</option>
+                                     </select>
                                 </td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-1">
@@ -291,6 +356,54 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
         </div>
 
 
+
+        <!-- Collect Payment & Complete Modal Dialog -->
+        <div class="modal fade" id="collectPaymentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="collectPaymentModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold text-dark" id="collectPaymentModalLabel">💰 Collect Remaining Balance</h5>
+                        <button type="button" class="btn-close" @click="cancelStatusChange()" aria-label="Close"></button>
+                    </div>
+                    <form @submit.prevent="recordPaymentAndComplete()">
+                        <div class="modal-body">
+                            <p class="small text-muted mb-3">
+                                This job has an outstanding balance of <strong class="text-danger">€<span x-text="paymentJob ? parseFloat(paymentJob.balance_due).toFixed(2) : '0.00'"></span></strong>. 
+                                Please record the customer's payment to complete the job.
+                            </p>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-secondary">Amount to Collect (€)</label>
+                                    <input type="number" step="0.01" x-model="payAmount" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Payment Method</label>
+                                    <select x-model="payMethod" class="form-select form-select-sm">
+                                        <option value="Cash">Cash</option>
+                                        <option value="Card BOI">Card BOI</option>
+                                        <option value="Card Fixed">Card Fixed</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Reference Code</label>
+                                    <input type="text" x-model="payRef" class="form-control form-control-sm" placeholder="e.g. Terminal Auth">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer d-flex justify-content-between">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" @click="cancelStatusChange()">Cancel</button>
+                            <div class="d-inline-flex gap-1">
+                                <button type="button" class="btn btn-sm btn-outline-danger" @click="completeWithoutPayment()">Complete Without Payment</button>
+                                <button type="submit" class="btn btn-sm btn-success text-white" style="background-color: var(--brand-green); border-color: var(--brand-green);" :disabled="isProcessingPayment">
+                                    <span x-show="!isProcessingPayment">Record & Complete</span>
+                                    <span x-show="isProcessingPayment" class="spinner-border spinner-border-sm" role="status"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         <!-- Receipt Print Template (Hidden standard 80mm format) -->
         <div id="printTicketArea" class="d-none d-print-block">
