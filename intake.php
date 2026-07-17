@@ -148,6 +148,7 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
                   } finally {
                       this.isSubmitting = false;
                   }
+              }
           }">
          
         <div class="card p-4">
