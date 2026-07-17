@@ -303,13 +303,15 @@ $businessAddress = !empty($profile['address']) ? $profile['address'] : '';
                     <tbody>
                         <template x-for="job in jobs" :key="job.id">
                             <tr :style="job.status === 'Completed' ? 'background-color: #fafafa; opacity: 0.85;' : ''">
-                                <td>
-                                    <span class="badge bg-secondary-subtle text-dark border-1 px-2 py-1 small fw-bold" style="font-size: 11.5px; font-family: monospace;" x-text="job.ticket_id"></span>
-                                </td>
-                                <td>
-                                    <div class="fw-bold text-dark" x-text="job.customer_name"></div>
-                                    <div class="text-muted small" style="font-size: 12px;" x-text="job.phone_number"></div>
-                                </td>
+                                 <td>
+                                     <span class="fw-bold" style="font-size: 13px; font-family: monospace;" x-text="job.ticket_id"></span>
+                                 </td>
+                                 <td>
+                                     <div>
+                                         <a :href="'customer_detail.php?id=' + job.id" class="fw-bold text-decoration-none text-primary" x-text="job.customer_name"></a>
+                                     </div>
+                                     <div class="text-muted small" style="font-size: 12px;" x-text="job.phone_number"></div>
+                                 </td>
                                 <td>
                                     <span class="fw-semibold text-dark" x-text="job.device_model"></span>
                                 </td>
