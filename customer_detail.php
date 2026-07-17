@@ -166,7 +166,7 @@ if (!$customer) {
                  errorMsg: '',
 
                  // Payments Ledger state
-                 payments: <?php echo json_encode($payments); ?>,
+                 payments: <?php echo htmlspecialchars(json_encode($payments), ENT_QUOTES, 'UTF-8'); ?>,
                  payAmount: '<?php echo htmlspecialchars($customer['balance_due'], ENT_QUOTES, 'UTF-8'); ?>',
                  payMethod: 'Cash',
                  payType: 'Final Balance',
