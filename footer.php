@@ -1,3 +1,5 @@
+    </div>
+</div>
 <footer class="bg-white border-top py-3 mt-auto w-100 shadow-sm" style="border-color: var(--card-border) !important;">
     <div class="container-fluid px-3 text-center">
         <span class="text-muted" style="font-size: 12px; letter-spacing: 0.1px;">

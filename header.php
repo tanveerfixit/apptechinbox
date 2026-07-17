@@ -39,3 +39,46 @@ $showBackBtn = ($currentScript !== 'index.php');
         <?php endif; ?>
     </div>
 </header>
+
+<style>
+.nav-link-sidebar {
+    color: #242424 !important;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    border-left: 4px solid transparent;
+}
+.nav-link-sidebar:hover {
+    background-color: #f3f3f3;
+}
+.active-sidebar {
+    background-color: #f3f3f3;
+    font-weight: 600;
+    border-left-color: #00a4ef !important;
+}
+</style>
+
+<div class="d-flex flex-grow-1">
+    <!-- Sidebar Navigation (Desktop only) -->
+    <aside class="bg-white border-end d-none d-lg-flex flex-column py-4 px-2" style="width: 250px; min-height: calc(100vh - 73px); border-color: var(--card-border) !important;">
+        <div class="d-flex flex-column gap-1">
+            <a href="index.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'index.php') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 16px;">🏠</span>
+                <span>Portal Dashboard</span>
+            </a>
+            <a href="daily-closer.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'daily-closer.php') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 16px; color: #7fba00;">📊</span>
+                <span>Daily Closer</span>
+            </a>
+            <a href="screen-protector-finder" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'screen-protector-finder') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 16px; color: #ffb900;">📱</span>
+                <span>Screen Protector</span>
+            </a>
+            <a href="booking.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'booking.php') ? 'active-sidebar' : ''; ?>">
+                <span style="font-size: 16px; color: #008272;">📋</span>
+                <span>Device Booking</span>
+            </a>
+        </div>
+    </aside>
+    <!-- Main Content Container -->
+    <div class="flex-grow-1 d-flex flex-column" style="background-color: #f3f3f3;">

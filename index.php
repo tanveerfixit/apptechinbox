@@ -128,7 +128,7 @@ $apps = [
     <?php require_once __DIR__ . '/header.php'; ?>
 
     <!-- Main Container Dashboard -->
-    <main class="container py-5 flex-grow-1">
+    <main class="container-fluid px-4 py-4 flex-grow-1">
         <div class="text-center mx-auto mb-5" style="max-width: 600px;">
             <h1 class="h2 fw-semibold text-dark mb-2">Applications Dashboard</h1>
             <p class="small text-muted">Select an application below to get started with your TechInbox workspace utilities.</p>
