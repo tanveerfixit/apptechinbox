@@ -122,7 +122,7 @@ $apps = [
     <!-- Bootstrap 5.3 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
-<body class="bg-light d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffffff;">
 
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
@@ -137,10 +137,10 @@ $apps = [
         <div class="row g-4">
             <?php foreach ($apps as $app): ?>
                 <div class="col-12 col-sm-6 col-md-4 d-flex">
-                    <a href="<?php echo htmlspecialchars($app['url']); ?>" class="card w-100 border-1 shadow-sm d-flex flex-column justify-content-between p-4 text-decoration-none text-dark" style="transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out; border-radius: 6px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                    <a href="<?php echo htmlspecialchars($app['url']); ?>" class="w-100 d-flex flex-column justify-content-between p-4 text-decoration-none text-dark" style="border: 1px solid #e0e0e0; background: transparent; border-radius: 0; transition: transform 0.15s ease-in-out;" onmouseover="this.style.transform='translateY(-3px)';" onmouseout="this.style.transform='none';">
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div style="width: 40px; height: 40px; border-left: 3.5px solid <?php echo $app['color']; ?>; background-color: #f8f9fa; font-size: 20px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                <div style="width: 40px; height: 40px; border-left: 3.5px solid <?php echo $app['color']; ?>; background-color: transparent; font-size: 20px; display: flex; align-items: center; justify-content: center; border-radius: 0;">
                                     <?php echo $app['icon']; ?>
                                 </div>
                                 <span class="badge bg-secondary-subtle text-secondary border-0 px-2 py-1 small text-uppercase fw-semibold" style="font-size: 10px; letter-spacing: 0.5px;"><?php echo htmlspecialchars($app['badge']); ?></span>
