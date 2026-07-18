@@ -380,67 +380,6 @@ try {
             ]);
             break;
 
-        case 'search_products':
-            if ($db === null || !$tenantDbConnected) {
-                echo json_encode(['status' => 'error', 'message' => 'Database not connected']);
-                break;
-            }
-
-            // Self-seed if categories table is empty to make testing simple
-            try {
-                $countCat = intval($db->query("SELECT COUNT(*) FROM categories")->fetchColumn());
-                if ($countCat === 0) {
-                    // 1. Insert Categories
-                    $db->exec("INSERT INTO categories (id, name, type, created_at, updated_at) VALUES 
-                        (1, 'Parts', 'part', NOW(), NOW()),
-                        (2, 'Services', 'service', NOW(), NOW()),
-                        (3, 'Retail Accessories', 'retail', NOW(), NOW())
-                    ");
-                    
-                    // 2. Insert Products
-                    $db->exec("INSERT INTO products (id, category_id, brand, name, description, created_at, updated_at) VALUES 
-                        (1, 1, 'Apple', 'iPhone 11 Battery', 'Replacement Li-Ion Battery', NOW(), NOW()),
-                        (2, 1, 'Apple', 'iPhone 13 Pro Screen', 'OLED Display Panel Assembly', NOW(), NOW()),
-                        (3, 2, 'Software', 'OS Software Reset', 'Full factory restore and update', NOW(), NOW()),
-                        (4, 3, 'Belkin', 'USB-C Charging Cable 1m', 'Fast charge compatible cable', NOW(), NOW()),
-                        (5, 3, 'TechInbox', 'Tempered Glass Screen Protector', 'Premium 9H glass protection', NOW(), NOW())
-                    ");
-
-                    // 3. Insert Product Variants
-                    $db->exec("INSERT INTO product_variants (product_id, sku, barcode, attribute_summary, cost_price, retail_price, stock_quantity, is_serialized, created_at, updated_at) VALUES 
-                        (1, 'IP11-BATT', '880112233', 'Internal Battery', 5.00, 20.00, 15, 0, NOW(), NOW()),
-                        (2, 'IP13P-SCRN', '880112244', 'Original OLED', 45.00, 120.00, 8, 0, NOW(), NOW()),
-                        (3, 'SRV-RST', '880112255', 'Diagnostic Lab', 0.00, 15.00, 9999, 0, NOW(), NOW()),
-                        (4, 'BEL-USBC-1M', '880112266', 'Black Cable', 2.50, 10.00, 25, 0, NOW(), NOW()),
-                        (5, 'TI-TG-GEN', '880112277', 'Clear Glass', 0.50, 5.00, 100, 0, NOW(), NOW())
-                    ");
-                }
-            } catch (Exception $e) {}
-
-            $query = trim($_GET['q'] ?? '');
-            if (empty($query)) {
-                echo json_encode(['status' => 'success', 'data' => []]);
-                break;
-            }
-            
-            // Search in products and product_variants tables
-            $stmt = $db->prepare("
-                SELECT pv.id, p.name as product_name, pv.sku, pv.attribute_summary, pv.retail_price, pv.stock_quantity, pv.is_serialized 
-                FROM product_variants pv
-                JOIN products p ON pv.product_id = p.id
-                WHERE p.name LIKE ? OR pv.sku LIKE ? OR pv.attribute_summary LIKE ?
-                LIMIT 15
-            ");
-            $searchTerm = '%' . $query . '%';
-            $stmt->execute([$searchTerm, $searchTerm, $searchTerm]);
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            echo json_encode([
-                'status' => 'success',
-                'data' => $results
-            ]);
-            break;
-
         default:
             throw new Exception('Invalid action.');
     }

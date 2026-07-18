@@ -73,10 +73,6 @@ $showBackBtn = ($currentScript !== 'index.php');
                 <span style="font-size: 16px; color: #00a4ef;">🛠️</span>
                 <span>Booked Jobs</span>
             </a>
-            <a href="cash-register.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'cash-register.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #f25022;">💵</span>
-                <span>Cash Register</span>
-            </a>
             <a href="booking.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'booking.php') ? 'active-sidebar' : ''; ?>">
                 <span style="font-size: 16px; color: #008272;">📋</span>
                 <span>Device Booking</span>
@@ -176,10 +172,6 @@ $showBackBtn = ($currentScript !== 'index.php');
             <a href="bookings.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'bookings.php') ? 'active-sidebar' : ''; ?>">
                 <span style="font-size: 16px; color: #00a4ef;">🛠️</span>
                 <span>Booked Jobs</span>
-            </a>
-            <a href="cash-register.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'cash-register.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #f25022;">💵</span>
-                <span>Cash Register</span>
             </a>
             <a href="booking.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'booking.php') ? 'active-sidebar' : ''; ?>">
                 <span style="font-size: 16px; color: #008272;">📋</span>
