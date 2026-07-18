@@ -131,16 +131,45 @@ if ($businessId) {
           x-data="{
               cart: [],
               searchQuery: '',
+              searchResults: [],
+              showSearchResults: false,
               selectedCustomer: '',
-              paymentMethod: 'Card',
               taxRate: 0.00,
               showActivityLog: true,
               digitalSignatures: [],
               notes: [],
-              showAddProductModal: false,
-              newProdName: '',
-              newProdPrice: '',
-              newProdQty: 1,
+
+              // Split Payment Amounts
+              cardAmount: 0.00,
+              cashAmount: 0.00,
+              otherAmount: 0.00,
+
+              init() {
+                  this.$watch('grandTotal', value => {
+                      this.cardAmount = parseFloat(value || 0);
+                      this.cashAmount = 0.00;
+                      this.otherAmount = 0.00;
+                  });
+              },
+
+              async searchProducts() {
+                  const query = this.searchQuery.trim();
+                  if (query.length < 2) {
+                      this.searchResults = [];
+                      this.showSearchResults = false;
+                      return;
+                  }
+                  try {
+                      const res = await fetch(`api.php?action=search_products&q=${encodeURIComponent(query)}`);
+                      const result = await res.json();
+                      if (result.status === 'success') {
+                          this.searchResults = result.data || [];
+                          this.showSearchResults = this.searchResults.length > 0;
+                      }
+                  } catch (e) {
+                      console.error(e);
+                  }
+              },
 
               // Computed Values
               get taxableTotal() {
@@ -186,8 +215,12 @@ if ($businessId) {
                   if(confirm('Are you sure you want to clear the sale?')) {
                       this.cart = [];
                       this.searchQuery = '';
+                      this.searchResults = [];
+                      this.showSearchResults = false;
                       this.selectedCustomer = '';
-                      this.paymentMethod = 'Card';
+                      this.cardAmount = 0.00;
+                      this.cashAmount = 0.00;
+                      this.otherAmount = 0.00;
                       this.taxRate = 0.00;
                       this.digitalSignatures = [];
                       this.notes = [];
@@ -199,13 +232,24 @@ if ($businessId) {
                       alert('Your cart is empty.');
                       return;
                   }
-                  alert(`Transaction Complete!\nTotal Amount: €${this.grandTotal.toFixed(2)}\nPayment Method: ${this.paymentMethod}\nCustomer: ${this.selectedCustomer || 'Anonymous'}`);
+                  const totalPaid = parseFloat(this.cardAmount || 0) + parseFloat(this.cashAmount || 0) + parseFloat(this.otherAmount || 0);
+                  if (Math.abs(this.grandTotal - totalPaid) > 0.05) {
+                      if (!confirm(`Warning: The total paid (€${totalPaid.toFixed(2)}) does not match the grand total (€${this.grandTotal.toFixed(2)}).\nDo you want to complete checkout anyway?`)) {
+                          return;
+                      }
+                  }
+                  
+                  alert(`Transaction Complete!\nTotal Amount: €${this.grandTotal.toFixed(2)}\n\nPayments Split:\n- Card: €${parseFloat(this.cardAmount || 0).toFixed(2)}\n- Cash: €${parseFloat(this.cashAmount || 0).toFixed(2)}\n- Other: €${parseFloat(this.otherAmount || 0).toFixed(2)}\n\nCustomer: ${this.selectedCustomer || 'Anonymous'}`);
                   
                   // Clear everything
                   this.cart = [];
                   this.searchQuery = '';
+                  this.searchResults = [];
+                  this.showSearchResults = false;
                   this.selectedCustomer = '';
-                  this.paymentMethod = 'Card';
+                  this.cardAmount = 0.00;
+                  this.cashAmount = 0.00;
+                  this.otherAmount = 0.00;
                   this.taxRate = 0.00;
                   this.digitalSignatures = [];
                   this.notes = [];
@@ -259,55 +303,32 @@ if ($businessId) {
                 
                 <!-- Search/Input Row -->
                 <div class="d-flex gap-2 mb-3">
-                    <div class="position-relative flex-grow-1">
+                    <div class="position-relative flex-grow-1" @click.away="showSearchResults = false">
                         <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">🔍</span>
                         <input type="text" 
                                x-model="searchQuery" 
-                               @keyup.enter="if(searchQuery.trim()){ addToCart(searchQuery, 10.00); searchQuery=''; }"
+                               @input="searchProducts()"
+                               @focus="if(searchResults.length > 0) showSearchResults = true"
                                class="form-control ps-5 py-2 rounded-1 text-dark" 
                                placeholder="Scan or Search Item...">
+                        
+                        <!-- Search Results Dropdown -->
+                        <div class="position-absolute w-100 bg-white border shadow-sm rounded-1 mt-1 z-3" x-show="showSearchResults" style="max-height: 250px; overflow-y: auto;">
+                            <template x-for="item in searchResults" :key="item.id">
+                                <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center" style="cursor: pointer;" @click="addToCart(item.product_name, item.retail_price); showSearchResults = false; searchQuery = '';">
+                                    <div>
+                                        <strong class="text-dark d-block" x-text="item.product_name"></strong>
+                                        <span class="small text-muted" x-text="`SKU: ${item.sku} | Stock: ${item.stock_quantity}`"></span>
+                                    </div>
+                                    <span class="badge bg-light text-primary border fw-bold" x-text="`€${parseFloat(item.retail_price).toFixed(2)}`"></span>
+                                </div>
+                            </template>
+                        </div>
                     </div>
-                    
-                    <!-- Quick Add Modal Trigger -->
-                    <button type="button" @click="showAddProductModal = true" class="btn btn-brand-blue rounded-1 d-inline-flex align-items-center justify-content-center" style="width: 42px; height: 42px;" title="Add Custom Item">
-                        <span class="fs-5 fw-bold">+</span>
-                    </button>
                     
                     <button type="button" class="btn btn-light bg-white border rounded-1 d-inline-flex align-items-center justify-content-center" style="width: 42px; height: 42px;" title="Grid View">
                         <span>🎛️</span>
                     </button>
-                </div>
-
-                <!-- Custom Product Modal (AlpineJS driven) -->
-                <div class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.4);" x-show="showAddProductModal" x-transition>
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content rounded-1">
-                            <div class="modal-header border-bottom py-2 px-3">
-                                <h5 class="modal-title fw-bold text-dark fs-6">➕ Add Item manually to Cart</h5>
-                                <button type="button" class="btn-close" @click="showAddProductModal = false"></button>
-                            </div>
-                            <div class="modal-body p-3">
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-secondary">Description</label>
-                                    <input type="text" x-model="newProdName" class="form-control form-control-sm text-dark" placeholder="e.g. Charging Cable">
-                                </div>
-                                <div class="row g-2 mb-3">
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold text-secondary">Unit Price (€)</label>
-                                        <input type="number" step="0.01" x-model="newProdPrice" class="form-control form-control-sm text-dark" placeholder="0.00">
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold text-secondary">Quantity</label>
-                                        <input type="number" x-model="newProdQty" class="form-control form-control-sm text-dark" min="1">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer border-top py-2 px-3 d-flex justify-content-end gap-1">
-                                <button type="button" class="btn btn-sm btn-light border" @click="showAddProductModal = false">Cancel</button>
-                                <button type="button" class="btn btn-sm btn-primary text-white" @click="addToCart(newProdName, newProdPrice, newProdQty); showAddProductModal = false; newProdName=''; newProdPrice=''; newProdQty=1;">Add to Cart</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Cart Table -->
@@ -438,13 +459,40 @@ if ($businessId) {
                     </div>
                 </div>
 
-                <!-- Payment Method Section -->
+                <!-- Split Payment Section -->
                 <div class="card border shadow-sm p-3 mb-4 rounded-1" style="background-color: #fff;">
-                    <label class="form-label small fw-bold text-secondary mb-2">Payment Method</label>
-                    <div class="d-flex gap-2 segment-control">
-                        <button type="button" @click="paymentMethod = 'Card'" :class="{'active': paymentMethod === 'Card'}" class="btn btn-sm flex-fill rounded-1 fw-bold py-2">Card</button>
-                        <button type="button" @click="paymentMethod = 'Cash'" :class="{'active': paymentMethod === 'Cash'}" class="btn btn-sm flex-fill rounded-1 fw-bold py-2">Cash</button>
-                        <button type="button" @click="paymentMethod = 'Other'" :class="{'active': paymentMethod === 'Other'}" class="btn btn-sm flex-fill rounded-1 fw-bold py-2">Other</button>
+                    <label class="form-label small fw-bold text-secondary mb-2">Split Payment (€)</label>
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <label class="small text-muted fw-semibold mb-1">💳 Card</label>
+                            <input type="number" step="0.01" x-model.number="cardAmount" class="form-control form-control-sm text-dark rounded-1" placeholder="0.00">
+                        </div>
+                        <div class="col-4">
+                            <label class="small text-muted fw-semibold mb-1">💵 Cash</label>
+                            <input type="number" step="0.01" x-model.number="cashAmount" class="form-control form-control-sm text-dark rounded-1" placeholder="0.00">
+                        </div>
+                        <div class="col-4">
+                            <label class="small text-muted fw-semibold mb-1">📂 Other</label>
+                            <input type="number" step="0.01" x-model.number="otherAmount" class="form-control form-control-sm text-dark rounded-1" placeholder="0.00">
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-3 pt-2 border-top text-secondary small">
+                        <span>Total Paid:</span>
+                        <strong class="text-dark" x-text="`€${(parseFloat(cardAmount || 0) + parseFloat(cashAmount || 0) + parseFloat(otherAmount || 0)).toFixed(2)}`"></strong>
+                    </div>
+                    
+                    <template x-if="Math.abs(grandTotal - (parseFloat(cardAmount || 0) + parseFloat(cashAmount || 0) + parseFloat(otherAmount || 0))) > 0.01">
+                        <div class="d-flex justify-content-between text-danger small">
+                            <span>Remaining:</span>
+                            <strong x-text="`€${(grandTotal - (parseFloat(cardAmount || 0) + parseFloat(cashAmount || 0) + parseFloat(otherAmount || 0))).toFixed(2)}`"></strong>
+                        </div>
+                    </template>
+                    
+                    <!-- Quick Presets -->
+                    <div class="d-flex gap-1 mt-2">
+                        <button type="button" @click="cardAmount = grandTotal; cashAmount = 0.00; otherAmount = 0.00;" class="btn btn-xs btn-light border py-1 px-2 flex-grow-1" style="font-size: 11px;">100% Card</button>
+                        <button type="button" @click="cashAmount = grandTotal; cardAmount = 0.00; otherAmount = 0.00;" class="btn btn-xs btn-light border py-1 px-2 flex-grow-1" style="font-size: 11px;">100% Cash</button>
                     </div>
                 </div>
 
