@@ -524,8 +524,7 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
                     <!-- Right Side: Live Thermal Receipt Preview -->
                     <div class="col-12 col-md-6">
                         <div class="card shadow-sm p-4">
-                            <h2 class="h5 fw-bold text-dark mb-3">👁️ Live Ticket Preview</h2>
-                            <p class="text-muted small mb-3">Real-time simulation of receipt ticket scaling. Adjust font sizes or defaults on the left to preview results.</p>
+                            <h2 class="h5 fw-bold text-dark mb-3">Print Preview</h2>
                             
                             <div class="border p-3 bg-white" style="width: 80mm; max-width: 100%; border-style: dashed !important; border-color: #c0c0c0 !important; border-radius: 0 !important;">
                                 <div :style="'font-family: ' + fontFamily + '; font-size: ' + fontSize + 'px; line-height: 1.35; color: #000;'">
