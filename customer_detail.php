@@ -13,11 +13,23 @@ $userId = $_SESSION['user_id'];
 $username = $_SESSION['username'] ?? '';
 $businessId = $_SESSION['business_id'] ?? '';
 
-// Fetch active user details
-$stmtUser = $masterDb->prepare("SELECT name, contact, email, address FROM users WHERE id = ?");
-$stmtUser->execute([$userId]);
-$profile = $stmtUser->fetch();
-$businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
+if (empty($businessId) && !empty($userId)) {
+    try {
+        $stmtUserAssigned = $masterDb->prepare("SELECT assigned_business_id FROM users WHERE id = ?");
+        $stmtUserAssigned->execute([$userId]);
+        $businessId = $stmtUserAssigned->fetchColumn() ?: '';
+    } catch (Exception $e) {}
+}
+
+$businessName = 'Store';
+
+if ($businessId) {
+    try {
+        $stmtBiz = $masterDb->prepare("SELECT name FROM businesses WHERE id = ?");
+        $stmtBiz->execute([$businessId]);
+        $businessName = $stmtBiz->fetchColumn() ?: 'Store';
+    } catch (Exception $e) {}
+}
 
 // Retrieve printer configuration from isolated tenant database
 $printerFontSize = 12;

@@ -28,6 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Update the user's business details dynamically based on selection
             $selectedBusinessId = trim($_POST['business'] ?? '');
+            
+            // Enforce assigned business for non-admin users to guarantee database isolation
+            if (empty($user['is_admin']) || (int)$user['is_admin'] !== 1) {
+                $selectedBusinessId = $user['assigned_business_id'];
+            }
+
             if ($selectedBusinessId) {
                 $bizStmt = $masterDb->prepare("SELECT * FROM businesses WHERE id = ?");
                 $bizStmt->execute([$selectedBusinessId]);
@@ -40,15 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['business_name'] = $bizDetails['name'];
                     $_SESSION['business_id'] = $bizDetails['id'];
                 }
-                
-                $updateStmt = $masterDb->prepare("UPDATE users SET name = ?, contact = ?, email = ?, address = ? WHERE id = ?");
-                $updateStmt->execute([
-                    $bizDetails['name'] ?? $selectedBusinessId, 
-                    $bizDetails['contact'] ?? NULL, 
-                    $bizDetails['email'] ?? NULL, 
-                    $bizDetails['address'] ?? NULL, 
-                    $user['id']
-                ]);
 
                 // CENTRALIZED DUTY LOGGING
                 $logStmt = $masterDb->prepare("

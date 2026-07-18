@@ -19,14 +19,33 @@ $username = $_SESSION['username'] ?? '';
 $successMsg = '';
 $errorMsg = '';
 
-// Fetch active user details
-$stmtUser = $masterDb->prepare("SELECT name, contact, email, address FROM users WHERE id = ?");
-$stmtUser->execute([$userId]);
-$profile = $stmtUser->fetch();
-$businessName = !empty($profile['name']) ? $profile['name'] : 'Store';
-$businessContact = !empty($profile['contact']) ? $profile['contact'] : '';
-$businessEmail = !empty($profile['email']) ? $profile['email'] : '';
-$businessAddress = !empty($profile['address']) ? $profile['address'] : '';
+$businessId = $_SESSION['business_id'] ?? '';
+if (empty($businessId) && !empty($userId)) {
+    try {
+        $stmtUserAssigned = $masterDb->prepare("SELECT assigned_business_id FROM users WHERE id = ?");
+        $stmtUserAssigned->execute([$userId]);
+        $businessId = $stmtUserAssigned->fetchColumn() ?: '';
+    } catch (Exception $e) {}
+}
+
+$businessName = 'Store';
+$businessContact = '';
+$businessEmail = '';
+$businessAddress = '';
+
+if ($businessId) {
+    try {
+        $stmtBiz = $masterDb->prepare("SELECT name, contact, email, address FROM businesses WHERE id = ?");
+        $stmtBiz->execute([$businessId]);
+        $bizProfile = $stmtBiz->fetch();
+        if ($bizProfile) {
+            $businessName = $bizProfile['name'];
+            $businessContact = $bizProfile['contact'] ?? '';
+            $businessEmail = $bizProfile['email'] ?? '';
+            $businessAddress = $bizProfile['address'] ?? '';
+        }
+    } catch (Exception $e) {}
+}
 
 // Retrieve printer configuration from isolated tenant database
 $printerFontSize = 12;
