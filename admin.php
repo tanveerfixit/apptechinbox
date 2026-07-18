@@ -497,6 +497,8 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
                                 <label class="form-label small fw-bold text-secondary">Default Printer Font</label>
                                 <select class="form-select" x-model="fontFamily">
                                     <option value="'Courier New', Courier, monospace">Courier Monospace (Default Thermal)</option>
+                                    <option value="'Consolas', 'Monaco', 'Lucida Console', monospace">Consolas Monospace (Ultra Clear)</option>
+                                    <option value="'Segoe UI', system-ui, sans-serif">Segoe UI System (High Contrast)</option>
                                     <option value="Arial, Helvetica, sans-serif">Arial Standard</option>
                                     <option value="'Outfit', 'Segoe UI', sans-serif">Outfit (Brand Font)</option>
                                     <option value="Georgia, serif">Georgia Serif</option>
