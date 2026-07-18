@@ -83,6 +83,11 @@ $allBusinesses = $stmtBiz->fetchAll();
     <meta charset="UTF-8">
     <title>Login - TechInbox</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/public/icons/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/public/icons/icon.svg">
+    <link rel="shortcut icon" href="/public/icons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/public/icons/site.webmanifest">
     <style>
         :root {
             --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
