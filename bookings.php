@@ -123,7 +123,7 @@ try {
                   color: #000;
                   background: #fff;
                   padding: 10px;
-                  font-size: <?php echo $printerFontSize + 3; ?>px !important;
+                  font-size: <?php echo $printerFontSize; ?>px !important;
                   line-height: 1.35;
               }
             aside, header, main, footer, .modal {
@@ -139,95 +139,83 @@ try {
 
     <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1"
           x-data="{
-              jobs: [],
               search: '',
-              statusFilter: '',
+              jobs: [],
               loading: false,
-
-              // Collect Payment validation states
               paymentJob: null,
-              payAmount: 0,
-              payMethod: 'Cash',
-              payRef: '',
+              amountPaid: 0,
+              paymentMethod: 'Cash',
               isProcessingPayment: false,
-
+              
               async fetchBookings() {
                   this.loading = true;
                   try {
-                      const res = await fetch('api.php?action=get_bookings&status=' + this.statusFilter + '&search=' + encodeURIComponent(this.search));
+                      const query = encodeURIComponent(this.search);
+                      const res = await fetch(`api.php?action=get_bookings&search=${query}`);
                       const result = await res.json();
                       if (result.status === 'success') {
-                          this.jobs = result.data;
+                          this.jobs = result.data || [];
                       }
                   } catch (e) {
-                      console.error('Error loading bookings:', e);
+                      console.error('Fetch error:', e);
                   } finally {
                       this.loading = false;
                   }
               },
 
-              async updateStatus(job, newStatus) {
-                  // Intercept Completed status if balance is due
-                  if (newStatus === 'Completed' && parseFloat(job.balance_due) > 0) {
-                      this.paymentJob = job;
-                      this.payAmount = parseFloat(job.balance_due);
-                      this.payMethod = 'Cash';
-                      this.payRef = '';
-                      const modal = new bootstrap.Modal(document.getElementById('collectPaymentModal'));
-                      modal.show();
-                      return;
+              updateStatus(job, newStatus) {
+                  if (newStatus === 'Completed') {
+                      // Check if balance remains
+                      const balance = parseFloat(job.total_quote) - parseFloat(job.deposit_paid);
+                      if (balance > 0) {
+                          // Trigger Collect Payment Modal
+                          this.paymentJob = job;
+                          this.amountPaid = balance;
+                          this.paymentMethod = 'Cash';
+                          const modal = new bootstrap.Modal(document.getElementById('collectPaymentModal'));
+                          modal.show();
+                          return;
+                      }
                   }
                   this.executeStatusUpdate(job.id, newStatus);
               },
 
-              async executeStatusUpdate(jobId, newStatus) {
+              async executeStatusUpdate(bookingId, status) {
                   try {
-                      const res = await fetch('api.php?action=update_booking', {
+                      const res = await fetch('api.php?action=update_booking_status', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                              id: jobId,
-                              status: newStatus,
-                              status_only: true
-                          })
+                          body: JSON.stringify({ id: bookingId, status: status })
                       });
                       const result = await res.json();
                       if (result.status === 'success') {
                           this.fetchBookings();
                       } else {
-                          alert(result.message || 'Error updating status');
-                          this.fetchBookings();
+                          alert(result.message || 'Failed to update status.');
                       }
                   } catch (e) {
-                      alert('Connection error. Please try again.');
-                      this.fetchBookings();
+                      alert('Connection error.');
                   }
               },
 
-              async recordPaymentAndComplete() {
-                  if (parseFloat(this.payAmount) <= 0) {
-                      alert('Please enter a valid amount.');
-                      return;
-                  }
+              async collectAndComplete() {
                   this.isProcessingPayment = true;
                   try {
-                      const payRes = await fetch('api.php?action=add_payment', {
+                      const res = await fetch('api.php?action=collect_balance', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
                               booking_id: this.paymentJob.id,
-                              amount: parseFloat(this.payAmount),
-                              payment_method: this.payMethod,
-                              payment_type: 'Final Balance',
-                              reference_code: this.payRef
+                              amount: this.amountPaid,
+                              payment_method: this.paymentMethod
                           })
                       });
-                      const payResult = await payRes.json();
-                      if (payResult.status === 'success') {
-                          await this.executeStatusUpdate(this.paymentJob.id, 'Completed');
+                      const result = await res.json();
+                      if (result.status === 'success') {
+                          this.executeStatusUpdate(this.paymentJob.id, 'Completed');
                           bootstrap.Modal.getInstance(document.getElementById('collectPaymentModal')).hide();
                       } else {
-                          alert(payResult.message || 'Failed to record payment.');
+                          alert(result.message || 'Payment processing failed.');
                       }
                   } catch (e) {
                       alert('Connection error.');
@@ -283,25 +271,18 @@ try {
             <!-- Filters -->
             <div class="d-flex flex-wrap align-items-center gap-2">
                 <input type="text" x-model="search" @input.debounce.300ms="fetchBookings()" class="form-control form-control-sm" style="max-width: 230px;" placeholder="Search Customer, Phone, Ticket...">
-                
-                <select x-model="statusFilter" @change="fetchBookings()" class="form-select form-select-sm" style="width: 140px;">
-                    <option value="">All Statuses</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Processing">Processing</option>
-                    <option value="Completed">Completed</option>
-                </select>
             </div>
         </div>
 
         <!-- Bookings Table Card -->
-        <div class="card bg-white flex-grow-1">
+        <div class="card shadow-sm border p-3 p-md-4" style="background-color: #ffffff !important; border-radius: 6px !important; border-color: #e0e0e0 !important;">
             <div x-show="loading" class="text-center py-5">
-                <div class="spinner-border text-secondary spinner-border-sm" role="status"></div>
-                <span class="ms-2 text-muted small">Loading bookings data...</span>
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted small mt-2 mb-0">Loading bookings...</p>
             </div>
 
             <div x-show="!loading && jobs.length === 0" class="text-center py-5">
-                <span class="fs-2 d-block mb-2">📂</span>
+                <span class="fs-2 mb-2 d-block">📂</span>
                 <h3 class="h6 fw-bold text-secondary mb-1">No Bookings Found</h3>
                 <p class="text-muted small mb-0">Try matching a different keyword or create a new booking first.</p>
             </div>
@@ -355,52 +336,37 @@ try {
             </div>
         </div>
 
-
-
         <!-- Collect Payment & Complete Modal Dialog -->
         <div class="modal fade" id="collectPaymentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="collectPaymentModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title fw-bold text-dark" id="collectPaymentModalLabel">💰 Collect Remaining Balance</h5>
-                        <button type="button" class="btn-close" @click="cancelStatusChange()" aria-label="Close"></button>
                     </div>
-                    <form @submit.prevent="recordPaymentAndComplete()">
-                        <div class="modal-body">
-                            <p class="small text-muted mb-3">
-                                This job has an outstanding balance of <strong class="text-danger">€<span x-text="paymentJob ? parseFloat(paymentJob.balance_due).toFixed(2) : '0.00'"></span></strong>. 
-                                Please record the customer's payment to complete the job.
-                            </p>
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label small fw-bold text-secondary">Amount to Collect (€)</label>
-                                    <input type="number" step="0.01" x-model="payAmount" class="form-control form-control-sm" required>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small fw-bold text-secondary">Payment Method</label>
-                                    <select x-model="payMethod" class="form-select form-select-sm">
-                                        <option value="Cash">Cash</option>
-                                        <option value="Card BOI">Card BOI</option>
-                                        <option value="Card Fixed">Card Fixed</option>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small fw-bold text-secondary">Reference Code</label>
-                                    <input type="text" x-model="payRef" class="form-control form-control-sm" placeholder="e.g. Terminal Auth">
-                                </div>
-                            </div>
+                    <div class="modal-body">
+                        <div class="mb-3 text-center">
+                            <span class="small text-muted d-block uppercase font-weight-bold">Amount Due</span>
+                            <span class="fs-2 fw-bold text-success" x-text="'€' + parseFloat(amountPaid).toFixed(2)"></span>
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-sm btn-outline-secondary" @click="cancelStatusChange()">Cancel</button>
-                            <div class="d-inline-flex gap-1">
-                                <button type="button" class="btn btn-sm btn-outline-danger" @click="completeWithoutPayment()">Complete Without Payment</button>
-                                <button type="submit" class="btn btn-sm btn-success text-white" style="background-color: var(--brand-green); border-color: var(--brand-green);" :disabled="isProcessingPayment">
-                                    <span x-show="!isProcessingPayment">Record & Complete</span>
-                                    <span x-show="isProcessingPayment" class="spinner-border spinner-border-sm" role="status"></span>
-                                </button>
-                            </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Payment Method</label>
+                            <select class="form-select" x-model="paymentMethod">
+                                <option value="Cash">💵 Cash</option>
+                                <option value="Card">💳 Card</option>
+                            </select>
                         </div>
-                    </form>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" @click="cancelStatusChange()" :disabled="isProcessingPayment">Cancel</button>
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn btn-sm btn-outline-danger" @click="completeWithoutPayment()" :disabled="isProcessingPayment">Skip Payment</button>
+                            <button type="button" class="btn btn-sm btn-primary text-white" @click="collectAndComplete()" :disabled="isProcessingPayment">
+                                <span x-show="!isProcessingPayment">Collect & Complete</span>
+                                <span x-show="isProcessingPayment" class="spinner-border spinner-border-sm"></span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -410,19 +376,19 @@ try {
     <!-- Receipt Print Template (Hidden standard 80mm format) -->
     <div id="printTicketArea">
         <div style="text-align: center; margin-bottom: 8px;">
-            <h3 style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;"><?php echo htmlspecialchars($businessName); ?></h3>
-            <p style="margin: 1px 0 0 0; font-size: 12px; color: #333;">
+            <h3 style="margin: 0; font-size: 1.25em; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;"><?php echo htmlspecialchars($businessName); ?></h3>
+            <p style="margin: 1px 0 0 0; font-size: 0.85em; color: #333;">
                 <?php echo htmlspecialchars($businessAddress); ?> 
                 <?php if ($businessContact): ?> | Ph: <?php echo htmlspecialchars($businessContact); ?><?php endif; ?>
             </p>
         </div>
         
-        <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-bottom: 6px; font-size: 12px; display: flex; justify-content: space-between;">
+        <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-bottom: 6px; font-size: 0.85em; display: flex; justify-content: space-between;">
             <span id="receiptTicketNum" style="font-weight: bold;">Ticket #: </span>
             <span id="receiptDate">Date: </span>
         </div>
 
-        <div style="margin-bottom: 6px; font-size: 12px; line-height: 1.3;">
+        <div style="margin-bottom: 6px; font-size: 0.85em; line-height: 1.3;">
             <div style="display: flex; margin-bottom: 2px;">
                 <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Client:</span>
                 <span id="rCustomer" style="font-weight: 550;"></span>
@@ -437,7 +403,7 @@ try {
             </div>
         </div>
 
-        <div style="border-top: 1px dashed #000; padding-top: 4px; margin-bottom: 6px; font-size: 12px; line-height: 1.3;">
+        <div style="border-top: 1px dashed #000; padding-top: 4px; margin-bottom: 6px; font-size: 0.85em; line-height: 1.3;">
             <div style="display: flex; margin-bottom: 2px;">
                 <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Device:</span>
                 <span id="rDevice" style="font-weight: 550;"></span>
@@ -448,7 +414,7 @@ try {
             </div>
         </div>
 
-        <div style="border-top: 1px dashed #000; padding-top: 5px; margin-bottom: 8px; font-size: 13px;">
+        <div style="border-top: 1px dashed #000; padding-top: 5px; margin-bottom: 8px; font-size: 0.9em;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
                 <span>Total Quote:</span>
                 <span id="rQuote" style="font-weight: 550;"></span>
@@ -457,13 +423,13 @@ try {
                 <span>Deposit Paid:</span>
                 <span id="rDeposit" style="font-weight: 550;"></span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; border-top: 1px dashed #000; padding-top: 3px; margin-top: 3px;">
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1em; border-top: 1px dashed #000; padding-top: 3px; margin-top: 3px;">
                 <span>Remaining Balance:</span>
                 <span id="rBalance"></span>
             </div>
         </div>
 
-        <div style="text-align: center; font-size: 11px; color: #444; border-top: 1px dashed #000; padding-top: 5px; line-height: 1.2;">
+        <div style="text-align: center; font-size: 0.75em; color: #444; border-top: 1px dashed #000; padding-top: 5px; line-height: 1.2;">
             Thank you for choosing <?php echo htmlspecialchars($businessName); ?>!<br>
             Please retain this ticket to collect your device.
         </div>
