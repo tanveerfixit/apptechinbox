@@ -117,7 +117,7 @@ $apps = [
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TechInbox - Portal</title>
+    <title>Businesses Apps By Techinbox</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/public/icons/favicon-96x96.png" sizes="96x96">
     <link rel="icon" type="image/svg+xml" href="/public/icons/icon.svg">

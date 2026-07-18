@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('icons/apple-touch-icon.png') }}">
     <link rel="manifest" href="{{ asset('icons/site.webmanifest') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'TechInbox - Portal' }}</title>
+    <title>{{ $title ?? 'Businesses Apps By Techinbox' }}</title>
 
     <!-- Google Fonts for Modern Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
