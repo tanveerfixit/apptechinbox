@@ -429,10 +429,6 @@ try {
             </div>
         </div>
 
-        <div style="text-align: center; font-size: 0.75em; color: #444; border-top: 1px dashed #000; padding-top: 5px; line-height: 1.2;">
-            Thank you for choosing <?php echo htmlspecialchars($businessName); ?>!<br>
-            Please retain this ticket to collect your device.
-        </div>
     </div>
 
     <!-- Standard Footer -->
