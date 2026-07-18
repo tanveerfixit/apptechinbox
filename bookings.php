@@ -397,7 +397,7 @@ try {
                 <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Phone:</span>
                 <span id="rPhone"></span>
             </div>
-            <div style="display: flex; margin-bottom: 2px;">
+            <div style="display: none;">
                 <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Email:</span>
                 <span id="rEmail"></span>
             </div>
@@ -408,7 +408,7 @@ try {
                 <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Device:</span>
                 <span id="rDevice" style="font-weight: 550;"></span>
             </div>
-            <div style="display: flex; margin-bottom: 2px;">
+            <div style="display: none;">
                 <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Problem:</span>
                 <span id="rFault"></span>
             </div>
