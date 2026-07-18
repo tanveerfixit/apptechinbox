@@ -409,43 +409,61 @@ try {
 
     <!-- Receipt Print Template (Hidden standard 80mm format) -->
     <div id="printTicketArea">
-        <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
-            <h3 style="margin: 0; font-size: 20px; font-weight: bold;"><?php echo htmlspecialchars($businessName); ?></h3>
-            <?php if ($businessAddress): ?>
-                <p style="margin: 3px 0 0 0; font-size: 14px;"><?php echo htmlspecialchars($businessAddress); ?></p>
-            <?php endif; ?>
-            <?php if ($businessContact): ?>
-                <p style="margin: 2px 0 0 0; font-size: 14px;">Ph: <?php echo htmlspecialchars($businessContact); ?></p>
-            <?php endif; ?>
+        <div style="text-align: center; margin-bottom: 8px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;"><?php echo htmlspecialchars($businessName); ?></h3>
+            <p style="margin: 1px 0 0 0; font-size: 12px; color: #333;">
+                <?php echo htmlspecialchars($businessAddress); ?> 
+                <?php if ($businessContact): ?> | Ph: <?php echo htmlspecialchars($businessContact); ?><?php endif; ?>
+            </p>
         </div>
         
-        <div style="font-size: 14px; margin-bottom: 8px;">
-            <span id="receiptDate">Date: </span><br>
-            <span id="receiptTicketNum">Ticket #: </span>
+        <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-bottom: 6px; font-size: 12px; display: flex; justify-content: space-between;">
+            <span id="receiptTicketNum" style="font-weight: bold;">Ticket #: </span>
+            <span id="receiptDate">Date: </span>
         </div>
 
-        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
-            <strong>CUSTOMER DETAILS</strong><br>
-            Name: <span id="rCustomer"></span><br>
-            Phone: <span id="rPhone"></span><br>
-            Email: <span id="rEmail"></span>
-        </div>
-
-        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
-            <strong>DEVICE & FAULT</strong><br>
-            Device: <span id="rDevice"></span><br>
-            Problem: <span id="rFault"></span>
-        </div>
-
-        <div style="text-align: right; font-size: 15px; line-height: 1.5;">
-            Quote: <span id="rQuote"></span><br>
-            Deposit: <span id="rDeposit"></span><br>
-            <div style="border-top: 1px dashed #000; margin-top: 4px; font-weight: bold; font-size: 18px;">
-                Balance: <span id="rBalance"></span>
+        <div style="margin-bottom: 6px; font-size: 12px; line-height: 1.3;">
+            <div style="display: flex; margin-bottom: 2px;">
+                <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Client:</span>
+                <span id="rCustomer" style="font-weight: 550;"></span>
+            </div>
+            <div style="display: flex; margin-bottom: 2px;">
+                <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Phone:</span>
+                <span id="rPhone"></span>
+            </div>
+            <div style="display: flex; margin-bottom: 2px;">
+                <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Email:</span>
+                <span id="rEmail"></span>
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 20px; font-size: 13px; border-top: 1px dashed #000; padding-top: 8px;">
+        <div style="border-top: 1px dashed #000; padding-top: 4px; margin-bottom: 6px; font-size: 12px; line-height: 1.3;">
+            <div style="display: flex; margin-bottom: 2px;">
+                <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Device:</span>
+                <span id="rDevice" style="font-weight: 550;"></span>
+            </div>
+            <div style="display: flex; margin-bottom: 2px;">
+                <span style="width: 55px; font-weight: bold; flex-shrink: 0;">Problem:</span>
+                <span id="rFault"></span>
+            </div>
+        </div>
+
+        <div style="border-top: 1px dashed #000; padding-top: 5px; margin-bottom: 8px; font-size: 13px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                <span>Total Quote:</span>
+                <span id="rQuote" style="font-weight: 550;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                <span>Deposit Paid:</span>
+                <span id="rDeposit" style="font-weight: 550;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; border-top: 1px dashed #000; padding-top: 3px; margin-top: 3px;">
+                <span>Remaining Balance:</span>
+                <span id="rBalance"></span>
+            </div>
+        </div>
+
+        <div style="text-align: center; font-size: 11px; color: #444; border-top: 1px dashed #000; padding-top: 5px; line-height: 1.2;">
             Thank you for choosing <?php echo htmlspecialchars($businessName); ?>!<br>
             Please retain this ticket to collect your device.
         </div>
