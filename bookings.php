@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // bookings.php
 session_start();
 require_once __DIR__ . '/db.php';
@@ -64,7 +64,7 @@ try {
     <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
     <link rel="manifest" href="/public/icons/site.webmanifest">
     
-    <!-- Outfit Font & Bootstrap 5 -->
+    <!-- Roboto Font & Bootstrap 5 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -75,7 +75,7 @@ try {
 
     <style>
         :root {
-            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
+            --bg-color: #f3f3f3;
             --card-bg: #ffffff;
             --card-border: #e0e0e0;
             --text-primary: #242424;
@@ -83,7 +83,11 @@ try {
             --brand-teal: #008272;
             --brand-blue: #00a4ef;
             --brand-green: #7fba00;
+            --brand-red: #f25022;
+            --brand-yellow: #ffb900;
             --font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
+            --hover-bg: #f2f6fc;
+            --active-tab: #008272;
         }
 
         body {
@@ -95,58 +99,268 @@ try {
             flex-direction: column;
         }
 
-        /* Table-specific styles (all global resets handled by header.php) */
-        .table thead th {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        /* Gmail-style search bar */
+        .search-container {
+            max-width: 720px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .search-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 8px 18px;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+            color: var(--text-primary);
+        }
+        .search-bar::placeholder { color: #9a9a9a; }
+        .search-bar:focus {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            border-color: transparent;
+        }
+
+        /* Tab filters */
+        .tab-filters {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 0;
+            background: var(--card-bg);
+            padding: 0 16px;
+            border-radius: 8px 8px 0 0;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            font-size: 13px;
             font-weight: 500;
             color: var(--text-secondary);
-            background-color: #f5f5f5;
-            border-bottom: 1px solid var(--card-border) !important;
+            cursor: pointer;
+            position: relative;
+            letter-spacing: 0.2px;
+            transition: color 0.15s ease;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: var(--text-primary); }
+        .tab-btn.active {
+            color: var(--active-tab);
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 16px;
+            height: 3px;
+            background: var(--active-tab);
+            border-radius: 3px 3px 0 0;
         }
 
-        .table tbody td {
+        /* Inbox list container */
+        .inbox-list {
+            background: var(--card-bg);
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+        }
+
+        /* Gmail-style row */
+        .inbox-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            border-bottom: 1px solid #f1f1f1;
+            cursor: pointer;
+            transition: background-color 0.1s ease, box-shadow 0.1s ease;
+            text-decoration: none;
+            color: inherit;
+            gap: 12px;
+            min-height: 52px;
+        }
+        .inbox-row:hover {
+            background-color: var(--hover-bg);
+            box-shadow: inset 0 -1px 0 #e8e8e8;
+            z-index: 1;
+        }
+        .inbox-row:last-child { border-bottom: none; }
+        .inbox-row.completed-row {
+            opacity: 0.6;
+            background-color: #fafafa;
+        }
+        .inbox-row.completed-row:hover {
+            opacity: 0.85;
+            background-color: var(--hover-bg);
+        }
+
+        /* Status dot */
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .status-dot.pending { background: var(--brand-yellow); }
+        .status-dot.processing { background: var(--brand-blue); }
+        .status-dot.completed { background: var(--brand-green); }
+
+        /* Row sections */
+        .inbox-sender {
+            width: 180px;
+            flex-shrink: 0;
             font-size: 13.5px;
-            border-bottom: 1px solid var(--card-border) !important;
+            font-weight: 500;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .inbox-row.completed-row .inbox-sender {
+            font-weight: 400;
+            color: var(--text-secondary);
         }
 
-        .modal-header {
-            border-bottom: 1px solid var(--card-border) !important;
+        .inbox-subject {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            overflow: hidden;
+        }
+        .inbox-device {
+            font-size: 13.5px;
+            font-weight: 400;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        .inbox-snippet {
+            font-size: 13px;
+            color: #999;
+            font-weight: 300;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .inbox-separator {
+            color: #ccc;
+            font-size: 12px;
+            flex-shrink: 0;
         }
 
-        .modal-footer {
-            border-top: 1px solid var(--card-border) !important;
+        .inbox-ticket {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-family: 'Roboto Mono', monospace;
+            background: #f3f3f3;
+            padding: 2px 8px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            letter-spacing: 0.3px;
         }
 
-        #printTicketArea {
-            display: none;
+        .inbox-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            text-align: right;
+            min-width: 70px;
         }
 
-        /* Receipt print format overrides */
+        /* Status dropdown (click-stop zone) */
+        .status-select {
+            font-size: 11.5px;
+            padding: 3px 8px;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            background: #fff;
+            color: var(--text-secondary);
+            cursor: pointer;
+            outline: none;
+            flex-shrink: 0;
+            min-width: 105px;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235c5c5c'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 22px;
+        }
+        .status-select:focus {
+            border-color: var(--brand-teal);
+        }
+
+        /* Counter badges */
+        .tab-count {
+            font-size: 11px;
+            background: #eee;
+            color: var(--text-secondary);
+            padding: 1px 7px;
+            border-radius: 10px;
+            margin-left: 5px;
+            font-weight: 400;
+        }
+        .tab-btn.active .tab-count {
+            background: rgba(0,130,114,0.1);
+            color: var(--active-tab);
+        }
+
+        /* Empty state */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+        /* Loading */
+        .loading-state {
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .inbox-sender { width: 120px; font-size: 13px; }
+            .inbox-ticket { display: none; }
+            .inbox-snippet { display: none; }
+            .inbox-row { padding: 10px 12px; gap: 8px; }
+            .tab-btn { padding: 10px 12px; font-size: 12px; }
+            .status-select { min-width: 90px; font-size: 11px; }
+        }
+        @media (max-width: 480px) {
+            .inbox-sender { width: 100px; }
+            .inbox-device { font-size: 12.5px; }
+            .inbox-date { font-size: 11px; min-width: 55px; }
+        }
+
+        /* Modal */
+        .modal-header { border-bottom: 1px solid var(--card-border) !important; }
+        .modal-footer { border-top: 1px solid var(--card-border) !important; }
+
+        /* Print receipt */
+        #printTicketArea { display: none; }
         @media print {
-            body * {
-                visibility: hidden;
+            body * { visibility: hidden; }
+            #printTicketArea, #printTicketArea * { visibility: visible; }
+            #printTicketArea {
+                display: block !important;
+                position: absolute;
+                left: 0; top: 0;
+                width: 80mm;
+                font-family: <?php echo $printerFontFamily; ?> !important;
+                color: #000;
+                background: #fff;
+                padding: 10px;
+                font-size: <?php echo $printerFontSize; ?>px !important;
+                line-height: 1.35;
             }
-            #printTicketArea, #printTicketArea * {
-                visibility: visible;
-            }
-             #printTicketArea {
-                  display: block !important;
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  width: 80mm; /* Standard receipt roll width */
-                  font-family: <?php echo $printerFontFamily; ?> !important;
-                  color: #000;
-                  background: #fff;
-                  padding: 10px;
-                  font-size: <?php echo $printerFontSize; ?>px !important;
-                  line-height: 1.35;
-              }
-            aside, header, main, footer, .modal {
-                display: none !important;
-            }
+            aside, header, main, footer, .modal { display: none !important; }
         }
     </style>
 </head>
@@ -158,6 +372,7 @@ try {
     <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1"
           x-data="{
               search: '',
+              activeTab: 'all',
               jobs: [],
               loading: false,
               paymentJob: null,
@@ -181,12 +396,43 @@ try {
                   }
               },
 
+              get filteredJobs() {
+                  if (this.activeTab === 'all') return this.jobs;
+                  const statusMap = { pending: 'Pending', processing: 'Processing', completed: 'Completed' };
+                  return this.jobs.filter(j => j.status === statusMap[this.activeTab]);
+              },
+
+              get counts() {
+                  return {
+                      all: this.jobs.length,
+                      pending: this.jobs.filter(j => j.status === 'Pending').length,
+                      processing: this.jobs.filter(j => j.status === 'Processing').length,
+                      completed: this.jobs.filter(j => j.status === 'Completed').length
+                  };
+              },
+
+              formatDate(dateStr) {
+                  if (!dateStr) return '';
+                  const d = new Date(dateStr);
+                  const now = new Date();
+                  const diff = now - d;
+                  const mins = Math.floor(diff / 60000);
+                  const hrs = Math.floor(diff / 3600000);
+                  const days = Math.floor(diff / 86400000);
+                  
+                  if (mins < 1) return 'Just now';
+                  if (mins < 60) return mins + ' min ago';
+                  if (hrs < 24 && d.getDate() === now.getDate()) return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                  if (days < 2) return 'Yesterday';
+                  if (days < 7) return d.toLocaleDateString([], {weekday: 'short'});
+                  if (d.getFullYear() === now.getFullYear()) return d.toLocaleDateString([], {day: 'numeric', month: 'short'});
+                  return d.toLocaleDateString([], {day: 'numeric', month: 'short', year: 'numeric'});
+              },
+
               updateStatus(job, newStatus) {
                   if (newStatus === 'Completed') {
-                      // Check if balance remains
                       const balance = parseFloat(job.total_quote) - parseFloat(job.deposit_paid);
                       if (balance > 0) {
-                          // Trigger Collect Payment Modal
                           this.paymentJob = job;
                           this.amountPaid = balance;
                           this.paymentMethod = 'Cash';
@@ -258,20 +504,18 @@ try {
                   document.getElementById('rEmail').textContent = job.email || 'N/A';
                   document.getElementById('rDevice').textContent = job.device_model;
                   document.getElementById('rFault').textContent = job.problem_description;
-                  document.getElementById('rQuote').textContent = '€' + parseFloat(job.total_quote).toFixed(2);
-                  document.getElementById('rDeposit').textContent = '€' + parseFloat(job.deposit_paid).toFixed(2);
+                  document.getElementById('rQuote').textContent = 'â‚¬' + parseFloat(job.total_quote).toFixed(2);
+                  document.getElementById('rDeposit').textContent = 'â‚¬' + parseFloat(job.deposit_paid).toFixed(2);
                   
                   const balance = Math.max(0, parseFloat(job.total_quote) - parseFloat(job.deposit_paid));
-                  document.getElementById('rBalance').textContent = '€' + balance.toFixed(2);
+                  document.getElementById('rBalance').textContent = 'â‚¬' + balance.toFixed(2);
                   
-                  // Date format
                   const dateObj = new Date(job.created_at || Date.now());
                   const dateStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                   
                   document.getElementById('receiptDate').textContent = 'Date: ' + dateStr;
                   document.getElementById('receiptTicketNum').textContent = 'Ticket #: ' + job.ticket_id;
                   
-                  // Trigger Print dialog
                   window.print();
               },
 
@@ -280,77 +524,93 @@ try {
               }
           }">
 
-        <!-- Header Panel -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-            <div>
-                <h1 class="h3 fw-medium text-dark mb-0">📋 Booked Repair Jobs</h1>
-            </div>
-            
-            <!-- Filters -->
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <input type="text" x-model="search" @input.debounce.300ms="fetchBookings()" class="form-control form-control-sm" style="max-width: 230px;" placeholder="Search Customer, Phone, Ticket...">
-            </div>
+        <!-- Gmail-style Search Bar -->
+        <div class="search-container mb-3">
+            <input type="text" 
+                   x-model="search" 
+                   @input.debounce.300ms="fetchBookings()" 
+                   class="search-bar" 
+                   placeholder="ðŸ”  Search repairs â€” customer, phone, ticket...">
         </div>
 
-        <!-- Bookings Table Card -->
-        <div class="card shadow-sm border p-3 p-md-4" style="background-color: #ffffff !important; border-radius: 6px !important; border-color: #e0e0e0 !important;">
-            <div x-show="loading" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="text-muted small mt-2 mb-0">Loading bookings...</p>
+        <!-- Inbox Card -->
+        <div style="max-width: 1100px; margin: 0 auto;">
+            
+            <!-- Tab Filters -->
+            <div class="tab-filters">
+                <button class="tab-btn" :class="{ active: activeTab === 'all' }" @click="activeTab = 'all'">
+                    All<span class="tab-count" x-text="counts.all"></span>
+                </button>
+                <button class="tab-btn" :class="{ active: activeTab === 'pending' }" @click="activeTab = 'pending'">
+                    ðŸŸ¡ Pending<span class="tab-count" x-text="counts.pending"></span>
+                </button>
+                <button class="tab-btn" :class="{ active: activeTab === 'processing' }" @click="activeTab = 'processing'">
+                    ðŸ”µ Processing<span class="tab-count" x-text="counts.processing"></span>
+                </button>
+                <button class="tab-btn" :class="{ active: activeTab === 'completed' }" @click="activeTab = 'completed'">
+                    ðŸŸ¢ Completed<span class="tab-count" x-text="counts.completed"></span>
+                </button>
             </div>
 
-            <div x-show="!loading && jobs.length === 0" class="text-center py-5">
-                <span class="fs-2 mb-2 d-block">📂</span>
-                <h3 class="h6 fw-medium text-secondary mb-1">No Bookings Found</h3>
-                <p class="text-muted small mb-0">Try matching a different keyword or create a new booking first.</p>
-            </div>
+            <!-- Inbox List -->
+            <div class="inbox-list">
 
-            <div x-show="!loading && jobs.length > 0" class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Ticket ID</th>
-                            <th>Customer Name</th>
-                            <th>Device Detail</th>
-                            <th style="width: 160px;">Status</th>
-                            <th class="text-end" style="width: 160px;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="job in jobs" :key="job.id">
-                            <tr :style="job.status === 'Completed' ? 'background-color: #fafafa; opacity: 0.85;' : ''">
-                                 <td>
-                                     <span class="fw-normal" style="font-size: 13px; font-family: monospace;" x-text="job.ticket_id"></span>
-                                 </td>
-                                 <td>
-                                     <div>
-                                         <a :href="'customer_detail.php?id=' + job.id" class="fw-medium text-decoration-none text-primary" x-text="job.customer_name"></a>
-                                     </div>
-                                 </td>
-                                <td>
-                                    <span class="fw-normal text-dark" x-text="job.device_model"></span>
-                                </td>
-                                <td>
-                                     <select class="form-select form-select-sm" :value="job.status" @change="updateStatus(job, $event.target.value)" style="font-size: 12.5px;">
-                                         <option value="Pending">Pending</option>
-                                         <option value="Processing">Processing</option>
-                                         <option value="Completed">Completed</option>
-                                     </select>
-                                </td>
-                                <td class="text-end">
-                                    <div class="d-inline-flex gap-1">
-                                        <button class="btn btn-sm btn-outline-secondary" style="font-size: 12px;" @click="printReceipt(job)">
-                                            🖨️ Print
-                                        </button>
-                                         <a :href="'customer_detail.php?id=' + job.id" class="btn btn-sm btn-outline-primary" style="font-size: 12px; display: inline-flex; align-items: center; text-decoration: none;">
-                                             ✏️ Edit
-                                         </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
+                <!-- Loading -->
+                <div x-show="loading" class="loading-state">
+                    <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+                    <p class="text-muted small mt-2 mb-0">Loading repairs...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div x-show="!loading && filteredJobs.length === 0" class="empty-state">
+                    <div class="empty-state-icon">ðŸ“­</div>
+                    <h3 style="font-size: 16px; font-weight: 400; color: var(--text-secondary); margin-bottom: 4px;">Nothing here</h3>
+                    <p style="font-size: 13px; color: #999; margin: 0;">No repair jobs match your current filter.</p>
+                </div>
+
+                <!-- Rows -->
+                <template x-for="job in filteredJobs" :key="job.id">
+                    <a :href="'customer_detail.php?id=' + job.id" 
+                       class="inbox-row" 
+                       :class="{ 'completed-row': job.status === 'Completed' }">
+                        
+                        <!-- Status Dot -->
+                        <span class="status-dot" 
+                              :class="{
+                                  pending: job.status === 'Pending',
+                                  processing: job.status === 'Processing',
+                                  completed: job.status === 'Completed'
+                              }"></span>
+
+                        <!-- Customer Name -->
+                        <span class="inbox-sender" x-text="job.customer_name"></span>
+
+                        <!-- Device + Problem Snippet -->
+                        <span class="inbox-subject">
+                            <span class="inbox-device" x-text="job.device_model"></span>
+                            <span class="inbox-separator">â€”</span>
+                            <span class="inbox-snippet" x-text="job.problem_description"></span>
+                        </span>
+
+                        <!-- Ticket Badge -->
+                        <span class="inbox-ticket" x-text="job.ticket_id"></span>
+
+                        <!-- Status Dropdown (stops row navigation) -->
+                        <span @click.prevent.stop>
+                            <select class="status-select" 
+                                    :value="job.status" 
+                                    @change="updateStatus(job, $event.target.value)">
+                                <option value="Pending">Pending</option>
+                                <option value="Processing">Processing</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </span>
+
+                        <!-- Date -->
+                        <span class="inbox-date" x-text="formatDate(job.created_at)"></span>
+                    </a>
+                </template>
+
             </div>
         </div>
 
@@ -359,19 +619,19 @@ try {
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-medium text-dark" id="collectPaymentModalLabel">💰 Collect Remaining Balance</h5>
+                        <h5 class="modal-title fw-medium text-dark" id="collectPaymentModalLabel">ðŸ’° Collect Remaining Balance</h5>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3 text-center">
-                            <span class="small text-muted d-block uppercase fw-normal">Amount Due</span>
-                            <span class="fs-2 fw-medium text-success" x-text="'€' + parseFloat(amountPaid).toFixed(2)"></span>
+                            <span class="small text-muted d-block">Amount Due</span>
+                            <span class="fs-2 fw-medium text-success" x-text="'â‚¬' + parseFloat(amountPaid).toFixed(2)"></span>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label small fw-normal text-secondary">Payment Method</label>
+                            <label class="form-label small text-secondary">Payment Method</label>
                             <select class="form-select" x-model="paymentMethod">
-                                <option value="Cash">💵 Cash</option>
-                                <option value="Card">💳 Card</option>
+                                <option value="Cash">ðŸ’µ Cash</option>
+                                <option value="Card">ðŸ’³ Card</option>
                             </select>
                         </div>
                     </div>
