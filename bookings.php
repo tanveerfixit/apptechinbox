@@ -100,7 +100,7 @@ try {
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-weight: 700;
+            font-weight: 500;
             color: var(--text-secondary);
             background-color: #f5f5f5;
             border-bottom: 1px solid var(--card-border) !important;
@@ -283,7 +283,7 @@ try {
         <!-- Header Panel -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
             <div>
-                <h1 class="h3 fw-bold text-dark mb-0">📋 Booked Repair Jobs</h1>
+                <h1 class="h3 fw-medium text-dark mb-0">📋 Booked Repair Jobs</h1>
             </div>
             
             <!-- Filters -->
@@ -301,7 +301,7 @@ try {
 
             <div x-show="!loading && jobs.length === 0" class="text-center py-5">
                 <span class="fs-2 mb-2 d-block">📂</span>
-                <h3 class="h6 fw-bold text-secondary mb-1">No Bookings Found</h3>
+                <h3 class="h6 fw-medium text-secondary mb-1">No Bookings Found</h3>
                 <p class="text-muted small mb-0">Try matching a different keyword or create a new booking first.</p>
             </div>
 
@@ -320,15 +320,15 @@ try {
                         <template x-for="job in jobs" :key="job.id">
                             <tr :style="job.status === 'Completed' ? 'background-color: #fafafa; opacity: 0.85;' : ''">
                                  <td>
-                                     <span class="fw-bold" style="font-size: 13px; font-family: monospace;" x-text="job.ticket_id"></span>
+                                     <span class="fw-normal" style="font-size: 13px; font-family: monospace;" x-text="job.ticket_id"></span>
                                  </td>
                                  <td>
                                      <div>
-                                         <a :href="'customer_detail.php?id=' + job.id" class="fw-bold text-decoration-none text-primary" x-text="job.customer_name"></a>
+                                         <a :href="'customer_detail.php?id=' + job.id" class="fw-medium text-decoration-none text-primary" x-text="job.customer_name"></a>
                                      </div>
                                  </td>
                                 <td>
-                                    <span class="fw-semibold text-dark" x-text="job.device_model"></span>
+                                    <span class="fw-normal text-dark" x-text="job.device_model"></span>
                                 </td>
                                 <td>
                                      <select class="form-select form-select-sm" :value="job.status" @change="updateStatus(job, $event.target.value)" style="font-size: 12.5px;">
@@ -359,16 +359,16 @@ try {
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-bold text-dark" id="collectPaymentModalLabel">💰 Collect Remaining Balance</h5>
+                        <h5 class="modal-title fw-medium text-dark" id="collectPaymentModalLabel">💰 Collect Remaining Balance</h5>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3 text-center">
-                            <span class="small text-muted d-block uppercase font-weight-bold">Amount Due</span>
-                            <span class="fs-2 fw-bold text-success" x-text="'€' + parseFloat(amountPaid).toFixed(2)"></span>
+                            <span class="small text-muted d-block uppercase fw-normal">Amount Due</span>
+                            <span class="fs-2 fw-medium text-success" x-text="'€' + parseFloat(amountPaid).toFixed(2)"></span>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Payment Method</label>
+                            <label class="form-label small fw-normal text-secondary">Payment Method</label>
                             <select class="form-select" x-model="paymentMethod">
                                 <option value="Cash">💵 Cash</option>
                                 <option value="Card">💳 Card</option>
