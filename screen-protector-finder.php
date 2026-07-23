@@ -119,6 +119,17 @@ $tenantDbName = $_SESSION['tenant_db_name'] ?? 'tenant_db';
                 }
             },
 
+            addNewGlassType() {
+                const name = prompt("Enter new Glass Protector Type name:");
+                if (name && name.trim()) {
+                    const cleanName = name.trim();
+                    if (!this.glassTypes.includes(cleanName)) {
+                        this.glassTypes.push(cleanName);
+                    }
+                    this.glass_type = cleanName;
+                }
+            },
+
             showToast(msg) {
                 this.toastMsg = msg;
                 this.toast = true;
@@ -143,6 +154,9 @@ $tenantDbName = $_SESSION['tenant_db_name'] ?? 'tenant_db';
                         }
                         if (data.modelDimensionMap) {
                             this.modelDimensionMap = data.modelDimensionMap;
+                        }
+                        if (data.glassTypes) {
+                            this.glassTypes = data.glassTypes;
                         }
                     }
                 } catch(e) {
@@ -322,11 +336,16 @@ $tenantDbName = $_SESSION['tenant_db_name'] ?? 'tenant_db';
                         <!-- Glass Variant -->
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Glass Protector Type *</label>
-                            <select x-model="glass_type" class="w-full px-2.5 py-1.5 text-sm font-medium border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
-                                <template x-for="gt in glassTypes" :key="gt">
-                                    <option :value="gt" x-text="gt"></option>
-                                </template>
-                            </select>
+                            <div class="flex gap-1.5">
+                                <select x-model="glass_type" class="flex-1 px-2.5 py-1.5 text-sm font-medium border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
+                                    <template x-for="gt in glassTypes" :key="gt">
+                                        <option :value="gt" x-text="gt"></option>
+                                    </template>
+                                </select>
+                                <button type="button" @click="addNewGlassType()" class="px-2 py-1.5 bg-[#f3f3f3] hover:bg-[#e8e8e8] text-xs font-bold rounded border border-[#e0e0e0] flex items-center justify-center text-[#008272]" title="Add Custom Glass Type">
+                                    ＋
+                                </button>
+                            </div>
                         </div>
                     </div>
 

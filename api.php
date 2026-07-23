@@ -573,6 +573,9 @@ try {
             // Fetch reorder list
             $reorderItems = $db->query("SELECT * FROM protector_stocks WHERE stock_qty <= min_threshold ORDER BY stock_qty ASC, brand ASC, model ASC")->fetchAll(PDO::FETCH_ASSOC);
 
+            // Fetch distinct glass types
+            $dbGlassTypes = $db->query("SELECT DISTINCT glass_type FROM protector_stocks WHERE glass_type IS NOT NULL AND glass_type != '' ORDER BY glass_type")->fetchAll(PDO::FETCH_COLUMN);
+
             echo json_encode([
                 'status' => 'success',
                 'data' => $items,
@@ -580,7 +583,8 @@ try {
                 'brands' => $brands,
                 'models' => $models,
                 'modelBrandMap' => $modelBrandMap,
-                'modelDimensionMap' => $modelDimensionMap
+                'modelDimensionMap' => $modelDimensionMap,
+                'glassTypes' => $dbGlassTypes
             ]);
             break;
 
