@@ -75,6 +75,7 @@ try {
     <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 space-y-4"
           x-data="{
               search: '',
+              statusFilter: 'Pending',
               jobs: [],
               loading: false,
               paymentJob: null,
@@ -87,7 +88,8 @@ try {
                   this.loading = true;
                   try {
                       const query = encodeURIComponent(this.search);
-                      const res = await fetch(`api.php?action=get_bookings&search=${query}`);
+                      const status = encodeURIComponent(this.statusFilter);
+                      const res = await fetch(`api.php?action=get_bookings&search=${query}&status=${status}`);
                       const result = await res.json();
                       if (result.status === 'success') {
                           this.jobs = result.data || [];
@@ -101,7 +103,9 @@ try {
 
               updateStatus(job, newStatus) {
                   if (newStatus === 'Completed') {
-                      const balance = parseFloat(job.total_quote) - parseFloat(job.deposit_paid);
+                      const totalQuote = parseFloat(job.total_quote || 0);
+                      const depositPaid = parseFloat(job.deposit_paid || 0);
+                      const balance = totalQuote - depositPaid;
                       if (balance > 0) {
                           this.paymentJob = job;
                           this.amountPaid = balance;
@@ -115,10 +119,10 @@ try {
 
               async executeStatusUpdate(bookingId, status) {
                   try {
-                      const res = await fetch('api.php?action=update_booking_status', {
+                      const res = await fetch('api.php?action=update_booking', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ id: bookingId, status: status })
+                          body: JSON.stringify({ id: bookingId, status: status, status_only: true })
                       });
                       const result = await res.json();
                       if (result.status === 'success') {
@@ -134,13 +138,14 @@ try {
               async collectAndComplete() {
                   this.isProcessingPayment = true;
                   try {
-                      const res = await fetch('api.php?action=collect_balance', {
+                      const res = await fetch('api.php?action=add_payment', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
                               booking_id: this.paymentJob.id,
                               amount: this.amountPaid,
-                              payment_method: this.paymentMethod
+                              payment_method: this.paymentMethod,
+                              payment_type: 'Full'
                           })
                       });
                       const result = await res.json();
@@ -202,6 +207,12 @@ try {
             
             <!-- Filters -->
             <div class="flex items-center gap-2">
+                <select x-model="statusFilter" @change="fetchBookings()" class="px-2.5 py-1.5 text-xs font-semibold border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Completed">Completed</option>
+                </select>
                 <input type="text" x-model="search" @input.debounce.300ms="fetchBookings()" class="w-full sm:w-64 px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" placeholder="Search Customer, Phone, Ticket...">
             </div>
         </div>
