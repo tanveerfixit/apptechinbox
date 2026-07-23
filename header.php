@@ -13,8 +13,13 @@ if (file_exists($manifestPath)) {
         $tailwindCssPath = 'public/build/' . $manifest['resources/css/app.css']['file'];
     }
 }
+
+// Generate robust host-relative path for Hostinger
+$scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+$cleanDir = ($scriptDir === '/' || $scriptDir === '\\') ? '' : rtrim($scriptDir, '/\\');
+$absoluteCssUrl = $cleanDir . '/' . $tailwindCssPath;
 ?>
-<link rel="stylesheet" href="<?php echo htmlspecialchars($tailwindCssPath); ?>">
+<link rel="stylesheet" href="<?php echo htmlspecialchars($absoluteCssUrl); ?>">
 
 <header class="bg-white border-b border-[#e0e0e0] px-4 py-2 flex justify-between items-center shadow-xs relative z-30">
     <div class="flex items-center gap-3">
