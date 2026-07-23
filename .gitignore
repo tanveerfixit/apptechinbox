@@ -3,4 +3,3 @@
 .agents/
 *.db
 node_modules/
-public/build/
