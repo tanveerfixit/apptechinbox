@@ -179,7 +179,6 @@ $tenantDbName = $_SESSION['tenant_db_name'] ?? 'tenant_db';
                         this.bin_location = '';
                         this.stock_qty = 10;
                         this.fetchStocks();
-                        this.activeTab = 'search';
                     } else {
                         alert(data.message || 'Error saving stock.');
                     }
