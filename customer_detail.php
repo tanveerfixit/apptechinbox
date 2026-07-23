@@ -87,89 +87,18 @@ if (!$customer) {
     <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
     <link rel="manifest" href="/public/icons/site.webmanifest">
     
-    <!-- Outfit Font & Bootstrap 5 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <style>
-        :root {
-            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
-            --card-bg: #ffffff;
-            --card-border: #e0e0e0;
-            --text-primary: #242424;
-            --text-secondary: #5c5c5c;
-            --brand-blue: #00a4ef;
-            --brand-teal: #008272;
-            --brand-green: #7fba00;
-            --font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: var(--font-family);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Table-specific styles (all global resets handled by header.php) */
-        .table thead th {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            background-color: #f5f5f5;
-            border-bottom: 1px solid var(--card-border) !important;
-        }
-
-        .table tbody td {
-            font-size: 13.5px;
-            border-bottom: 1px solid var(--card-border) !important;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--brand-teal) !important;
-        }
-
-        /* Print formatting overlay styles */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printPaymentReceiptArea, #printPaymentReceiptArea * {
-                visibility: visible;
-            }
-            #printPaymentReceiptArea {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 80mm;
-                font-family: <?php echo $printerFontFamily; ?> !important;
-                font-size: <?php echo $printerFontSize + 3; ?>px !important;
-                line-height: 1.35;
-            }
-        }
-    </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="flex flex-col min-h-screen bg-[#f3f3f3] text-[#242424] font-sans antialiased">
 
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
-    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1">
-        <!-- Breadcrumb back link -->
-        <div class="mb-3 d-print-none">
-            <a href="bookings.php" class="text-decoration-none fw-semibold text-primary" style="font-size: 14px; color: var(--brand-blue) !important;">&larr; Back to Bookings</a>
-        </div>
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 space-y-4">
+        <?php require __DIR__ . '/nav_buttons.php'; ?>
 
-        <div class="row g-4"
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
              x-data="{
                  id: <?php echo $customer['id']; ?>,
                  name: '<?php echo htmlspecialchars($customer['customer_name'], ENT_QUOTES, 'UTF-8'); ?>',
@@ -295,278 +224,278 @@ if (!$customer) {
                      
                      window.print();
                  }
-             }">
-             
-            <!-- Left Panel: Customer Summary & Edit Form -->
-            <div class="col-12 col-lg-5 d-print-none">
-                <div class="card p-4 bg-white">
-                    <h3 class="h5 fw-bold text-dark mb-3">🛠️ Edit Repair & Customer Details</h3>
+              }">
+              
+             <!-- Left Panel: Customer Summary & Edit Form -->
+             <div class="lg:col-span-5 print:hidden">
+                 <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                     <h3 class="text-sm font-bold text-[#242424] pb-2 border-b border-[#e0e0e0]">🛠️ Edit Repair & Customer Details</h3>
 
-                    <!-- Success / Error alerts -->
-                    <div x-show="successMsg" class="alert alert-success py-2 px-3 small border-0 mb-3" style="background-color: #d1e7dd; color: #0f5132;" x-text="successMsg"></div>
-                    <div x-show="errorMsg" class="alert alert-danger py-2 px-3 small border-0 mb-3" style="background-color: #f8d7da; color: #842029;" x-text="errorMsg"></div>
+                     <!-- Success / Error alerts -->
+                     <div x-show="successMsg" class="bg-green-50 border border-[#7fba00]/40 text-[#7fba00] text-xs py-2 px-3 rounded-[4px] font-medium" x-text="successMsg"></div>
+                     <div x-show="errorMsg" class="bg-red-50 border border-[#f25022]/40 text-[#f25022] text-xs py-2 px-3 rounded-[4px] font-medium" x-text="errorMsg"></div>
 
-                    <form @submit.prevent="saveChanges">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Customer Name</label>
-                            <input type="text" x-model="name" class="form-control form-control-sm bg-light" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Phone Number</label>
-                            <input type="text" x-model="phone" class="form-control form-control-sm bg-light" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Email Address</label>
-                            <input type="email" x-model="email" class="form-control form-control-sm">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Device Model</label>
-                            <input type="text" x-model="device" class="form-control form-control-sm" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Problem / Fault Description</label>
-                            <textarea x-model="fault" class="form-control form-control-sm" rows="3" required></textarea>
-                        </div>
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <label class="form-label small fw-bold text-secondary">Quote (€)</label>
-                                <input type="number" step="0.01" x-model="quote" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small fw-bold text-secondary">Deposit (€)</label>
-                                <input type="number" step="0.01" x-model="deposit" class="form-control form-control-sm" disabled title="Deposit/Total Paid is dynamically updated via the Payments ledger.">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Repair Status</label>
-                            <select x-model="status" class="form-select form-select-sm">
-                                <option value="Pending">Pending</option>
-                                <option value="Processing">Processing</option>
-                                <option value="Completed">Completed</option>
-                            </select>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-secondary">Internal Technician Notes</label>
-                            <textarea x-model="notes" class="form-control form-control-sm" rows="4" placeholder="Enter special notes, parts required, or progress updates..."></textarea>
-                        </div>
+                     <form @submit.prevent="saveChanges" class="space-y-3">
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Customer Name</label>
+                             <input type="text" x-model="name" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-[#f3f3f3] text-[#5c5c5c]" disabled>
+                         </div>
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Phone Number</label>
+                             <input type="text" x-model="phone" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-[#f3f3f3] text-[#5c5c5c]" disabled>
+                         </div>
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Email Address</label>
+                             <input type="email" x-model="email" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]">
+                         </div>
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Device Model</label>
+                             <input type="text" x-model="device" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" required>
+                         </div>
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Problem / Fault Description</label>
+                             <textarea x-model="fault" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" rows="3" required></textarea>
+                         </div>
+                         <div class="grid grid-cols-2 gap-3">
+                             <div>
+                                 <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Quote (€)</label>
+                                 <input type="number" step="0.01" x-model="quote" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]">
+                             </div>
+                             <div>
+                                 <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Deposit (€)</label>
+                                 <input type="number" step="0.01" x-model="deposit" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-[#f3f3f3] text-[#5c5c5c]" disabled title="Deposit/Total Paid is dynamically updated via the Payments ledger.">
+                             </div>
+                         </div>
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Repair Status</label>
+                             <select x-model="status" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]">
+                                 <option value="Pending">Pending</option>
+                                 <option value="Processing">Processing</option>
+                                 <option value="Completed">Completed</option>
+                             </select>
+                         </div>
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Internal Technician Notes</label>
+                             <textarea x-model="notes" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" rows="4" placeholder="Enter special notes, parts required, or progress updates..."></textarea>
+                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-sm w-100 py-2" style="background-color: var(--brand-teal); border-color: var(--brand-teal);" :disabled="isSaving">
-                            <span x-show="!isSaving">💾 Save Changes</span>
-                            <span x-show="isSaving" class="spinner-border spinner-border-sm" role="status"></span>
-                        </button>
-                    </form>
-                </div>
-            </div>
+                         <div class="pt-2">
+                             <button type="submit" class="w-full py-2.5 px-4 bg-[#008272] hover:bg-[#006b5e] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs" :disabled="isSaving">
+                                 <span x-show="!isSaving">💾 Save Changes</span>
+                                 <span x-show="isSaving" class="animate-spin text-xs">🌀</span>
+                             </button>
+                         </div>
+                     </form>
+                 </div>
+             </div>
 
-            <!-- Right Panel: Payments, Finances & History -->
-            <div class="col-12 col-lg-7 d-print-none d-flex flex-column gap-4">
-                
-                <!-- Finances & Collect Payment Panel -->
-                <div class="card p-4 bg-white">
-                    <h3 class="h5 fw-bold text-dark mb-3">💰 Finances & Collect Payment</h3>
-                    
-                    <div class="row g-3 mb-4">
-                        <div class="col-4">
-                            <div class="p-3 border rounded text-center" style="background: #fafafa;">
-                                <div class="text-muted small" style="font-size: 11px; text-transform: uppercase;">Total Quote</div>
-                                <div class="h5 fw-bold mb-0 mt-1">€<span x-text="parseFloat(quote).toFixed(2)"></span></div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="p-3 border rounded text-center" style="background: #fafafa;">
-                                <div class="text-success small" style="font-size: 11px; text-transform: uppercase;">Total Paid</div>
-                                <div class="h5 fw-bold text-success mb-0 mt-1">€<span x-text="parseFloat(deposit).toFixed(2)"></span></div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="p-3 border rounded text-center" style="background: #fdf2f2; border-color: #fde8e8 !important;">
-                                <div class="text-danger small" style="font-size: 11px; text-transform: uppercase;">Balance Due</div>
-                                <div class="h5 fw-bold text-danger mb-0 mt-1">€<span x-text="Math.max(0, parseFloat(quote) - parseFloat(deposit)).toFixed(2)"></span></div>
-                            </div>
-                        </div>
-                    </div>
+             <!-- Right Panel: Payments, Finances & History -->
+             <div class="lg:col-span-7 print:hidden space-y-6">
+                 
+                 <!-- Finances & Collect Payment Panel -->
+                 <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                     <h3 class="text-sm font-bold text-[#242424] pb-2 border-b border-[#e0e0e0]">💰 Finances & Collect Payment</h3>
+                     
+                     <div class="grid grid-cols-3 gap-4">
+                         <div class="p-3 border border-[#e0e0e0] rounded-[6px] text-center bg-[#fafafa]">
+                             <div class="text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c]">Total Quote</div>
+                             <div class="text-base font-bold text-[#242424] mt-1">€<span x-text="parseFloat(quote).toFixed(2)"></span></div>
+                         </div>
+                         <div class="p-3 border border-[#e0e0e0] rounded-[6px] text-center bg-[#fafafa]">
+                             <div class="text-[10px] font-bold uppercase tracking-wider text-[#7fba00]">Total Paid</div>
+                             <div class="text-base font-bold text-[#7fba00] mt-1">€<span x-text="parseFloat(deposit).toFixed(2)"></span></div>
+                         </div>
+                         <div class="p-3 border border-[#f25022]/30 bg-red-50/50 rounded-[6px] text-center">
+                             <div class="text-[10px] font-bold uppercase tracking-wider text-[#f25022]">Balance Due</div>
+                             <div class="text-base font-bold text-[#f25022] mt-1">€<span x-text="Math.max(0, parseFloat(quote) - parseFloat(deposit)).toFixed(2)"></span></div>
+                         </div>
+                     </div>
 
-                    <!-- Payment Collection Form -->
-                    <template x-if="parseFloat(quote) - parseFloat(deposit) > 0">
-                        <form @submit.prevent="collectPayment" class="border-top pt-3">
-                            <span class="d-block fw-bold text-secondary mb-2" style="font-size: 13px;">Record Receipt / Payment</span>
-                            
-                            <div x-show="paySuccessMsg" class="alert alert-success py-2 px-3 small border-0 mb-3" x-text="paySuccessMsg"></div>
-                            <div x-show="payErrorMsg" class="alert alert-danger py-2 px-3 small border-0 mb-3" x-text="payErrorMsg"></div>
+                     <!-- Payment Collection Form -->
+                     <template x-if="parseFloat(quote) - parseFloat(deposit) > 0">
+                         <form @submit.prevent="collectPayment" class="border-t border-[#e0e0e0] pt-4 space-y-3">
+                             <span class="block font-bold text-xs text-[#5c5c5c]">Record Receipt / Payment</span>
+                             
+                             <div x-show="paySuccessMsg" class="bg-green-50 border border-[#7fba00]/40 text-[#7fba00] text-xs py-2 px-3 rounded-[4px] font-medium" x-text="paySuccessMsg"></div>
+                             <div x-show="payErrorMsg" class="bg-red-50 border border-[#f25022]/40 text-[#f25022] text-xs py-2 px-3 rounded-[4px] font-medium" x-text="payErrorMsg"></div>
 
-                            <div class="row g-2">
-                                <div class="col-6 col-md-3">
-                                    <label class="form-label small text-secondary">Amount (€)</label>
-                                    <input type="number" step="0.01" x-model="payAmount" class="form-control form-control-sm" required>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <label class="form-label small text-secondary">Method</label>
-                                    <select x-model="payMethod" class="form-select form-select-sm">
-                                        <option value="Cash">Cash</option>
-                                        <option value="Card BOI">Card BOI</option>
-                                        <option value="Card Fixed">Card Fixed</option>
-                                    </select>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <label class="form-label small text-secondary">Payment Type</label>
-                                    <select x-model="payType" class="form-select form-select-sm">
-                                        <option value="Deposit">Deposit</option>
-                                        <option value="Partial">Partial</option>
-                                        <option value="Final Balance">Final Balance</option>
-                                    </select>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <label class="form-label small text-secondary">Reference Code</label>
-                                    <input type="text" x-model="payRef" class="form-control form-control-sm" placeholder="e.g. Card Auth">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-success btn-sm mt-3 w-100 py-2" style="background-color: var(--brand-green); border-color: var(--brand-green);" :disabled="isAddingPayment">
-                                <span x-show="!isAddingPayment">💳 Record Payment Receipt</span>
-                                <span x-show="isAddingPayment" class="spinner-border spinner-border-sm" role="status"></span>
-                            </button>
-                        </form>
-                    </template>
-                    <template x-if="parseFloat(quote) - parseFloat(deposit) <= 0">
-                        <div class="alert alert-success border-0 py-2 text-center mb-0 small">
-                            🎉 This repair job is fully paid. Balance is €0.00.
-                        </div>
-                    </template>
-                </div>
+                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                 <div>
+                                     <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Amount (€)</label>
+                                     <input type="number" step="0.01" x-model="payAmount" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" required>
+                                 </div>
+                                 <div>
+                                     <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Method</label>
+                                     <select x-model="payMethod" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]">
+                                         <option value="Cash">Cash</option>
+                                         <option value="Card BOI">Card BOI</option>
+                                         <option value="Card Fixed">Card Fixed</option>
+                                     </select>
+                                 </div>
+                                 <div>
+                                     <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Payment Type</label>
+                                     <select x-model="payType" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]">
+                                         <option value="Deposit">Deposit</option>
+                                         <option value="Partial">Partial</option>
+                                         <option value="Final Balance">Final Balance</option>
+                                     </select>
+                                 </div>
+                                 <div>
+                                     <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Reference Code</label>
+                                     <input type="text" x-model="payRef" class="w-full px-3 py-1.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" placeholder="e.g. Card Auth">
+                                 </div>
+                             </div>
+                             <div class="pt-2">
+                                 <button type="submit" class="w-full py-2.5 px-4 bg-[#7fba00] hover:bg-[#6ea200] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs" :disabled="isAddingPayment">
+                                     <span x-show="!isAddingPayment">💳 Record Payment Receipt</span>
+                                     <span x-show="isAddingPayment" class="animate-spin text-xs">🌀</span>
+                                 </button>
+                             </div>
+                         </form>
+                     </template>
+                     <template x-if="parseFloat(quote) - parseFloat(deposit) <= 0">
+                         <div class="bg-green-50 border border-[#7fba00]/30 text-[#7fba00] py-2 px-3 rounded-[4px] text-center text-xs font-semibold">
+                             🎉 This repair job is fully paid. Balance is €0.00.
+                         </div>
+                     </template>
+                 </div>
 
-                <!-- Payment Receipts Ledger List -->
-                <div class="card p-4 bg-white">
-                    <h3 class="h5 fw-bold text-dark mb-3">🧾 Issued Payment Receipts</h3>
-                    
-                    <div class="table-responsive border">
-                        <table class="table align-middle mb-0" style="font-size: 13px;">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Method</th>
-                                    <th>Type</th>
-                                    <th>Staff</th>
-                                    <th class="text-end">Voucher</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <template x-for="pay in payments" :key="pay.id">
-                                    <tr>
-                                        <td class="text-muted" x-text="new Date(pay.created_at).toLocaleDateString() + ' ' + new Date(pay.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></td>
-                                        <td><strong class="text-dark">€<span x-text="parseFloat(pay.amount).toFixed(2)"></span></strong></td>
-                                        <td x-text="pay.payment_method"></td>
-                                        <td x-text="pay.payment_type"></td>
-                                        <td x-text="pay.received_by"></td>
-                                        <td class="text-end">
-                                            <button @click="printPaymentReceipt(pay)" class="btn btn-sm btn-light border" style="font-size: 11px;">
-                                                🖨️ Print
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </template>
-                                <template x-if="payments.length === 0">
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted py-3">No payments recorded.</td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                 <!-- Payment Receipts Ledger List -->
+                 <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                     <h3 class="text-sm font-bold text-[#242424] pb-2 border-b border-[#e0e0e0]">🧾 Issued Payment Receipts</h3>
+                     
+                     <div class="overflow-x-auto border border-[#e0e0e0] rounded-[4px]">
+                         <table class="w-full text-left text-xs border-collapse">
+                             <thead>
+                                 <tr class="bg-[#fafafa] border-b border-[#e0e0e0] text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c]">
+                                     <th class="px-4 py-2.5">Date</th>
+                                     <th class="px-4 py-2.5">Amount</th>
+                                     <th class="px-4 py-2.5">Method</th>
+                                     <th class="px-4 py-2.5">Type</th>
+                                     <th class="px-4 py-2.5">Staff</th>
+                                     <th class="px-4 py-2.5 text-right">Voucher</th>
+                                 </tr>
+                             </thead>
+                             <tbody class="divide-y divide-[#e0e0e0]">
+                                 <template x-for="pay in payments" :key="pay.id">
+                                     <tr class="hover:bg-[#f9f9f9]">
+                                         <td class="px-4 py-2.5 text-[#5c5c5c]" x-text="new Date(pay.created_at).toLocaleDateString() + ' ' + new Date(pay.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></td>
+                                         <td class="px-4 py-2.5 font-bold text-[#242424]">€<span x-text="parseFloat(pay.amount).toFixed(2)"></span></td>
+                                         <td class="px-4 py-2.5" x-text="pay.payment_method"></td>
+                                         <td class="px-4 py-2.5" x-text="pay.payment_type"></td>
+                                         <td class="px-4 py-2.5" x-text="pay.received_by"></td>
+                                         <td class="px-4 py-2.5 text-right">
+                                             <button @click="printPaymentReceipt(pay)" class="px-2.5 py-1 bg-white border border-[#e0e0e0] hover:bg-[#f3f3f3] text-[#242424] text-[11px] font-semibold rounded-[4px] transition-colors">
+                                                 🖨️ Print
+                                             </button>
+                                         </td>
+                                     </tr>
+                                 </template>
+                                 <template x-if="payments.length === 0">
+                                     <tr>
+                                         <td colspan="6" class="text-center text-[#5c5c5c] py-4">No payments recorded.</td>
+                                     </tr>
+                                 </template>
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
 
-                <!-- Historical Repair Jobs -->
-                <div class="card bg-white p-4">
-                    <h3 class="h5 fw-bold text-dark mb-3">🛠️ Repair Job History</h3>
-                    <p class="text-muted small mb-4">Detailed lists of all repair bookings corresponding to this customer's registered phone number.</p>
+                 <!-- Historical Repair Jobs -->
+                 <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                     <div>
+                         <h3 class="text-sm font-bold text-[#242424]">🛠️ Repair Job History</h3>
+                         <p class="text-xs text-[#5c5c5c] mt-0.5">Detailed lists of all repair bookings corresponding to this customer's registered phone number.</p>
+                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Ticket ID</th>
-                                    <th>Device Detail</th>
-                                    <th>Problem Description</th>
-                                    <th>Finances</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($historyJobs as $job): ?>
-                                    <tr style="<?php echo $job['id'] == $bookingId ? 'background-color: #f7f9fa; border-left: 3px solid var(--brand-teal);' : ''; ?>">
-                                        <td>
-                                            <span class="fw-bold" style="font-size: 13px; font-family: monospace;"><?php echo htmlspecialchars($job['ticket_id']); ?></span>
-                                        </td>
-                                        <td class="fw-semibold text-dark">
-                                            <?php echo htmlspecialchars($job['device_model']); ?>
-                                        </td>
-                                        <td class="text-muted small" style="max-width: 200px; white-space: normal;">
-                                            <?php echo htmlspecialchars($job['problem_description']); ?>
-                                        </td>
-                                        <td>
-                                            <div class="small">Quote: <strong>€<?php echo number_format($job['total_quote'], 2); ?></strong></div>
-                                            <div class="small text-success">Paid: €<?php echo number_format($job['deposit_paid'], 2); ?></div>
-                                            <div class="small text-danger">Due: €<?php echo number_format($job['balance_due'], 2); ?></div>
-                                        </td>
-                                        <td>
-                                            <span class="badge px-2 py-1 rounded-1 text-uppercase fw-semibold" style="font-size: 10px; letter-spacing: 0.5px;
-                                                <?php
-                                                    if ($job['status'] === 'Pending') echo 'background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;';
-                                                    elseif ($job['status'] === 'Processing') echo 'background-color: #cce5ff; color: #004085; border: 1px solid #b8daff;';
-                                                    else echo 'background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;';
-                                                ?>">
-                                                <?php echo htmlspecialchars($job['status']); ?>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+                     <div class="overflow-x-auto border border-[#e0e0e0] rounded-[4px]">
+                         <table class="w-full text-left text-xs border-collapse">
+                             <thead>
+                                 <tr class="bg-[#fafafa] border-b border-[#e0e0e0] text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c]">
+                                     <th class="px-4 py-2.5">Ticket ID</th>
+                                     <th class="px-4 py-2.5">Device Detail</th>
+                                     <th class="px-4 py-2.5">Problem Description</th>
+                                     <th class="px-4 py-2.5">Finances</th>
+                                     <th class="px-4 py-2.5">Status</th>
+                                 </tr>
+                             </thead>
+                             <tbody class="divide-y divide-[#e0e0e0]">
+                                 <?php foreach ($historyJobs as $job): ?>
+                                     <tr class="<?php echo $job['id'] == $bookingId ? 'bg-[#f0f6ff] border-l-4 border-l-[#008272]' : 'hover:bg-[#f9f9f9]'; ?>">
+                                         <td class="px-4 py-2.5 font-mono font-bold text-[#242424]">
+                                             <?php echo htmlspecialchars($job['ticket_id']); ?>
+                                         </td>
+                                         <td class="px-4 py-2.5 font-semibold text-[#242424]">
+                                             <?php echo htmlspecialchars($job['device_model']); ?>
+                                         </td>
+                                         <td class="px-4 py-2.5 text-[#5c5c5c] max-w-xs truncate">
+                                             <?php echo htmlspecialchars($job['problem_description']); ?>
+                                         </td>
+                                         <td class="px-4 py-2.5 space-y-0.5 text-[11px]">
+                                             <div>Quote: <strong>€<?php echo number_format($job['total_quote'], 2); ?></strong></div>
+                                             <div class="text-[#7fba00]">Paid: €<?php echo number_format($job['deposit_paid'], 2); ?></div>
+                                             <div class="text-[#f25022]">Due: €<?php echo number_format($job['balance_due'], 2); ?></div>
+                                         </td>
+                                         <td class="px-4 py-2.5">
+                                             <span class="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-[4px]
+                                                 <?php
+                                                     if ($job['status'] === 'Pending') echo 'bg-yellow-50 text-amber-800 border border-amber-200';
+                                                     elseif ($job['status'] === 'Processing') echo 'bg-blue-50 text-blue-800 border border-blue-200';
+                                                     else echo 'bg-green-50 text-green-800 border border-green-200';
+                                                 ?>">
+                                                 <?php echo htmlspecialchars($job['status']); ?>
+                                             </span>
+                                         </td>
+                                     </tr>
+                                 <?php endforeach; ?>
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+             </div>
+         </div>
     </main>
 
     <!-- Payment Receipt Print Template (Standard thermal voucher style) -->
-    <div id="printPaymentReceiptArea" class="d-none d-print-block" style="font-family: monospace; line-height: 1.4; color: #000; width: 80mm; margin: 0 auto; padding: 10px;">
-        <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
-            <h3 style="margin: 0; font-size: 20px; font-weight: bold;" id="pRecStore">Store</h3>
-            <p style="margin: 3px 0 0 0; font-size: 14px;">PAYMENT RECEIPT</p>
+    <div id="printPaymentReceiptArea" class="hidden print:block font-mono leading-relaxed text-black w-[80mm] mx-auto p-3 space-y-3">
+        <div class="text-center border-b border-dashed border-black pb-2">
+            <h3 class="text-xl font-bold" id="pRecStore">Store</h3>
+            <p class="text-xs font-semibold">PAYMENT RECEIPT</p>
         </div>
         
-        <div style="font-size: 14px; margin-bottom: 8px;">
-            <strong>Date:</strong> <span id="pRecPayDate"></span><br>
-            <strong>Job Ticket ID:</strong> <span id="pRecTicket"></span>
+        <div class="text-xs space-y-0.5">
+            <div><strong>Date:</strong> <span id="pRecPayDate"></span></div>
+            <div><strong>Job Ticket ID:</strong> <span id="pRecTicket"></span></div>
         </div>
 
-        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
+        <div class="border-b border-dashed border-black pb-2 text-xs space-y-0.5">
             <strong>CUSTOMER DETAILS</strong><br>
             Name: <span id="pRecCust"></span><br>
             Phone: <span id="pRecPhone"></span>
         </div>
 
-        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
+        <div class="border-b border-dashed border-black pb-2 text-xs space-y-0.5">
             <strong>DEVICE</strong><br>
             Model: <span id="pRecDevice"></span>
         </div>
 
-        <div style="border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 8px; font-size: 14px;">
+        <div class="border-b border-dashed border-black pb-2 text-xs space-y-0.5">
             <strong>TRANSACTION DETAILS</strong><br>
-            Amount Received: <span id="pRecPayAmt" style="font-weight: bold;"></span><br>
+            Amount Received: <span id="pRecPayAmt" class="font-bold"></span><br>
             Payment Method: <span id="pRecPayMethod"></span><br>
             Reference Code: <span id="pRecPayRef"></span><br>
             Received By: <span id="pRecStaff"></span>
         </div>
 
-        <div style="text-align: right; font-size: 14px; line-height: 1.5; margin-top: 8px;">
-            Total Job Quote: <span id="pRecQuote"></span><br>
-            Cumulative Paid: <span id="pRecTotalPaid"></span><br>
-            <div style="border-top: 1px dashed #000; margin-top: 4px; font-weight: bold; font-size: 16px;">
+        <div class="text-right text-xs leading-normal space-y-0.5 pt-1">
+            <div>Total Job Quote: <span id="pRecQuote"></span></div>
+            <div>Cumulative Paid: <span id="pRecTotalPaid"></span></div>
+            <div class="border-t border-dashed border-black pt-1 font-bold text-sm">
                 Remaining Balance: <span id="pRecBalDue"></span>
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 20px; font-size: 13px; border-top: 1px dashed #000; padding-top: 8px;">
+        <div class="text-center pt-3 text-xs border-t border-dashed border-black">
             Thank you for your payment!<br>
             Keep this receipt for account reference.
         </div>
@@ -575,7 +504,5 @@ if (!$customer) {
     <!-- Standard Footer -->
     <?php require_once __DIR__ . '/footer.php'; ?>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -19,87 +19,25 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
     <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
     <link rel="manifest" href="/public/icons/site.webmanifest">
     
-    <!-- Outfit Font & Bootstrap 5 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Include compiled Tailwind CSS stylesheet from build manifest -->
+    <?php
+    $tailwindCssPath = '/resources/css/app.css';
+    $manifestPath = __DIR__ . '/public/build/manifest.json';
+    if (file_exists($manifestPath)) {
+        $manifest = json_decode(file_get_contents($manifestPath), true);
+        if (isset($manifest['resources/css/app.css']['file'])) {
+            $tailwindCssPath = '/public/build/' . $manifest['resources/css/app.css']['file'];
+        }
+    }
+    ?>
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($tailwindCssPath); ?>">
     
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <style>
-        :root {
-            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
-            --card-bg: #ffffff;
-            --card-border: #e0e0e0;
-            --text-primary: #242424;
-            --text-secondary: #5c5c5c;
-            --brand-blue: #00a4ef;
-            --brand-teal: #008272;
-            --font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: var(--font-family);
-            min-height: 100vh;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .form-control {
-            border-radius: 4px;
-            border-color: #d1d1d1;
-            padding: 12px 14px;
-            font-size: 17px; /* Enlarged for clear reading */
-        }
-
-        .form-control:focus {
-            border-color: var(--brand-teal);
-            box-shadow: 0 0 0 3px rgba(0, 130, 114, 0.15);
-        }
-
-        .form-label {
-            font-size: 16px !important; /* Enlarged for clear reading */
-        }
-
-        .btn-submit {
-            background-color: var(--brand-teal);
-            border-color: var(--brand-teal);
-            color: #ffffff;
-            font-weight: 600;
-            padding: 12px 16px;
-            font-size: 17px; /* Enlarged button font size */
-            border-radius: 4px;
-            width: 100%;
-            transition: all 0.15s ease-in-out;
-        }
-
-        .btn-submit:hover {
-            background-color: #006b5e;
-            border-color: #006b5e;
-            color: #ffffff;
-        }
-
-        p {
-            font-size: 14.5px !important;
-        }
-
-        h1.h5 {
-            font-size: 1.5rem !important; /* Enlarged business title */
-        }
-    </style>
 </head>
-<body class="py-4">
+<body class="min-h-screen bg-[#f3f3f3] text-[#242424] font-sans antialiased py-8 flex items-center justify-center p-4">
 
-    <div class="container" style="max-width: 440px;"
+    <div class="w-full max-w-md"
           x-data="{
               sessionId: '<?php echo htmlspecialchars($sessionId); ?>',
               businessId: '<?php echo htmlspecialchars($businessId); ?>',
@@ -169,69 +107,73 @@ $isExpired = ($timestamp > 0 && ($currentTime - $timestamp) > 180);
               }
           }">
          
-        <div class="card p-4">
+        <?php require __DIR__ . '/nav_buttons.php'; ?>
+        
+        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-md p-6 sm:p-8 space-y-6">
              <!-- Form Intake / Success / Expired Cards -->
              <template x-if="isExpired">
-                 <div class="text-center py-3">
-                     <span class="fs-1 d-block mb-3" style="color: var(--brand-red);">&times;</span>
-                     <h2 class="h5 fw-bold text-danger mb-2">QR Code Expired</h2>
-                     <p class="text-muted small mb-0">This booking session expired after 3 minutes. Please scan a fresh QR code from the merchant's screen to try again.</p>
+                 <div class="text-center py-4 space-y-2">
+                     <span class="text-4xl text-[#f25022] block mb-2">&times;</span>
+                     <h2 class="text-lg font-bold text-[#f25022]">QR Code Expired</h2>
+                     <p class="text-xs text-[#5c5c5c] leading-relaxed">This booking session expired after 3 minutes. Please scan a fresh QR code from the merchant's screen to try again.</p>
                  </div>
              </template>
 
              <template x-if="success && !isExpired">
-                 <div class="text-center py-3">
-                     <span class="fs-1 d-block mb-3" style="color: var(--brand-teal);">&check;</span>
-                     <h2 class="h5 fw-bold text-dark mb-2">Thank you!</h2>
-                     <p class="text-muted small mb-0">Your details have been received successfully. You can now put your phone away.</p>
+                 <div class="text-center py-4 space-y-2">
+                     <span class="text-4xl text-[#008272] block mb-2">&check;</span>
+                     <h2 class="text-lg font-bold text-[#242424]">Thank you!</h2>
+                     <p class="text-xs text-[#5c5c5c] leading-relaxed">Your details have been received successfully. You can now put your phone away.</p>
                  </div>
              </template>
 
              <template x-if="!success && !isExpired">
                  <div>
                      <!-- Business Header & Instructions -->
-                     <div class="text-center mb-4">
-                         <h1 class="h5 fw-bold text-dark mb-1" style="letter-spacing: -0.2px;"><?php echo htmlspecialchars($businessName); ?></h1>
-                         <p class="text-muted mb-0" style="font-size: 12px; line-height: 1.4;">Please enter your contact and device details below to book your repair.</p>
+                     <div class="text-center mb-6">
+                         <h1 class="text-xl font-bold text-[#242424] tracking-tight mb-1"><?php echo htmlspecialchars($businessName); ?></h1>
+                         <p class="text-xs text-[#5c5c5c] leading-relaxed">Please enter your contact and device details below to book your repair.</p>
                      </div>
                      
                      <!-- Session Timer -->
-                     <div class="text-center mb-4">
-                         <span class="badge bg-secondary-subtle text-secondary px-2 py-1" style="font-size: 10px; border: 1px solid var(--card-border);">
-                             Session Expires In: <span class="fw-bold text-dark" x-text="Math.floor(remainingSeconds / 60) + ':' + String(remainingSeconds % 60).padStart(2, '0')"></span>
+                     <div class="text-center mb-6">
+                         <span class="inline-block px-3 py-1 bg-[#f3f3f3] text-[#5c5c5c] text-[10px] font-semibold border border-[#e0e0e0] rounded-full">
+                             Session Expires In: <span class="font-bold text-[#242424]" x-text="Math.floor(remainingSeconds / 60) + ':' + String(remainingSeconds % 60).padStart(2, '0')"></span>
                          </span>
                      </div>
                     
-                    <form @submit.prevent="submitForm">
-                        <template x-if="errorMessage">
-                            <div class="alert alert-danger py-2 px-3 small border-0 mb-3" style="background-color: #f8d7da; color: #842029; border-radius: 4px;" x-text="errorMessage"></div>
-                        </template>
+                     <form @submit.prevent="submitForm" class="space-y-4">
+                         <template x-if="errorMessage">
+                             <div class="bg-red-50 border border-[#f25022]/30 text-[#f25022] text-xs py-2.5 px-3 rounded-[4px] text-center font-medium" x-text="errorMessage"></div>
+                         </template>
 
-                        <div class="mb-3">
-                            <label for="name" class="form-label small fw-bold text-secondary">Your Name</label>
-                            <input type="text" id="name" x-model="name" class="form-control" placeholder="e.g. John Doe" required autocomplete="off">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="phone" class="form-label small fw-bold text-secondary">Phone Number</label>
-                            <input type="tel" id="phone" x-model="phone" class="form-control" placeholder="e.g. 0891234567" required autocomplete="off">
-                        </div>
-
-                         <div class="mb-4">
-                             <label for="email" class="form-label small fw-bold text-secondary">Email Address <span class="text-muted fw-normal">(Optional)</span></label>
-                             <input type="email" id="email" x-model="email" class="form-control" placeholder="e.g. customer@example.com" autocomplete="off">
+                         <div>
+                             <label for="name" class="block text-xs font-bold text-[#5c5c5c] mb-1">Your Name *</label>
+                             <input type="text" id="name" x-model="name" class="w-full px-3.5 py-3 text-base border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" placeholder="e.g. John Doe" required autocomplete="off">
                          </div>
 
-                        <button type="submit" class="btn btn-submit" :disabled="isSubmitting">
-                            <span x-show="!isSubmitting">Submit Form</span>
-                            <span x-show="isSubmitting" class="spinner-border spinner-border-sm" role="status"></span>
-                        </button>
-                    </form>
-                </div>
-            </template>
+                         <div>
+                             <label for="phone" class="block text-xs font-bold text-[#5c5c5c] mb-1">Phone Number *</label>
+                             <input type="tel" id="phone" x-model="phone" class="w-full px-3.5 py-3 text-base border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" placeholder="e.g. 0891234567" required autocomplete="off">
+                         </div>
+
+                         <div>
+                              <label for="email" class="block text-xs font-bold text-[#5c5c5c] mb-1">Email Address <span class="font-normal text-[#5c5c5c]">(Optional)</span></label>
+                              <input type="email" id="email" x-model="email" class="w-full px-3.5 py-3 text-base border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" placeholder="e.g. customer@example.com" autocomplete="off">
+                         </div>
+
+                         <div class="pt-2">
+                             <button type="submit" class="w-full py-3 px-4 bg-[#008272] hover:bg-[#006b5e] text-white text-base font-bold rounded-[4px] transition-colors shadow-xs" :disabled="isSubmitting">
+                                 <span x-show="!isSubmitting">Submit Form</span>
+                                 <span x-show="isSubmitting" class="animate-spin text-xs">🌀</span>
+                             </button>
+                         </div>
+                     </form>
+                 </div>
+             </template>
         </div>
         
-                <p class="text-center text-muted mt-3" style="font-size: 11px;">Powered by <?php echo htmlspecialchars($businessName); ?></p>
+        <p class="text-center text-xs text-[#5c5c5c] mt-4">Powered by <?php echo htmlspecialchars($businessName); ?></p>
     </div>
 
 </body>

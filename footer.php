@@ -1,11 +1,11 @@
     </div>
 </div>
-<footer class="bg-white border-top py-3 mt-auto w-100 shadow-sm" style="border-color: var(--card-border) !important;">
-    <div class="container-fluid px-3 text-center">
-        <span class="text-muted" style="font-size: 12px; letter-spacing: 0.1px;">
-            Developer: <span class="fw-semibold text-dark">Tanveer</span>
-            <span class="mx-2" style="color: var(--card-border);">&bull;</span>
-            Support: <a href="mailto:support@techinbox.ie" class="text-decoration-none fw-semibold" style="color: var(--brand-blue) !important; transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">support@techinbox.ie</a>
+<footer class="bg-white border-t border-[#e0e0e0] py-2 mt-auto w-full shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+        <span class="text-[11px] text-[#5c5c5c]">
+            Developer: <span class="font-semibold text-[#242424]">Tanveer</span>
+            <span class="mx-2 text-[#e0e0e0]">&bull;</span>
+            Support: <a href="mailto:support@techinbox.ie" class="font-semibold text-[#00a4ef] hover:underline">support@techinbox.ie</a>
         </span>
     </div>
 </footer>

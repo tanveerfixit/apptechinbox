@@ -14,7 +14,7 @@ TechInbox is built as a highly optimized, hybrid application combining structure
 - **Routing & Rendering**: Hybrid structure supporting both standalone optimized PHP scripts and integrated **Laravel Livewire** reactive components.
 
 ### 2. Frontend & Styling
-- **Styling System**: **Bootstrap 5** integrated with custom, premium styling tokens matching the **Microsoft Fluent Light Theme** guidelines:
+- **Styling System**: **Tailwind CSS** integrated with custom, premium styling tokens matching the **Microsoft Fluent Light Theme** guidelines:
   - Clean light backgrounds (`#f3f3f3`)
   - Crisp container boundaries (`#e0e0e0`)
   - Distinct accent brand colors (Teal/Green/Blue/Orange)

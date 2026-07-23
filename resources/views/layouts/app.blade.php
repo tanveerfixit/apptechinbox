@@ -16,31 +16,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Compiled assets via Laravel Vite -->
-    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
-    
-    <!-- Fallback CDN Bootstrap (in case Vite is not built yet) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Compiled Tailwind CSS & JS assets via Vite -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @livewireStyles
     <!-- QR Code Generator Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="flex flex-col min-h-screen bg-[#f3f3f3] text-[#242424] font-sans antialiased">
 
     <!-- Reusable Navbar Component -->
     <x-navbar />
 
     <!-- Main Content Area -->
-    <main class="flex-grow-1 py-3 py-md-4">
+    <main class="flex-1 py-4">
         {{ $slot }}
     </main>
 
     <!-- Reusable Footer Component -->
     <x-footer />
-
-    <!-- Bootstrap 5 JS Bundle (with Popper) CDN Fallback -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     @livewireScripts
 </body>

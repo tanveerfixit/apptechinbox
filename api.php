@@ -380,6 +380,261 @@ try {
             ]);
             break;
 
+        case 'get_protector_stocks':
+            // Auto-create protector_stocks table in tenant DB if missing
+            $db->exec("CREATE TABLE IF NOT EXISTS protector_stocks (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                brand VARCHAR(255) NOT NULL,
+                model VARCHAR(255) NOT NULL,
+                glass_type VARCHAR(255) NOT NULL,
+                screen_size_inch VARCHAR(50) NULL,
+                dimensions_mm VARCHAR(100) NULL,
+                stock_qty INT DEFAULT 0,
+                min_threshold INT DEFAULT 3,
+                bin_location VARCHAR(255) NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_brand_model_glass_variant (brand, model, glass_type)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            // Ensure new columns exist on older tables
+            try { $db->exec("ALTER TABLE protector_stocks ADD COLUMN screen_size_inch VARCHAR(50) NULL AFTER glass_type;"); } catch(Exception $e){}
+            try { $db->exec("ALTER TABLE protector_stocks ADD COLUMN dimensions_mm VARCHAR(100) NULL AFTER screen_size_inch;"); } catch(Exception $e){}
+
+            // Master dimension presets
+            $dimensionPresets = [
+                // Apple
+                'iPhone 17 Pro Max' => ['screen_size_inch' => '6.9"', 'dimensions_mm' => '163.0 x 77.5 mm'],
+                'iPhone 17 Pro'     => ['screen_size_inch' => '6.3"', 'dimensions_mm' => '149.6 x 71.5 mm'],
+                'iPhone 17 Air'     => ['screen_size_inch' => '6.6"', 'dimensions_mm' => '156.0 x 74.0 mm'],
+                'iPhone 17'         => ['screen_size_inch' => '6.3"', 'dimensions_mm' => '149.6 x 71.5 mm'],
+                'iPhone 17e'        => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.7 x 71.5 mm'],
+                'iPhone 16 Pro Max' => ['screen_size_inch' => '6.9"', 'dimensions_mm' => '163.0 x 77.6 mm'],
+                'iPhone 16 Pro'     => ['screen_size_inch' => '6.3"', 'dimensions_mm' => '149.6 x 71.5 mm'],
+                'iPhone 16 Plus'    => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '160.9 x 77.8 mm'],
+                'iPhone 16'         => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '147.6 x 71.6 mm'],
+                'iPhone 16e'        => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.7 x 71.5 mm'],
+                'iPhone 15 Pro Max' => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '159.9 x 76.7 mm'],
+                'iPhone 15 Pro'     => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.6 x 70.6 mm'],
+                'iPhone 15 Plus'    => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '160.9 x 77.8 mm'],
+                'iPhone 15'         => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '147.6 x 71.6 mm'],
+                'iPhone 14 Pro Max' => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '160.7 x 77.6 mm'],
+                'iPhone 14 Pro'     => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '147.5 x 71.5 mm'],
+                'iPhone 14 Plus'    => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '160.8 x 78.1 mm'],
+                'iPhone 14'         => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.7 x 71.5 mm'],
+                'iPhone 13 Pro Max' => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '160.8 x 78.1 mm'],
+                'iPhone 13 Pro'     => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.7 x 71.5 mm'],
+                'iPhone 13'         => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.7 x 71.5 mm'],
+                'iPhone 13 mini'    => ['screen_size_inch' => '5.4"', 'dimensions_mm' => '131.5 x 64.2 mm'],
+                'iPhone 12 Pro Max' => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '160.8 x 78.1 mm'],
+                'iPhone 12 Pro'     => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.7 x 71.5 mm'],
+                'iPhone 12'         => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.7 x 71.5 mm'],
+                'iPhone 12 mini'    => ['screen_size_inch' => '5.4"', 'dimensions_mm' => '131.5 x 64.2 mm'],
+                'iPhone 11 Pro Max' => ['screen_size_inch' => '6.5"', 'dimensions_mm' => '158.0 x 77.8 mm'],
+                'iPhone 11 Pro'     => ['screen_size_inch' => '5.8"', 'dimensions_mm' => '144.0 x 71.4 mm'],
+                'iPhone 11'         => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '150.9 x 75.7 mm'],
+                'SE (3rd Gen)'      => ['screen_size_inch' => '4.7"', 'dimensions_mm' => '138.4 x 67.3 mm'],
+                'SE (2nd Gen)'      => ['screen_size_inch' => '4.7"', 'dimensions_mm' => '138.4 x 67.3 mm'],
+                'XS Max'            => ['screen_size_inch' => '6.5"', 'dimensions_mm' => '157.5 x 77.4 mm'],
+                'XS'                => ['screen_size_inch' => '5.8"', 'dimensions_mm' => '143.6 x 70.9 mm'],
+                'XR'                => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '150.9 x 75.7 mm'],
+                'X'                 => ['screen_size_inch' => '5.8"', 'dimensions_mm' => '143.6 x 70.9 mm'],
+                
+                // Samsung
+                'S26 Ultra'         => ['screen_size_inch' => '6.9"', 'dimensions_mm' => '163.5 x 79.0 mm'],
+                'S26+'              => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '158.5 x 75.9 mm'],
+                'S26'               => ['screen_size_inch' => '6.2"', 'dimensions_mm' => '147.0 x 70.6 mm'],
+                'S25 Ultra'         => ['screen_size_inch' => '6.9"', 'dimensions_mm' => '162.8 x 77.6 mm'],
+                'S25+'              => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '158.4 x 75.8 mm'],
+                'S25'               => ['screen_size_inch' => '6.2"', 'dimensions_mm' => '146.9 x 70.4 mm'],
+                'S24 Ultra'         => ['screen_size_inch' => '6.8"', 'dimensions_mm' => '162.3 x 79.0 mm'],
+                'S24+'              => ['screen_size_inch' => '6.7"', 'dimensions_mm' => '158.5 x 75.9 mm'],
+                'S24'               => ['screen_size_inch' => '6.2"', 'dimensions_mm' => '147.0 x 70.6 mm'],
+                'S23 Ultra'         => ['screen_size_inch' => '6.8"', 'dimensions_mm' => '163.4 x 78.1 mm'],
+                'S23+'              => ['screen_size_inch' => '6.6"', 'dimensions_mm' => '157.8 x 76.2 mm'],
+                'S23'               => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.3 x 70.9 mm'],
+                'S22 Ultra'         => ['screen_size_inch' => '6.8"', 'dimensions_mm' => '163.3 x 77.9 mm'],
+                'S22+'              => ['screen_size_inch' => '6.6"', 'dimensions_mm' => '157.4 x 75.8 mm'],
+                'S22'               => ['screen_size_inch' => '6.1"', 'dimensions_mm' => '146.0 x 70.6 mm'],
+                'A55'               => ['screen_size_inch' => '6.6"', 'dimensions_mm' => '161.1 x 77.4 mm'],
+                'A35'               => ['screen_size_inch' => '6.6"', 'dimensions_mm' => '161.7 x 78.0 mm'],
+                'A15'               => ['screen_size_inch' => '6.5"', 'dimensions_mm' => '160.1 x 76.8 mm'],
+                'A54'               => ['screen_size_inch' => '6.4"', 'dimensions_mm' => '158.2 x 76.7 mm'],
+                'A34'               => ['screen_size_inch' => '6.6"', 'dimensions_mm' => '161.3 x 78.1 mm'],
+                'A14'               => ['screen_size_inch' => '6.6"', 'dimensions_mm' => '167.7 x 78.0 mm'],
+            ];
+
+            // Update database rows with missing dimension presets
+            $upPresetStmt = $db->prepare("UPDATE protector_stocks SET screen_size_inch = ?, dimensions_mm = ? WHERE model = ? AND (screen_size_inch IS NULL OR dimensions_mm IS NULL)");
+            foreach ($dimensionPresets as $mName => $dimInfo) {
+                $upPresetStmt->execute([$dimInfo['screen_size_inch'], $dimInfo['dimensions_mm'], $mName]);
+            }
+
+            // Seed master models list using INSERT IGNORE so all models exist
+            $samsungModels = [
+                'S26 Ultra', 'S26+', 'S26', 
+                'S25 Ultra', 'S25+', 'S25', 'S25 Edge', 'S25 FE', 
+                'S24 Ultra', 'S24+', 'S24', 'S24 FE', 
+                'S23 Ultra', 'S23+', 'S23', 'S23 FE', 
+                'S22 Ultra', 'S22+', 'S22', 
+                'S21 Ultra', 'S21+', 'S21', 'S21 FE', 
+                'S20 Ultra', 'S20+', 'S20', 'S20 FE', 
+                'S10+', 'S10', 'S10e', 
+                'Note20 Ultra', 'Note20', 'Note10+', 'Note10',
+                'Z Fold8 Ultra', 'Z Fold8', 'Z Flip8', 
+                'Z Fold7', 'Z Flip7', 'Z Flip7 FE', 
+                'Z Fold6', 'Z Flip6', 
+                'Z Fold5', 'Z Flip5', 
+                'Z Fold4', 'Z Flip4', 
+                'Z Fold3', 'Z Flip3', 
+                'Z Fold2', 'Z Flip',
+                'A57', 'A37', 'A17', 
+                'A56', 'A36', 'A16', 
+                'A55', 'A35', 'A15', 
+                'A54', 'A34', 'A14', 
+                'A53', 'A33', 'A13', 
+                'A52', 'A72'
+            ];
+
+            $appleModels = [
+                'iPhone 17 Pro Max', 'iPhone 17 Pro', 'iPhone 17 Air', 'iPhone 17', 'iPhone 17e',
+                'iPhone 16e', 'iPhone 16 Pro Max', 'iPhone 16 Pro', 'iPhone 16 Plus', 'iPhone 16',
+                'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15',
+                'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14',
+                'SE (3rd Gen)', 'SE (2nd Gen)',
+                'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13', 'iPhone 13 mini',
+                'iPhone 12 Pro Max', 'iPhone 12 Pro', 'iPhone 12', 'iPhone 12 mini',
+                'iPhone 11 Pro Max', 'iPhone 11 Pro', 'iPhone 11',
+                'XS Max', 'XS', 'XR', 'X'
+            ];
+
+            $glassTypes = ['Loose Glasses', 'Aokus Thin 3D Touch', 'Aokus Cover Edge 9D', 'Aokus Loose', 'Aokus 9H', 'Ven-Dens 9H'];
+            $insStmt = $db->prepare("INSERT IGNORE INTO protector_stocks (brand, model, glass_type, screen_size_inch, dimensions_mm, stock_qty, min_threshold, bin_location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+            foreach ($samsungModels as $idx => $m) {
+                $gt = $glassTypes[$idx % count($glassTypes)];
+                $sInch = $dimensionPresets[$m]['screen_size_inch'] ?? null;
+                $sMm = $dimensionPresets[$m]['dimensions_mm'] ?? null;
+                $insStmt->execute(['Samsung', $m, $gt, $sInch, $sMm, 0, 3, null]);
+            }
+
+            foreach ($appleModels as $idx => $m) {
+                $gt = $glassTypes[$idx % count($glassTypes)];
+                $sInch = $dimensionPresets[$m]['screen_size_inch'] ?? null;
+                $sMm = $dimensionPresets[$m]['dimensions_mm'] ?? null;
+                $insStmt->execute(['Apple', $m, $gt, $sInch, $sMm, 0, 3, null]);
+            }
+
+            $search = trim($_GET['search'] ?? '');
+            $brand = trim($_GET['brand'] ?? '');
+            $glassType = trim($_GET['glass_type'] ?? '');
+
+            // Only return items with stock_qty > 0 in Live Inventory
+            $query = "SELECT * FROM protector_stocks WHERE stock_qty > 0";
+            $params = [];
+
+            if (!empty($search)) {
+                $query .= " AND (model LIKE ? OR brand LIKE ? OR screen_size_inch LIKE ? OR dimensions_mm LIKE ?)";
+                $searchTerm = '%' . $search . '%';
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+            }
+            if (!empty($brand)) {
+                $query .= " AND brand = ?";
+                $params[] = $brand;
+            }
+            if (!empty($glassType)) {
+                $query .= " AND glass_type = ?";
+                $params[] = $glassType;
+            }
+
+            $query .= " ORDER BY brand ASC, model ASC";
+            $stmt = $db->prepare($query);
+            $stmt->execute($params);
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Fetch distinct brands, models, and model-to-brand & dimension map for auto selection
+            $brands = $db->query("SELECT DISTINCT brand FROM protector_stocks WHERE brand IS NOT NULL AND brand != '' ORDER BY brand")->fetchAll(PDO::FETCH_COLUMN);
+            $models = $db->query("SELECT DISTINCT model FROM protector_stocks WHERE model IS NOT NULL AND model != '' ORDER BY model")->fetchAll(PDO::FETCH_COLUMN);
+            
+            $modelDetails = $db->query("SELECT DISTINCT model, brand, screen_size_inch, dimensions_mm FROM protector_stocks WHERE model IS NOT NULL AND model != ''")->fetchAll(PDO::FETCH_ASSOC);
+            $modelBrandMap = [];
+            $modelDimensionMap = [];
+            foreach ($modelDetails as $row) {
+                $modelBrandMap[$row['model']] = $row['brand'];
+                $modelDimensionMap[$row['model']] = [
+                    'screen_size_inch' => $row['screen_size_inch'] ?? '',
+                    'dimensions_mm' => $row['dimensions_mm'] ?? ''
+                ];
+            }
+
+            // Fetch reorder list
+            $reorderItems = $db->query("SELECT * FROM protector_stocks WHERE stock_qty <= min_threshold ORDER BY stock_qty ASC, brand ASC, model ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => $items,
+                'reorder' => $reorderItems,
+                'brands' => $brands,
+                'models' => $models,
+                'modelBrandMap' => $modelBrandMap,
+                'modelDimensionMap' => $modelDimensionMap
+            ]);
+            break;
+
+        case 'save_protector_stock':
+            $input = json_decode(file_get_contents('php://input'), true);
+            $brand = trim($input['brand'] ?? '');
+            $model = trim($input['model'] ?? '');
+            $glassType = trim($input['glass_type'] ?? '');
+            $screenSizeInch = trim($input['screen_size_inch'] ?? '');
+            $dimensionsMm = trim($input['dimensions_mm'] ?? '');
+            $stockQty = intval($input['stock_qty'] ?? 0);
+            $minThreshold = intval($input['min_threshold'] ?? 3);
+            $binLocation = trim($input['bin_location'] ?? '');
+
+            if (empty($brand) || empty($model) || empty($glassType)) {
+                echo json_encode(['status' => 'error', 'message' => 'Brand, Model, and Glass Type are required.']);
+                break;
+            }
+
+            // Check if record exists
+            $checkStmt = $db->prepare("SELECT id, stock_qty FROM protector_stocks WHERE brand = ? AND model = ? AND glass_type = ?");
+            $checkStmt->execute([$brand, $model, $glassType]);
+            $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($existing) {
+                $newQty = $existing['stock_qty'] + $stockQty;
+                $updateStmt = $db->prepare("UPDATE protector_stocks SET stock_qty = ?, min_threshold = ?, screen_size_inch = COALESCE(NULLIF(?, ''), screen_size_inch), dimensions_mm = COALESCE(NULLIF(?, ''), dimensions_mm) WHERE id = ?");
+                $updateStmt->execute([$newQty, $minThreshold, $screenSizeInch, $dimensionsMm, $existing['id']]);
+                $msg = "Restocked {$stockQty}x {$brand} {$model} ({$glassType})!";
+            } else {
+                $insertStmt = $db->prepare("INSERT INTO protector_stocks (brand, model, glass_type, screen_size_inch, dimensions_mm, stock_qty, min_threshold, bin_location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $insertStmt->execute([$brand, $model, $glassType, $screenSizeInch, $dimensionsMm, $stockQty, $minThreshold, $binLocation]);
+                $msg = "Created {$brand} {$model} ({$glassType}) with {$stockQty} units!";
+            }
+
+            echo json_encode(['status' => 'success', 'message' => $msg]);
+            break;
+
+        case 'update_protector_stock_qty':
+            $input = json_decode(file_get_contents('php://input'), true);
+            $id = intval($input['id'] ?? 0);
+            $change = intval($input['change'] ?? 0);
+
+            if ($id <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid ID']);
+                break;
+            }
+
+            $stmt = $db->prepare("UPDATE protector_stocks SET stock_qty = GREATEST(0, stock_qty + ?) WHERE id = ?");
+            $stmt->execute([$change, $id]);
+
+            echo json_encode(['status' => 'success']);
+            break;
+
         default:
             throw new Exception('Invalid action.');
     }

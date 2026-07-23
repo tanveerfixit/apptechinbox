@@ -25,111 +25,25 @@ if ($businessId) {
     <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
     <link rel="manifest" href="/public/icons/site.webmanifest">
     
-    <!-- Outfit Font & Bootstrap 5 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Include compiled Tailwind CSS stylesheet from build manifest -->
+    <?php
+    $tailwindCssPath = '/resources/css/app.css';
+    $manifestPath = __DIR__ . '/public/build/manifest.json';
+    if (file_exists($manifestPath)) {
+        $manifest = json_decode(file_get_contents($manifestPath), true);
+        if (isset($manifest['resources/css/app.css']['file'])) {
+            $tailwindCssPath = '/public/build/' . $manifest['resources/css/app.css']['file'];
+        }
+    }
+    ?>
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($tailwindCssPath); ?>">
     
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <style>
-        :root {
-            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
-            --card-bg: #ffffff;
-            --card-border: #e0e0e0;
-            --text-primary: #242424;
-            --text-secondary: #5c5c5c;
-            --brand-blue: #00a4ef;
-            --brand-teal: #008272;
-            --brand-green: #7fba00;
-            --font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: var(--font-family);
-            min-height: 100vh;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .progress-step {
-            position: relative;
-            text-align: center;
-            flex-grow: 1;
-        }
-
-        .progress-step::after {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            width: 100%;
-            height: 3px;
-            background-color: #e0e0e0;
-            z-index: 1;
-        }
-
-        .progress-step:last-child::after {
-            display: none;
-        }
-
-        .step-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #e0e0e0;
-            color: #fff;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            position: relative;
-            z-index: 2;
-            transition: all 0.3s ease;
-        }
-
-        .progress-step.active .step-icon {
-            background-color: var(--brand-teal);
-            box-shadow: 0 0 0 4px rgba(0, 130, 114, 0.2);
-        }
-
-        .progress-step.completed .step-icon {
-            background-color: var(--brand-green);
-        }
-
-        .progress-step.completed::after {
-            background-color: var(--brand-green);
-        }
-
-        .step-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-top: 6px;
-        }
-
-        .progress-step.active .step-label {
-            color: var(--brand-teal);
-        }
-
-        .progress-step.completed .step-label {
-            color: var(--brand-green);
-        }
-    </style>
 </head>
-<body class="d-flex align-items-center py-4">
+<body class="min-h-screen bg-[#f3f3f3] text-[#242424] font-sans antialiased py-8 flex items-center justify-center p-4">
 
-    <div class="container" style="max-width: 500px;" 
+    <div class="w-full max-w-lg" 
          x-data="{
              businessId: '<?php echo htmlspecialchars($businessId); ?>',
              searchQuery: '',
@@ -159,22 +73,24 @@ if ($businessId) {
              }
          }">
          
-        <div class="card p-4">
+        <?php require __DIR__ . '/nav_buttons.php'; ?>
+
+        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-md p-6 space-y-6">
             <!-- Header -->
-            <div class="text-center mb-4">
-                <h1 class="h4 fw-bold text-dark mb-1" style="letter-spacing: -0.2px;"><?php echo htmlspecialchars($businessName); ?></h1>
-                <p class="text-muted mb-0" style="font-size: 13px;">Track the real-time progress of your device repair.</p>
+            <div class="text-center">
+                <h1 class="text-xl font-bold text-[#242424] tracking-tight mb-1"><?php echo htmlspecialchars($businessName); ?></h1>
+                <p class="text-xs text-[#5c5c5c]">Track the real-time progress of your device repair.</p>
             </div>
 
             <!-- Search Form -->
-            <form @submit.prevent="performLookup" class="mb-4">
-                <div class="mb-3">
-                    <label class="form-label small fw-bold text-secondary">Ticket ID or Phone Number</label>
-                    <div class="input-group">
-                        <input type="text" x-model="searchQuery" class="form-control" placeholder="e.g. TI-20260717 or 0891234567" required autocomplete="off">
-                        <button type="submit" class="btn btn-primary" style="background-color: var(--brand-teal); border-color: var(--brand-teal);">
+            <form @submit.prevent="performLookup">
+                <div>
+                    <label class="block text-xs font-bold text-[#5c5c5c] mb-1">Ticket ID or Phone Number</label>
+                    <div class="flex gap-2">
+                        <input type="text" x-model="searchQuery" class="flex-1 px-3.5 py-2.5 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" placeholder="e.g. TI-20260717 or 0891234567" required autocomplete="off">
+                        <button type="submit" class="py-2.5 px-5 bg-[#008272] hover:bg-[#006b5e] text-white text-xs font-bold rounded-[4px] transition-colors shadow-xs">
                             <span x-show="!loading">Track</span>
-                            <span x-show="loading" class="spinner-border spinner-border-sm" role="status"></span>
+                            <span x-show="loading" class="animate-spin text-xs">🌀</span>
                         </button>
                     </div>
                 </div>
@@ -182,62 +98,65 @@ if ($businessId) {
 
             <!-- Loading Spinner -->
             <div x-show="loading" class="text-center py-4">
-                <div class="spinner-border text-secondary spinner-border-sm" role="status"></div>
-                <span class="ms-2 text-muted small">Searching records...</span>
+                <span class="animate-spin text-lg text-[#008272]">🌀</span>
+                <span class="ml-2 text-xs text-[#5c5c5c]">Searching records...</span>
             </div>
 
             <!-- Error Notification -->
-            <div x-show="errorMsg" class="alert alert-danger py-2 px-3 small border-0 mb-3" style="background-color: #f8d7da; color: #842029; border-radius: 4px;" x-text="errorMsg"></div>
+            <div x-show="errorMsg" class="bg-red-50 border border-[#f25022]/30 text-[#f25022] text-xs py-2 px-3 rounded-[4px] text-center font-medium" x-text="errorMsg"></div>
 
             <!-- Lookup Results -->
             <div x-show="!loading && searched">
                 <!-- No Jobs Found -->
-                <div x-show="jobs.length === 0" class="text-center py-4">
-                    <span class="fs-1 d-block mb-2">🔍</span>
-                    <h3 class="h6 fw-bold text-secondary mb-1">No Active Repairs Found</h3>
-                    <p class="text-muted small mb-0">Double check your Ticket ID or phone number, or contact the store.</p>
+                <div x-show="jobs.length === 0" class="text-center py-6">
+                    <span class="text-3xl mb-2 block">🔍</span>
+                    <h3 class="text-sm font-bold text-[#5c5c5c] mb-1">No Active Repairs Found</h3>
+                    <p class="text-xs text-[#5c5c5c]">Double check your Ticket ID or phone number, or contact the store.</p>
                 </div>
 
                 <!-- Jobs List -->
-                <div x-show="jobs.length > 0" class="d-flex flex-column gap-4">
+                <div x-show="jobs.length > 0" class="space-y-4">
                     <template x-for="job in jobs" :key="job.ticket_id">
-                        <div class="border rounded p-3" style="background: #fafafa; border-color: #e0e0e0 !important;">
+                        <div class="border border-[#e0e0e0] rounded-[6px] p-4 bg-[#fafafa] space-y-4">
                             <!-- Header ID and Date -->
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="badge bg-dark px-2 py-1" style="font-family: monospace; font-size: 11px;" x-text="job.ticket_id"></span>
-                                <span class="text-muted" style="font-size: 11px;" x-text="new Date(job.created_at).toLocaleDateString()"></span>
+                            <div class="flex justify-between items-center">
+                                <span class="px-2 py-0.5 bg-[#242424] text-white font-mono text-[10px] rounded-[4px]" x-text="job.ticket_id"></span>
+                                <span class="text-[#5c5c5c] text-[11px]" x-text="new Date(job.created_at).toLocaleDateString()"></span>
                             </div>
 
                             <!-- Progress Tracker -->
-                            <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
-                                <div class="progress-step" :class="job.status === 'Pending' ? 'active' : 'completed'">
-                                    <div class="step-icon">1</div>
-                                    <div class="step-label">Pending</div>
+                            <div class="flex items-center justify-between py-2 relative">
+                                <div class="flex-1 text-center relative z-10">
+                                    <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+                                         :class="job.status === 'Pending' ? 'bg-[#008272] text-white ring-4 ring-[#008272]/20' : 'bg-[#7fba00] text-white'">1</div>
+                                    <div class="text-[11px] font-semibold mt-1" :class="job.status === 'Pending' ? 'text-[#008272]' : 'text-[#7fba00]'">Pending</div>
                                 </div>
-                                <div class="progress-step" :class="job.status === 'Processing' ? 'active' : (job.status === 'Completed' ? 'completed' : '')">
-                                    <div class="step-icon">2</div>
-                                    <div class="step-label">Processing</div>
+                                <div class="flex-1 text-center relative z-10">
+                                    <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+                                         :class="job.status === 'Processing' ? 'bg-[#008272] text-white ring-4 ring-[#008272]/20' : (job.status === 'Completed' ? 'bg-[#7fba00] text-white' : 'bg-[#e0e0e0] text-white')">2</div>
+                                    <div class="text-[11px] font-semibold mt-1" :class="job.status === 'Processing' ? 'text-[#008272]' : (job.status === 'Completed' ? 'text-[#7fba00]' : 'text-[#5c5c5c]')">Processing</div>
                                 </div>
-                                <div class="progress-step" :class="job.status === 'Completed' ? 'active' : ''">
-                                    <div class="step-icon">3</div>
-                                    <div class="step-label">Completed</div>
+                                <div class="flex-1 text-center relative z-10">
+                                    <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+                                         :class="job.status === 'Completed' ? 'bg-[#7fba00] text-white ring-4 ring-[#7fba00]/20' : 'bg-[#e0e0e0] text-white'">3</div>
+                                    <div class="text-[11px] font-semibold mt-1" :class="job.status === 'Completed' ? 'text-[#7fba00]' : 'text-[#5c5c5c]'">Completed</div>
                                 </div>
                             </div>
 
                             <!-- Details list -->
-                            <div class="small text-dark">
-                                <div class="mb-2"><strong>Device:</strong> <span x-text="job.device_model"></span></div>
-                                <div class="mb-2"><strong>Fault Description:</strong> <span class="text-secondary" x-text="job.problem_description"></span></div>
-                                <div class="border-top pt-2 mt-2">
-                                    <div class="d-flex justify-content-between">
+                            <div class="text-xs text-[#242424] space-y-2 pt-2 border-t border-[#e0e0e0]">
+                                <div><strong class="font-bold">Device:</strong> <span x-text="job.device_model"></span></div>
+                                <div><strong class="font-bold">Fault Description:</strong> <span class="text-[#5c5c5c]" x-text="job.problem_description"></span></div>
+                                <div class="border-t border-[#e0e0e0] pt-2 space-y-1">
+                                    <div class="flex justify-between">
                                         <span>Total Quote:</span>
-                                        <strong>€<span x-text="parseFloat(job.total_quote).toFixed(2)"></span></strong>
+                                        <strong class="font-bold">€<span x-text="parseFloat(job.total_quote).toFixed(2)"></span></strong>
                                     </div>
-                                    <div class="d-flex justify-content-between text-success">
+                                    <div class="flex justify-between text-[#7fba00]">
                                         <span>Deposit Paid:</span>
                                         <span>€<span x-text="parseFloat(job.deposit_paid).toFixed(2)"></span></span>
                                     </div>
-                                    <div class="d-flex justify-content-between border-top mt-1 pt-1 fw-bold" :class="parseFloat(job.balance_due) > 0 ? 'text-danger' : 'text-muted'">
+                                    <div class="flex justify-between border-t border-[#e0e0e0] pt-1 font-bold" :class="parseFloat(job.balance_due) > 0 ? 'text-[#f25022]' : 'text-[#5c5c5c]'">
                                         <span>Balance Due:</span>
                                         <span>€<span x-text="parseFloat(job.balance_due).toFixed(2)"></span></span>
                                     </div>
@@ -249,10 +168,8 @@ if ($businessId) {
             </div>
         </div>
 
-        <p class="text-center text-muted mt-3" style="font-size: 11px;">Powered by <?php echo htmlspecialchars($businessName); ?></p>
+        <p class="text-center text-xs text-[#5c5c5c] mt-4">Powered by <?php echo htmlspecialchars($businessName); ?></p>
     </div>
 
-    <!-- Bootstrap 5 JavaScript Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

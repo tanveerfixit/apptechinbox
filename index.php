@@ -91,10 +91,9 @@ $apps = [
         'color' => '#7fba00', // Microsoft Green
         'badge' => 'Utility'
     ],
-
     [
-        'name' => 'Screen Protector Finder',
-        'url' => '/screen-protector-finder',
+        'name' => 'Phone Screen Protector',
+        'url' => 'screen-protector-finder.php',
         'desc' => 'Search and locate screen protector inventory and device compatibility matching.',
         'icon' => '📱',
         'color' => '#ffb900', // Microsoft Yellow
@@ -121,40 +120,46 @@ $apps = [
     <link rel="shortcut icon" href="/public/icons/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
     <link rel="manifest" href="/public/icons/site.webmanifest">
-    <!-- Bootstrap 5.3 CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
-<body class="d-flex flex-column min-vh-100" style="background-color: #f3f3f3;">
+<body class="flex flex-col min-h-screen bg-[#f3f3f3] text-[#242424] font-sans antialiased text-base">
 
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
     <!-- Main Container Dashboard -->
-    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1">
-        <div class="text-center mx-auto mb-5" style="max-width: 600px;">
-            <h1 class="h2 fw-semibold text-dark mb-2">Applications Dashboard</h1>
-            <p class="small text-muted">Select an application below to get started with your TechInbox workspace utilities.</p>
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1">
+        <?php require __DIR__ . '/nav_buttons.php'; ?>
+
+        <div class="text-center max-w-2xl mx-auto mb-10">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-[#242424] tracking-tight mb-3">Applications Dashboard</h1>
+            <p class="text-base sm:text-lg text-[#5c5c5c] leading-relaxed">Select an application below to get started with your TechInbox workspace utilities.</p>
         </div>
 
-        <div class="row g-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <?php foreach ($apps as $app): ?>
-                <div class="col-12 col-sm-6 col-md-4 d-flex">
-                    <a href="<?php echo htmlspecialchars($app['url']); ?>" class="w-100 d-flex flex-column justify-content-between p-4 text-decoration-none text-dark" style="background-color: #ffffff !important; border: none !important; border-radius: 0 !important; box-shadow: none !important;">
+                <div class="flex">
+                    <a href="<?php echo htmlspecialchars($app['url']); ?>" class="w-full bg-white border border-[#e0e0e0] rounded-[6px] p-7 flex flex-col justify-between hover:border-[#d1d1d1] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 group text-decoration-none">
                         <div>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div style="width: 40px; height: 40px; background-color: transparent; font-size: 20px; display: flex; align-items: center; justify-content: center; border: none !important; border-radius: 0 !important;">
+                            <div class="flex justify-between items-center mb-5">
+                                <div class="w-12 h-12 flex items-center justify-center text-2xl bg-[#f3f3f3] rounded-[6px]">
                                     <?php echo $app['icon']; ?>
                                 </div>
-                                <span class="badge bg-secondary-subtle text-secondary border-0 px-2 py-1 small text-uppercase fw-semibold" style="font-size: 10px; letter-spacing: 0.5px;"><?php echo htmlspecialchars($app['badge']); ?></span>
+                                <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 bg-[#f3f3f3] text-[#5c5c5c] rounded-[4px]">
+                                    <?php echo htmlspecialchars($app['badge']); ?>
+                                </span>
                             </div>
                             <div>
-                                <h3 class="h6 fw-bold text-dark mb-1"><?php echo htmlspecialchars($app['name']); ?></h3>
-                                <p class="text-muted mb-4" style="font-size: 12.5px; line-height: 1.4;"><?php echo htmlspecialchars($app['desc']); ?></p>
+                                <h3 class="text-xl font-bold text-[#242424] group-hover:text-[#00a4ef] transition-colors mb-2">
+                                    <?php echo htmlspecialchars($app['name']); ?>
+                                </h3>
+                                <p class="text-sm text-[#5c5c5c] leading-relaxed mb-6">
+                                    <?php echo htmlspecialchars($app['desc']); ?>
+                                </p>
                             </div>
                         </div>
-                        <div class="text-primary fw-semibold small d-flex align-items-center gap-1 mt-auto">
+                        <div class="text-sm font-bold text-[#00a4ef] flex items-center gap-2 mt-auto group-hover:translate-x-1 transition-transform">
                             <span>Open Application</span>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
                         </div>
                     </a>
                 </div>
@@ -166,43 +171,49 @@ $apps = [
     <?php if (!$isLoggedIn): 
         $modalDisplay = (empty($_SESSION['skip_login']) && !$isLoggedIn) ? 'flex' : 'none';
     ?>
-    <div id="loginModal" class="modal fade show align-items-center justify-content-center" style="display: <?php echo $modalDisplay; ?>; background: rgba(9, 13, 22, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2050;">
-        <div class="card shadow-lg p-4 border-1" style="width: 100%; max-width: 380px; border-radius: 6px;">
-            <h2 class="h5 fw-semibold text-dark text-center mb-1">Sign in to Business Portal</h2>
-            <p class="small text-muted text-center mb-4">Sign in to access your inventory builder</p>
+    <div id="loginModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 transition-opacity duration-200" style="display: <?php echo $modalDisplay; ?>;">
+        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-2xl w-full max-w-lg p-8 relative">
+            <h2 class="text-2xl font-bold text-[#242424] text-center mb-1">Sign in to Business Portal</h2>
+            <p class="text-sm text-[#5c5c5c] text-center mb-6">Sign in to access your inventory builder</p>
 
             <?php if ($loginError): ?>
-                <div class="alert alert-danger py-2 px-3 small text-center mb-3" style="font-size: 12.5px;">
+                <div class="bg-red-50 border border-[#f25022]/30 text-[#f25022] text-sm py-2.5 px-4 rounded-[4px] text-center mb-4 font-medium">
                     <?php echo htmlspecialchars($loginError); ?>
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="index.php">
+            <form method="POST" action="index.php" class="space-y-5">
                 <input type="hidden" name="login_action" value="1">
-                <div class="mb-3">
-                    <label class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Business Name</label>
-                    <select class="form-select py-2" name="business" required>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1.5">Business Name</label>
+                    <select name="business" required class="w-full px-3.5 py-2.5 text-sm border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
                         <option value="" disabled selected>Select business...</option>
                         <?php foreach ($allBusinesses as $biz): ?>
                             <option value="<?php echo htmlspecialchars($biz['id']); ?>"><?php echo htmlspecialchars($biz['name']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">User Name</label>
-                    <select class="form-select py-2" name="username" required>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1.5">User Name</label>
+                    <select name="username" required class="w-full px-3.5 py-2.5 text-sm border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
                         <option value="" disabled selected>Select user...</option>
                         <?php foreach ($allUsers as $u): ?>
                             <option value="<?php echo htmlspecialchars($u['username']); ?>"><?php echo htmlspecialchars($u['username']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="mb-4">
-                    <label class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Password</label>
-                    <input type="password" class="form-control py-2" name="password" placeholder="Enter password..." required>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1.5">Password</label>
+                    <input type="password" name="password" placeholder="Enter password..." required class="w-full px-3.5 py-2.5 text-sm border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
                 </div>
-                <button type="submit" class="btn btn-primary w-100 py-2 text-uppercase fw-bold mb-2" style="font-size: 13px; letter-spacing: 0.5px;">Sign In</button>
-                <button type="button" class="btn btn-outline-secondary w-100 py-2" style="font-size: 13px;" onclick="skipLogin()">Skip for Now</button>
+                <div class="pt-2 space-y-3">
+                    <button type="submit" class="w-full py-3 px-4 bg-[#00a4ef] hover:bg-[#0086c4] text-white text-sm font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs">
+                        Sign In
+                    </button>
+                    <button type="button" onclick="skipLogin()" class="w-full py-3 px-4 bg-[#f3f3f3] hover:bg-[#e8e8e8] text-[#242424] text-sm font-semibold rounded-[4px] transition-colors">
+                        Skip for Now
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -211,8 +222,6 @@ $apps = [
     <!-- Standard Footer -->
     <?php require_once __DIR__ . '/footer.php'; ?>
 
-    <!-- Bootstrap 5 JavaScript Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
         function skipLogin() {
             window.location.href = 'index.php?skip=1';

@@ -85,299 +85,61 @@ $allBusinesses = $stmtBiz->fetchAll();
     <link rel="shortcut icon" href="/public/icons/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
     <link rel="manifest" href="/public/icons/site.webmanifest">
-    <style>
-        :root {
-            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
-            --card-bg: #ffffff;
-            --card-border: #e0e0e0;
-            --text-primary: #242424;
-            --text-secondary: #5c5c5c;
-            --brand-blue: #0078d4;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            background: #ffffff;
-            border-bottom: 1px solid var(--card-border);
-            padding: 14px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .ms-logo {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 2px;
-            width: 18px;
-            height: 18px;
-        }
-
-        .ms-square {
-            width: 8px;
-            height: 8px;
-        }
-
-        .logo-text {
-            font-size: 18px;
-            font-weight: 600;
-            color: #242424;
-        }
-
-        .logo-sub {
-            font-weight: 400;
-            color: var(--text-secondary);
-            font-size: 14px;
-            border-left: 1px solid var(--card-border);
-            padding-left: 10px;
-        }
-
-        .user-section {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .welcome-msg {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .btn-portal {
-            color: var(--brand-blue);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .btn-portal:hover {
-            text-decoration: underline;
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 24px;
-        }
-
-        .login-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
-            padding: 32px 24px;
-            width: 100%;
-            max-width: 380px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .login-card h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0 0 8px 0;
-            text-align: center;
-            letter-spacing: -0.3px;
-        }
-
-        .login-card p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin: 0 0 24px 0;
-            text-align: center;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .input-group input, .input-group select {
-            background-color: #ffffff;
-            border: 1px solid #d0d0d0;
-            border-radius: 6px;
-            color: var(--text-primary);
-            padding: 12px;
-            font-size: 14px;
-            width: 100%;
-            outline: none;
-            box-sizing: border-box;
-            transition: all 0.2s ease;
-        }
-
-        .input-group input:focus, .input-group select:focus {
-            border-color: var(--brand-blue);
-            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.15);
-        }
-
-        .btn-submit {
-            background-color: var(--brand-blue);
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            width: 100%;
-            cursor: pointer;
-            transition: background-color 0.15s ease;
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-submit:hover {
-            background-color: #106ebe;
-        }
-
-        .error-banner {
-            background-color: #fde7e9;
-            border: 1px solid #e0b4b4;
-            border-radius: 6px;
-            color: #a80000;
-            padding: 10px 12px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        footer {
-            background-color: #ffffff;
-            border-top: 1px solid var(--card-border);
-            padding: 20px;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        .footer-text {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .footer-dev {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .footer-email {
-            color: var(--brand-blue);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .footer-email:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 640px) {
-            header {
-                padding: 12px 16px;
-            }
-            .logo-sub {
-                display: none;
-            }
-        }
-    </style>
 </head>
-<body>
+<body class="flex flex-col min-h-screen bg-[#f3f3f3] text-[#242424] font-sans antialiased">
 
-    <header>
-        <a href="index.php" class="logo-section">
-            <div class="ms-logo">
-                <div class="ms-square" style="background-color: #f25022;"></div>
-                <div class="ms-square" style="background-color: #7fba00;"></div>
-                <div class="ms-square" style="background-color: #00a4ef;"></div>
-                <div class="ms-square" style="background-color: #ffb900;"></div>
-            </div>
-            <div class="logo-text">TechInbox</div>
-            <div class="logo-sub">Portal</div>
-        </a>
-        <div class="user-section">
-            <a href="index.php" class="btn-portal">&larr; Back to Portal</a>
+    <!-- Header Navigation -->
+    <?php require_once __DIR__ . '/header.php'; ?>
+
+    <!-- Main Container Login Card -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 my-auto">
+        <div class="w-full max-w-md">
+            <?php require __DIR__ . '/nav_buttons.php'; ?>
         </div>
-    </header>
-
-    <main>
-        <div class="login-card">
-            <h2>Sign in to Business Portal</h2>
-            <p>Sign in to access your inventory builder</p>
+        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-md w-full max-w-md p-6 sm:p-8">
+            <h2 class="text-xl font-bold text-[#242424] text-center tracking-tight mb-1">Sign in to Business Portal</h2>
+            <p class="text-xs text-[#5c5c5c] text-center mb-6">Sign in to access your inventory builder and workspace utilities</p>
 
             <?php if ($error): ?>
-                <div class="error-banner">
+                <div class="bg-red-50 border border-[#f25022]/30 text-[#f25022] text-xs py-2.5 px-3 rounded-[4px] text-center mb-5 font-medium">
                     <?php echo htmlspecialchars($error); ?>
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="login.php">
-                <div class="input-group">
-                    <label for="business">Business Name</label>
-                    <select id="business" name="business" required>
+            <form method="POST" action="login.php" class="space-y-4">
+                <div>
+                    <label for="business" class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Business Name</label>
+                    <select id="business" name="business" required class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
                         <option value="" disabled selected>Select business...</option>
                         <?php foreach ($allBusinesses as $biz): ?>
                             <option value="<?php echo htmlspecialchars($biz['id']); ?>"><?php echo htmlspecialchars($biz['name']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label for="username_select">User Name</label>
-                    <select id="username_select" name="username" required>
+                <div>
+                    <label for="username_select" class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">User Name</label>
+                    <select id="username_select" name="username" required class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
                         <option value="" disabled selected>Select user...</option>
                         <?php foreach ($allUsers as $u): ?>
                             <option value="<?php echo htmlspecialchars($u['username']); ?>"><?php echo htmlspecialchars($u['username']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter password..." required>
+                <div>
+                    <label for="password" class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password..." required class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
                 </div>
-                <button type="submit" class="btn-submit">Sign In</button>
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-2.5 px-4 bg-[#00a4ef] hover:bg-[#0086c4] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs">
+                        Sign In
+                    </button>
+                </div>
             </form>
         </div>
     </main>
 
-    <footer>
-        <div class="footer-text">
-            These system apps and Utility are Developer: <span class="footer-dev">Tanveer</span> | Support: <a href="mailto:support@techinbox.ie" class="footer-email">support@techinbox.ie</a>
-        </div>
-    </footer>
+    <!-- Standard Footer -->
+    <?php require_once __DIR__ . '/footer.php'; ?>
 
 </body>
 </html>

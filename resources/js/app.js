@@ -1,2 +1,1 @@
-// Import Bootstrap JS components
-import 'bootstrap';
+// App JS Entry Point

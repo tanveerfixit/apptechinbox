@@ -3,112 +3,119 @@
 $username = $_SESSION['username'] ?? '';
 $isLoggedIn = isset($_SESSION['user_id']);
 $currentScript = basename($_SERVER['PHP_SELF']);
-$showBackBtn = ($currentScript !== 'index.php');
+
+// Dynamically resolve compiled Tailwind CSS asset path from Vite manifest
+$tailwindCssPath = '/resources/css/app.css';
+$manifestPath = __DIR__ . '/public/build/manifest.json';
+if (file_exists($manifestPath)) {
+    $manifest = json_decode(file_get_contents($manifestPath), true);
+    if (isset($manifest['resources/css/app.css']['file'])) {
+        $tailwindCssPath = '/public/build/' . $manifest['resources/css/app.css']['file'];
+    }
+}
 ?>
-<header class="navbar navbar-light bg-white border-bottom py-3 px-3 px-md-4 d-flex justify-content-between align-items-center shadow-sm">
-    <div class="d-flex align-items-center gap-2">
+<link rel="stylesheet" href="<?php echo htmlspecialchars($tailwindCssPath); ?>">
+
+<header class="bg-white border-b border-[#e0e0e0] px-4 py-2 flex justify-between items-center shadow-xs relative z-30">
+    <div class="flex items-center gap-3">
         <!-- Hamburger Button (Mobile only) -->
-        <button class="btn btn-link p-0 text-dark d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavDrawer" aria-controls="mobileNavDrawer" style="display: inline-flex; align-items: center;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="4" y1="12" x2="20" y2="12"></line>
-                <line x1="4" y1="6" x2="20" y2="6"></line>
-                <line x1="4" y1="18" x2="20" y2="18"></line>
+        <button onclick="toggleMobileNav()" class="lg:hidden p-1 text-[#242424] hover:text-[#00a4ef] focus:outline-none" type="button" aria-label="Toggle navigation">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
         </button>
         
-        <a href="index.php" class="d-flex align-items-center gap-2 text-decoration-none ms-1 ms-md-0">
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; width: 18px; height: 18px;">
-                <div style="width: 8px; height: 8px; background-color: #f25022;"></div>
-                <div style="width: 8px; height: 8px; background-color: #7fba00;"></div>
-                <div style="width: 8px; height: 8px; background-color: #00a4ef;"></div>
-                <div style="width: 8px; height: 8px; background-color: #ffb900;"></div>
+        <a href="index.php" class="flex items-center gap-2 text-decoration-none group">
+            <div class="grid grid-cols-2 gap-[2px] w-[18px] h-[18px]">
+                <div class="w-[8px] h-[8px] bg-[#f25022]"></div>
+                <div class="w-[8px] h-[8px] bg-[#7fba00]"></div>
+                <div class="w-[8px] h-[8px] bg-[#00a4ef]"></div>
+                <div class="w-[8px] h-[8px] bg-[#ffb900]"></div>
             </div>
-            <span class="fs-5 fw-bold text-dark mb-0">TechInbox</span>
-            <span class="text-muted border-start ps-2 mb-0 d-none d-sm-inline" style="font-size: 14px;">Portal</span>
+            <span class="text-base font-bold text-[#242424] tracking-tight group-hover:text-[#00a4ef] transition-colors">TechInbox</span>
+            <span class="text-xs text-[#5c5c5c] border-l border-[#e0e0e0] pl-2 hidden sm:inline font-medium">Portal</span>
         </a>
     </div>
     
-    <div class="d-flex align-items-center gap-3">
-        <?php if ($showBackBtn): ?>
-            <a href="index.php" class="text-decoration-none fw-semibold text-primary d-none d-sm-inline" style="font-size: 14px; color: var(--brand-blue) !important;">&larr; Back to Portal</a>
-        <?php endif; ?>
-        
+    <div class="flex items-center gap-3 text-xs">
         <?php if ($isLoggedIn): ?>
-            <span class="small text-muted d-none d-md-inline">Signed in as <a href="profile.php" class="text-dark fw-semibold text-decoration-underline"><?php echo htmlspecialchars($username); ?></a></span>
-            <a href="duty_history.php" class="text-decoration-none fw-semibold text-primary ms-2 d-none d-md-inline" style="font-size: 14px; color: #0078d4 !important;">Duty History</a>
+            <span class="hidden md:inline text-xs text-[#5c5c5c]">
+                Signed in as <a href="profile.php" class="text-[#242424] font-semibold underline hover:text-[#00a4ef]"><?php echo htmlspecialchars($username); ?></a>
+            </span>
+            <a href="duty_history.php" class="hidden md:inline-flex font-semibold text-[#00a4ef] hover:underline">
+                Duty History
+            </a>
             <?php if (!empty($_SESSION['is_admin'])): ?>
-                <a href="admin.php" class="text-decoration-none fw-semibold text-danger ms-2 d-none d-md-inline" style="font-size: 14px; color: #d83b01 !important;">Admin Portal</a>
+                <a href="admin.php" class="hidden md:inline-flex font-semibold text-[#f25022] hover:underline">
+                    Admin Portal
+                </a>
             <?php endif; ?>
-            <a href="logout.php" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 border-0">
+            <a href="logout.php" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold text-[#f25022] hover:bg-[#fef2f2] rounded-[4px] border border-[#f25022]/30 transition-colors">
                 Sign Out
             </a>
         <?php else: ?>
-            <span class="small text-muted d-none d-sm-inline">Not signed in</span>
-            <a href="login.php" class="btn btn-sm btn-primary px-3 rounded-1" onclick="event.preventDefault(); document.getElementById('loginModal').style.setProperty('display', 'flex', 'important');">
+            <span class="hidden sm:inline text-xs text-[#5c5c5c]">Not signed in</span>
+            <a href="login.php" class="inline-flex items-center px-3 py-1 text-xs font-semibold text-white bg-[#00a4ef] hover:bg-[#0086c4] rounded-[4px] shadow-xs transition-colors" onclick="event.preventDefault(); openLoginModal();">
                 Sign In
             </a>
         <?php endif; ?>
     </div>
 </header>
 
-<!-- Mobile Navigation Offcanvas Drawer -->
-<div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNavDrawer" aria-labelledby="mobileNavDrawerLabel" style="width: 280px;">
-    <div class="offcanvas-header border-bottom">
-        <h5 class="offcanvas-title fw-bold d-flex align-items-center gap-2" id="mobileNavDrawerLabel">
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; width: 18px; height: 18px;">
-                <div style="width: 8px; height: 8px; background-color: #f25022;"></div>
-                <div style="width: 8px; height: 8px; background-color: #7fba00;"></div>
-                <div style="width: 8px; height: 8px; background-color: #00a4ef;"></div>
-                <div style="width: 8px; height: 8px; background-color: #ffb900;"></div>
+<!-- Mobile Navigation Drawer Overlay -->
+<div id="mobileNavDrawer" class="fixed inset-0 bg-black/40 z-50 hidden transition-opacity duration-200" onclick="toggleMobileNav()">
+    <div class="fixed top-0 left-0 bottom-0 w-[260px] bg-white shadow-xl flex flex-column justify-between transform -translate-x-full transition-transform duration-200" id="mobileDrawerContent" onclick="event.stopPropagation()">
+        <div class="p-3 border-b border-[#e0e0e0] flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="grid grid-cols-2 gap-[2px] w-[18px] h-[18px]">
+                    <div class="w-[8px] h-[8px] bg-[#f25022]"></div>
+                    <div class="w-[8px] h-[8px] bg-[#7fba00]"></div>
+                    <div class="w-[8px] h-[8px] bg-[#00a4ef]"></div>
+                    <div class="w-[8px] h-[8px] bg-[#ffb900]"></div>
+                </div>
+                <span class="font-bold text-[#242424] text-sm">TechInbox</span>
             </div>
-            TechInbox
-        </h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body d-flex flex-column justify-content-between">
-        <!-- Navigation Links -->
-        <div class="d-flex flex-column gap-1">
-            <span class="small text-muted text-uppercase fw-bold px-3 mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Applications</span>
-            <a href="bookings.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'bookings.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #00a4ef;">🛠️</span>
+            <button onclick="toggleMobileNav()" class="text-[#5c5c5c] hover:text-[#242424] p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div class="p-3 flex-1 overflow-y-auto space-y-1">
+            <div class="text-[10px] font-bold text-[#5c5c5c] uppercase tracking-wider px-2 mb-1.5">Applications</div>
+            <a href="bookings.php" class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'bookings.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#00a4ef] text-[#242424]' : 'text-[#242424] hover:bg-[#f3f3f3]'; ?>">
+                <span>🛠️</span>
                 <span>Booked Jobs</span>
             </a>
-            <a href="booking.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'booking.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #008272;">📋</span>
+            <a href="booking.php" class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'booking.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#008272] text-[#242424]' : 'text-[#242424] hover:bg-[#f3f3f3]'; ?>">
+                <span>📋</span>
                 <span>Device Booking</span>
             </a>
-            <a href="daily-closer.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'daily-closer.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #7fba00;">📊</span>
+            <a href="daily-closer.php" class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'daily-closer.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#7fba00] text-[#242424]' : 'text-[#242424] hover:bg-[#f3f3f3]'; ?>">
+                <span>📊</span>
                 <span>Daily Closer</span>
             </a>
-            <a href="screen-protector-finder" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'screen-protector-finder') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #ffb900;">📱</span>
-                <span>Screen Protector</span>
+            <a href="screen-protector-finder.php" class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'screen-protector-finder.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#ffb900] text-[#242424]' : 'text-[#242424] hover:bg-[#f3f3f3]'; ?>">
+                <span>📱</span>
+                <span>Phone Screen Protector</span>
             </a>
         </div>
-
-        <!-- User / Session Management inside Drawer on Mobile -->
-        <div class="border-top pt-3">
+        <div class="p-3 border-t border-[#e0e0e0] bg-[#fafafa]">
             <?php if ($isLoggedIn): ?>
-                <div class="px-3 mb-3">
-                    <span class="d-block small text-muted">Signed in as</span>
-                    <a href="profile.php" class="d-block fw-bold text-dark text-decoration-none" style="font-size: 14.5px;">👤 <?php echo htmlspecialchars($username); ?></a>
+                <div class="px-1 mb-2">
+                    <span class="block text-[10px] text-[#5c5c5c]">Signed in as</span>
+                    <a href="profile.php" class="block font-bold text-[#242424] hover:underline text-xs">👤 <?php echo htmlspecialchars($username); ?></a>
                 </div>
-                <div class="d-flex flex-column gap-2">
-                    <a href="duty_history.php" class="btn btn-light text-start border-0 py-2 px-3 d-flex align-items-center gap-2" style="font-size: 13.5px; background: none;">
+                <div class="space-y-1">
+                    <a href="duty_history.php" class="flex items-center gap-2 px-2.5 py-1 text-xs text-[#242424] hover:bg-[#f3f3f3] rounded-[4px]">
                         <span>🕒</span> Duty History
                     </a>
                     <?php if (!empty($_SESSION['is_admin'])): ?>
-                        <a href="admin.php" class="btn btn-light text-start border-0 py-2 px-3 d-flex align-items-center gap-2 text-danger" style="font-size: 13.5px; background: none;">
+                        <a href="admin.php" class="flex items-center gap-2 px-2.5 py-1 text-xs text-[#f25022] font-semibold hover:bg-[#fef2f2] rounded-[4px]">
                             <span>🔑</span> Admin Portal
                         </a>
                     <?php endif; ?>
                 </div>
             <?php else: ?>
-                <div class="px-3 mb-3">
-                    <span class="small text-muted">Not signed in</span>
-                </div>
-                <a href="login.php" class="btn btn-primary w-100 py-2" onclick="event.preventDefault(); document.getElementById('loginModal').style.setProperty('display', 'flex', 'important');" data-bs-dismiss="offcanvas">
+                <a href="login.php" class="block w-full text-center py-1.5 px-3 text-xs font-semibold text-white bg-[#00a4ef] hover:bg-[#0086c4] rounded-[4px]" onclick="event.preventDefault(); toggleMobileNav(); openLoginModal();">
                     Sign In
                 </a>
             <?php endif; ?>
@@ -116,76 +123,58 @@ $showBackBtn = ($currentScript !== 'index.php');
     </div>
 </div>
 
-<style>
-/* Universal flat layout resets */
-*, *::before, *::after {
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    transition: none !important;
-    animation: none !important;
+<script>
+function toggleMobileNav() {
+    const drawer = document.getElementById('mobileNavDrawer');
+    const content = document.getElementById('mobileDrawerContent');
+    if (drawer.classList.contains('hidden')) {
+        drawer.classList.remove('hidden');
+        setTimeout(() => {
+            content.classList.remove('-translate-x-full');
+        }, 10);
+    } else {
+        content.classList.add('-translate-x-full');
+        setTimeout(() => {
+            drawer.classList.add('hidden');
+        }, 200);
+    }
 }
+function openLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+</script>
 
-/* Strip borders and shadows from cards, buttons, tables, and modals */
-.card, .btn, .table, .table td, .table th, .table-responsive, .modal-content, .border, .border-1, .shadow, .shadow-sm, .shadow-lg {
-    border: none !important;
-    border-width: 0 !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-}
-
-/* Ensure inputs remain legible with a flat, clean border */
-.form-control, .form-select {
-    border: 1px solid #d1d1d1 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-}
-
-/* Compact Table Padding Reset */
-.table thead th, .table tbody td, table th, table td {
-    padding: 8px 12px !important;
-}
-
-.offcanvas.showing, .offcanvas.hiding, .offcanvas.show {
-    transition: transform 0.15s ease-in-out !important;
-}
-.nav-link-sidebar {
-    color: #242424 !important;
-    font-size: 14px;
-    font-weight: 500;
-    transition: background-color 0.15s ease, color 0.15s ease;
-    border-left: 4px solid transparent;
-}
-.nav-link-sidebar:hover {
-    background-color: #f3f3f3;
-}
-.active-sidebar {
-    background-color: #f3f3f3;
-    font-weight: 600;
-    border-left-color: #00a4ef !important;
-}
-</style>
-
-<div class="d-flex flex-grow-1">
+<div class="flex flex-1">
     <!-- Sidebar Navigation (Desktop only) -->
-    <aside class="bg-white border-end d-none d-lg-flex flex-column py-4 px-2" style="width: 250px; min-height: calc(100vh - 73px); border-color: var(--card-border) !important;">
-        <div class="d-flex flex-column gap-1">
-            <a href="bookings.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'bookings.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #00a4ef;">🛠️</span>
-                <span>Booked Jobs</span>
+    <aside class="bg-white border-r border-[#e0e0e0] hidden lg:flex flex-col py-4 px-2 w-[180px] shrink-0 min-h-[calc(100vh-49px)]">
+        <div class="space-y-2">
+            <!-- Booked Jobs -->
+            <a href="bookings.php" class="flex flex-col items-center justify-center text-center p-3 rounded-[6px] transition-all border <?php echo ($currentScript === 'bookings.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#00a4ef] border-[#e0e0e0] text-[#00a4ef] font-bold shadow-xs' : 'border-transparent text-[#242424] hover:bg-[#f3f3f3] hover:border-[#e0e0e0]'; ?>">
+                <span class="text-2xl mb-1.5 leading-none">🛠️</span>
+                <span class="text-sm font-semibold tracking-tight leading-snug">Booked Jobs</span>
             </a>
-            <a href="booking.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'booking.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #008272;">📋</span>
-                <span>Device Booking</span>
+
+            <!-- Device Booking -->
+            <a href="booking.php" class="flex flex-col items-center justify-center text-center p-3 rounded-[6px] transition-all border <?php echo ($currentScript === 'booking.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#008272] border-[#e0e0e0] text-[#008272] font-bold shadow-xs' : 'border-transparent text-[#242424] hover:bg-[#f3f3f3] hover:border-[#e0e0e0]'; ?>">
+                <span class="text-2xl mb-1.5 leading-none">📋</span>
+                <span class="text-sm font-semibold tracking-tight leading-snug">Device Booking</span>
             </a>
-            <a href="daily-closer.php" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'daily-closer.php') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #7fba00;">📊</span>
-                <span>Daily Closer</span>
+
+            <!-- Daily Closer -->
+            <a href="daily-closer.php" class="flex flex-col items-center justify-center text-center p-3 rounded-[6px] transition-all border <?php echo ($currentScript === 'daily-closer.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#7fba00] border-[#e0e0e0] text-[#7fba00] font-bold shadow-xs' : 'border-transparent text-[#242424] hover:bg-[#f3f3f3] hover:border-[#e0e0e0]'; ?>">
+                <span class="text-2xl mb-1.5 leading-none">📊</span>
+                <span class="text-sm font-semibold tracking-tight leading-snug">Daily Closer</span>
             </a>
-            <a href="screen-protector-finder" class="nav-link-sidebar d-flex align-items-center gap-2 px-3 py-2 rounded-1 text-decoration-none <?php echo ($currentScript === 'screen-protector-finder') ? 'active-sidebar' : ''; ?>">
-                <span style="font-size: 16px; color: #ffb900;">📱</span>
-                <span>Screen Protector</span>
+
+            <!-- Phone Screen Protector -->
+            <a href="screen-protector-finder.php" class="flex flex-col items-center justify-center text-center p-3 rounded-[6px] transition-all border <?php echo ($currentScript === 'screen-protector-finder.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#ffb900] border-[#e0e0e0] text-[#d99b00] font-bold shadow-xs' : 'border-transparent text-[#242424] hover:bg-[#f3f3f3] hover:border-[#e0e0e0]'; ?>">
+                <span class="text-2xl mb-1.5 leading-none">📱</span>
+                <span class="text-sm font-semibold tracking-tight leading-snug">Phone Screen Protector</span>
             </a>
         </div>
     </aside>
-    <!-- Main Content Container -->
-    <div class="flex-grow-1 d-flex flex-column" style="background-color: #f3f3f3;">
+    <!-- Main Content Wrapper -->
+    <div class="flex-1 flex flex-col bg-[#f3f3f3]">

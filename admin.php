@@ -36,10 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $assignedBiz = trim($_POST['assigned_business'] ?? '');
         
         if ($username && $password) {
-            // Generate clean string slug for user ID
             $userId = preg_replace('/[^a-z0-9\-]/', '', strtolower(str_replace(' ', '-', $username)));
             
-            // Check if username or slug already exists (case-insensitive check)
             $checkUser = $masterDb->prepare("SELECT id FROM users WHERE id = ? OR LOWER(username) = LOWER(?)");
             $checkUser->execute([$userId, $username]);
             
@@ -68,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $bizEmail = trim($_POST['biz_email'] ?? '');
         $bizAddress = trim($_POST['biz_address'] ?? '');
         
-        // Sanitize business ID to lowercase letters, numbers, and dashes
         $bizId = preg_replace('/[^a-z0-9\-]/', '', strtolower($bizId));
         
         if ($bizId && $bizName) {
@@ -129,69 +126,17 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
     <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
     <link rel="manifest" href="/public/icons/site.webmanifest">
     
-    <!-- Outfit Font & Bootstrap 5 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <style>
-        :root {
-            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
-            --card-bg: #ffffff;
-            --card-border: #e0e0e0;
-            --text-primary: #242424;
-            --text-secondary: #5c5c5c;
-            --brand-blue: #00a4ef;
-            --brand-teal: #008272;
-            --brand-green: #7fba00;
-            --brand-red: #f25022;
-            --font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: var(--font-family);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
-        }
-        
-        .table-responsive {
-            font-size: 14px;
-        }
-
-        .nav-tabs .nav-link {
-            color: var(--text-secondary);
-            font-weight: 500;
-            border: none;
-            border-bottom: 2px solid transparent;
-        }
-
-        .nav-tabs .nav-link.active {
-            color: var(--brand-blue);
-            background: transparent;
-            border-bottom: 2px solid var(--brand-blue);
-        }
-    </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="flex flex-col min-h-screen bg-[#f3f3f3] text-[#242424] font-sans antialiased">
 
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
-    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1"
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 space-y-6"
           x-data="{
+              activeTab: 'users',
               fontSize: <?php echo intval($printerFontSize); ?>,
               fontFamily: '<?php echo addslashes($printerFontFamily); ?>',
               isSaving: false,
@@ -223,128 +168,129 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
                   }
               }
           }">
+        <?php require __DIR__ . '/nav_buttons.php'; ?>
         
         <!-- Header Title -->
-        <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+        <div class="flex items-center justify-between border-b border-[#e0e0e0] pb-4">
             <div>
-                <h1 class="h3 fw-bold text-dark mb-0">🔑 Admin Central Panel</h1>
-                <p class="text-muted small mb-0">Manage businesses, user privileges, and track global activity history.</p>
+                <h1 class="text-2xl font-bold text-[#242424] tracking-tight">🔑 Admin Central Panel</h1>
+                <p class="text-xs text-[#5c5c5c] mt-0.5">Manage businesses, user privileges, and track global activity history.</p>
             </div>
-            <a href="index.php" class="btn btn-sm btn-outline-secondary rounded-1">Back to Portal</a>
         </div>
 
         <?php if ($successMsg): ?>
-            <div class="alert alert-success border-0 shadow-sm mb-4" role="alert" style="border-left: 4px solid var(--brand-green) !important;">
+            <div class="bg-green-50 border-l-4 border-[#7fba00] p-3 text-xs text-green-900 rounded-[4px]">
                 🟢 <?php echo htmlspecialchars($successMsg); ?>
             </div>
         <?php endif; ?>
 
         <?php if ($errorMsg): ?>
-            <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert" style="border-left: 4px solid var(--brand-red) !important;">
+            <div class="bg-red-50 border-l-4 border-[#f25022] p-3 text-xs text-red-900 rounded-[4px]">
                 🔴 <?php echo htmlspecialchars($errorMsg); ?>
             </div>
         <?php endif; ?>
 
         <!-- Nav Tabs -->
-        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-pane" type="button" role="tab" aria-controls="users-pane" aria-selected="true">👥 Users & Privileges</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="businesses-tab" data-bs-toggle="tab" data-bs-target="#businesses-pane" type="button" role="tab" aria-controls="businesses-pane" aria-selected="false">🏢 Businesses Setup</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab" aria-controls="history-pane" aria-selected="false">📜 Global Activity Log</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="printer-tab" data-bs-toggle="tab" data-bs-target="#printer-pane" type="button" role="tab" aria-controls="printer-pane" aria-selected="false">🖨️ Printer Settings</button>
-            </li>
-        </ul>
+        <div class="border-b border-[#e0e0e0] flex gap-2">
+            <button @click="activeTab = 'users'" :class="activeTab === 'users' ? 'border-[#00a4ef] text-[#00a4ef] font-bold' : 'border-transparent text-[#5c5c5c] hover:text-[#242424]'" class="px-4 py-2.5 text-xs border-b-2 transition-colors">
+                👥 Users & Privileges
+            </button>
+            <button @click="activeTab = 'businesses'" :class="activeTab === 'businesses' ? 'border-[#00a4ef] text-[#00a4ef] font-bold' : 'border-transparent text-[#5c5c5c] hover:text-[#242424]'" class="px-4 py-2.5 text-xs border-b-2 transition-colors">
+                🏢 Businesses Setup
+            </button>
+            <button @click="activeTab = 'history'" :class="activeTab === 'history' ? 'border-[#00a4ef] text-[#00a4ef] font-bold' : 'border-transparent text-[#5c5c5c] hover:text-[#242424]'" class="px-4 py-2.5 text-xs border-b-2 transition-colors">
+                📜 Global Activity Log
+            </button>
+            <button @click="activeTab = 'printer'" :class="activeTab === 'printer' ? 'border-[#00a4ef] text-[#00a4ef] font-bold' : 'border-transparent text-[#5c5c5c] hover:text-[#242424]'" class="px-4 py-2.5 text-xs border-b-2 transition-colors">
+                🖨️ Printer Settings
+            </button>
+        </div>
 
         <!-- Tab Content -->
-        <div class="tab-content" id="adminTabsContent">
+        <div>
             
             <!-- Users Pane -->
-            <div class="tab-pane fade show active" id="users-pane" role="tabpanel" aria-labelledby="users-tab">
-                <div class="row g-4">
+            <div x-show="activeTab === 'users'" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     <!-- Left: Create User -->
-                    <div class="col-12 col-lg-4">
-                        <div class="card shadow-sm p-4">
-                            <h2 class="h5 fw-bold text-dark mb-3">Add New User</h2>
-                            <form method="POST">
+                    <div class="lg:col-span-4">
+                        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                            <h2 class="text-sm font-bold text-[#242424]">Add New User</h2>
+                            <form method="POST" class="space-y-3">
                                 <input type="hidden" name="action" value="create_user">
-                                <div class="mb-3">
-                                    <label class="small fw-bold text-muted text-uppercase d-block mb-1">Username *</label>
-                                    <input type="text" name="username" class="form-control rounded-1" required placeholder="e.g. JohnDoe">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Username *</label>
+                                    <input type="text" name="username" class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" required placeholder="e.g. JohnDoe">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold text-muted text-uppercase d-block mb-1">Temporary Password *</label>
-                                    <input type="password" name="password" class="form-control rounded-1" required placeholder="Password">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Temporary Password *</label>
+                                    <input type="password" name="password" class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" required placeholder="Password">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold text-muted text-uppercase d-block mb-1">Assign Business Access</label>
-                                    <select name="assigned_business" class="form-select rounded-1">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Assign Business Access</label>
+                                    <select name="assigned_business" class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]">
                                         <option value="">Full Access (All Businesses)</option>
                                         <?php foreach ($businesses as $biz): ?>
                                             <option value="<?php echo htmlspecialchars($biz['id']); ?>"><?php echo htmlspecialchars($biz['name']); ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <span class="text-muted" style="font-size: 11px;">Restricts the user to this branch.</span>
+                                    <span class="text-[10px] text-[#5c5c5c] block mt-0.5">Restricts the user to this branch.</span>
                                 </div>
-                                <div class="mb-4 form-check">
-                                    <input type="checkbox" name="is_admin" class="form-check-input" id="isAdminCheck">
-                                    <label class="form-check-label small fw-bold text-muted text-uppercase" for="isAdminCheck">Grant Admin Access</label>
+                                <div class="flex items-center gap-2 pt-1">
+                                    <input type="checkbox" name="is_admin" class="rounded border-[#e0e0e0] text-[#00a4ef] focus:ring-0" id="isAdminCheck">
+                                    <label class="text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c]" for="isAdminCheck">Grant Admin Access</label>
                                 </div>
-                                <button type="submit" class="btn w-100 text-white rounded-1" style="background-color: var(--brand-blue); font-weight: 600;">Create User</button>
+                                <div class="pt-2">
+                                    <button type="submit" class="w-full py-2.5 px-4 bg-[#00a4ef] hover:bg-[#0086c4] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs">Create User</button>
+                                </div>
                             </form>
                         </div>
                     </div>
                     
                     <!-- Right: Users List -->
-                    <div class="col-12 col-lg-8">
-                        <div class="card shadow-sm p-4">
-                            <h2 class="h5 fw-bold text-dark mb-3">User Directory</h2>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
+                    <div class="lg:col-span-8">
+                        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                            <h2 class="text-sm font-bold text-[#242424]">User Directory</h2>
+                            <div class="overflow-x-auto border border-[#e0e0e0] rounded-[4px]">
+                                <table class="w-full text-left text-xs border-collapse">
                                     <thead>
-                                        <tr class="table-light">
-                                            <th>Username</th>
-                                            <th>Role</th>
-                                            <th>Assigned Branch Access</th>
-                                            <th class="text-end">Actions</th>
+                                        <tr class="bg-[#fafafa] border-b border-[#e0e0e0] text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c]">
+                                            <th class="px-4 py-2.5">Username</th>
+                                            <th class="px-4 py-2.5">Role</th>
+                                            <th class="px-4 py-2.5">Assigned Branch Access</th>
+                                            <th class="px-4 py-2.5 text-right">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="divide-y divide-[#e0e0e0]">
                                         <?php foreach ($users as $u): ?>
-                                            <tr>
-                                                <td class="fw-semibold text-dark"><?php echo htmlspecialchars($u['username']); ?></td>
-                                                <td>
+                                            <tr class="hover:bg-[#f9f9f9]">
+                                                <td class="px-4 py-2.5 font-bold text-[#242424]"><?php echo htmlspecialchars($u['username']); ?></td>
+                                                <td class="px-4 py-2.5">
                                                     <?php if ($u['is_admin']): ?>
-                                                        <span class="badge bg-danger">Admin</span>
+                                                        <span class="px-2 py-0.5 bg-red-100 text-[#f25022] font-bold text-[10px] rounded-[4px]">Admin</span>
                                                     <?php else: ?>
-                                                        <span class="badge bg-secondary">Staff</span>
+                                                        <span class="px-2 py-0.5 bg-[#f3f3f3] text-[#5c5c5c] font-semibold text-[10px] rounded-[4px]">Staff</span>
                                                     <?php endif; ?>
                                                 </td>
-                                                <td>
+                                                <td class="px-4 py-2.5">
                                                     <?php 
                                                     if ($u['assigned_business_id']) {
                                                         foreach ($businesses as $b) {
                                                             if ($b['id'] === $u['assigned_business_id']) {
-                                                                echo '<span class="text-dark fw-medium">' . htmlspecialchars($b['name']) . '</span>';
+                                                                echo '<span class="text-[#242424] font-medium">' . htmlspecialchars($b['name']) . '</span>';
                                                                 break;
                                                             }
                                                         }
                                                     } else {
-                                                        echo '<span class="text-success fw-semibold">Global (All Branches)</span>';
+                                                        echo '<span class="text-[#7fba00] font-semibold">Global (All Branches)</span>';
                                                     }
                                                     ?>
                                                 </td>
-                                                <td class="text-end">
-                                                    <!-- Simple Inline Role/Privilege Edit Form -->
-                                                    <form method="POST" class="d-inline-flex gap-2 align-items-center">
+                                                <td class="px-4 py-2.5 text-right">
+                                                    <form method="POST" class="inline-flex items-center gap-2 justify-end">
                                                         <input type="hidden" name="action" value="update_privileges">
                                                         <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
-                                                        <select name="assigned_business" class="form-select form-select-sm rounded-1" style="width: auto; font-size: 12px;">
+                                                        <select name="assigned_business" class="px-2 py-1 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424]">
                                                             <option value="">Global Access</option>
                                                             <?php foreach ($businesses as $biz): ?>
                                                                 <option value="<?php echo htmlspecialchars($biz['id']); ?>" <?php echo $u['assigned_business_id'] === $biz['id'] ? 'selected' : ''; ?>>
@@ -352,11 +298,10 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
                                                                 </option>
                                                             <?php endforeach; ?>
                                                         </select>
-                                                        <div class="form-check form-check-inline m-0">
-                                                            <input class="form-check-input" type="checkbox" name="is_admin" <?php echo $u['is_admin'] ? 'checked' : ''; ?> style="transform: scale(0.85);">
-                                                            <label class="small text-muted" style="font-size: 11px;">Admin</label>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-sm btn-light border" style="font-size: 11px;">Save</button>
+                                                        <label class="inline-flex items-center gap-1 text-[11px] text-[#5c5c5c]">
+                                                            <input type="checkbox" name="is_admin" <?php echo $u['is_admin'] ? 'checked' : ''; ?> class="rounded border-[#e0e0e0]"> Admin
+                                                        </label>
+                                                        <button type="submit" class="px-2.5 py-1 bg-white border border-[#e0e0e0] hover:bg-[#f3f3f3] text-[#242424] text-[11px] font-semibold rounded-[4px]">Save</button>
                                                     </form>
                                                 </td>
                                             </tr>
@@ -370,61 +315,63 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
             </div>
 
             <!-- Businesses Pane -->
-            <div class="tab-pane fade" id="businesses-pane" role="tabpanel" aria-labelledby="businesses-tab">
-                <div class="row g-4">
+            <div x-show="activeTab === 'businesses'" class="space-y-6" style="display: none;">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     <!-- Left: Create Business -->
-                    <div class="col-12 col-lg-4">
-                        <div class="card shadow-sm p-4">
-                            <h2 class="h5 fw-bold text-dark mb-3">Add New Business</h2>
-                            <form method="POST">
+                    <div class="lg:col-span-4">
+                        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                            <h2 class="text-sm font-bold text-[#242424]">Add New Business</h2>
+                            <form method="POST" class="space-y-3">
                                 <input type="hidden" name="action" value="create_business">
-                                <div class="mb-3">
-                                    <label class="small fw-bold text-muted text-uppercase d-block mb-1">Business ID / Slug *</label>
-                                    <input type="text" name="biz_id" class="form-control rounded-1" required placeholder="e.g. phone-lab">
-                                    <span class="text-muted" style="font-size: 10px;">Unique string code (lowercase, letters and hyphens only).</span>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Business ID / Slug *</label>
+                                    <input type="text" name="biz_id" class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" required placeholder="e.g. phone-lab">
+                                    <span class="text-[10px] text-[#5c5c5c] block mt-0.5">Unique string code (lowercase, letters and hyphens only).</span>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold text-muted text-uppercase d-block mb-1">Business Name *</label>
-                                    <input type="text" name="biz_name" class="form-control rounded-1" required placeholder="e.g. Phone Lab Ennis">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Business Name *</label>
+                                    <input type="text" name="biz_name" class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" required placeholder="e.g. Phone Lab Ennis">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold text-muted text-uppercase d-block mb-1">Contact Number</label>
-                                    <input type="text" name="biz_contact" class="form-control rounded-1" placeholder="(065) XXX XXXX">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Contact Number</label>
+                                    <input type="text" name="biz_contact" class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" placeholder="(065) XXX XXXX">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold text-muted text-uppercase d-block mb-1">Contact Email</label>
-                                    <input type="email" name="biz_email" class="form-control rounded-1" placeholder="email@example.com">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Contact Email</label>
+                                    <input type="email" name="biz_email" class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" placeholder="email@example.com">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold text-muted text-uppercase d-block mb-1">Address</label>
-                                    <textarea name="biz_address" class="form-control rounded-1" rows="2" placeholder="Store Address"></textarea>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Address</label>
+                                    <textarea name="biz_address" class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#008272]" rows="2" placeholder="Store Address"></textarea>
                                 </div>
-                                <button type="submit" class="btn w-100 text-white rounded-1" style="background-color: var(--brand-teal); font-weight: 600;">Create Business</button>
+                                <div class="pt-2">
+                                    <button type="submit" class="w-full py-2.5 px-4 bg-[#008272] hover:bg-[#006b5e] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs">Create Business</button>
+                                </div>
                             </form>
                         </div>
                     </div>
                     
                     <!-- Right: Businesses List -->
-                    <div class="col-12 col-lg-8">
-                        <div class="card shadow-sm p-4">
-                            <h2 class="h5 fw-bold text-dark mb-3">Configured Businesses</h2>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
+                    <div class="lg:col-span-8">
+                        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                            <h2 class="text-sm font-bold text-[#242424]">Configured Businesses</h2>
+                            <div class="overflow-x-auto border border-[#e0e0e0] rounded-[4px]">
+                                <table class="w-full text-left text-xs border-collapse">
                                     <thead>
-                                        <tr class="table-light">
-                                            <th>Display Name</th>
-                                            <th>Immutable ID (Slug)</th>
-                                            <th>Hostinger Database Name</th>
-                                            <th>Details</th>
+                                        <tr class="bg-[#fafafa] border-b border-[#e0e0e0] text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c]">
+                                            <th class="px-4 py-2.5">Display Name</th>
+                                            <th class="px-4 py-2.5">Immutable ID (Slug)</th>
+                                            <th class="px-4 py-2.5">Hostinger Database Name</th>
+                                            <th class="px-4 py-2.5">Details</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="divide-y divide-[#e0e0e0]">
                                         <?php foreach ($businesses as $b): ?>
-                                            <tr>
-                                                <td class="fw-bold text-dark"><?php echo htmlspecialchars($b['name']); ?></td>
-                                                <td><code class="text-danger fw-semibold"><?php echo htmlspecialchars($b['id']); ?></code></td>
-                                                <td><code class="text-teal fw-semibold"><?php echo htmlspecialchars($b['db_name']); ?></code></td>
-                                                <td style="font-size: 12px; line-height: 1.3;">
+                                            <tr class="hover:bg-[#f9f9f9]">
+                                                <td class="px-4 py-2.5 font-bold text-[#242424]"><?php echo htmlspecialchars($b['name']); ?></td>
+                                                <td class="px-4 py-2.5"><code class="text-[#f25022] font-semibold text-xs"><?php echo htmlspecialchars($b['id']); ?></code></td>
+                                                <td class="px-4 py-2.5"><code class="text-[#008272] font-semibold text-xs"><?php echo htmlspecialchars($b['db_name']); ?></code></td>
+                                                <td class="px-4 py-2.5 text-[11px] leading-relaxed">
                                                     <strong>Tel:</strong> <?php echo htmlspecialchars($b['contact'] ?: 'N/A'); ?><br>
                                                     <strong>Email:</strong> <?php echo htmlspecialchars($b['email'] ?: 'N/A'); ?><br>
                                                     <strong>Addr:</strong> <?php echo htmlspecialchars($b['address'] ?: 'N/A'); ?>
@@ -434,9 +381,9 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="mt-3 p-3 bg-light border rounded-1">
-                                <h4 class="h6 fw-bold text-dark mb-2">💡 Hostinger Database Mapping Notice</h4>
-                                <p class="text-muted mb-0" style="font-size: 12px;">When you add a new business here, write down the corresponding **Hostinger Database Name**. You will need to create this database in your Hostinger control panel using your standard credentials so that the tenant setup works correctly.</p>
+                            <div class="p-4 bg-[#fafafa] border border-[#e0e0e0] rounded-[4px] space-y-1">
+                                <h4 class="text-xs font-bold text-[#242424]">💡 Hostinger Database Mapping Notice</h4>
+                                <p class="text-xs text-[#5c5c5c] leading-relaxed">When you add a new business here, write down the corresponding <strong>Hostinger Database Name</strong>. You will need to create this database in your Hostinger control panel using your standard credentials so that the tenant setup works correctly.</p>
                             </div>
                         </div>
                     </div>
@@ -444,31 +391,31 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
             </div>
 
             <!-- History Pane -->
-            <div class="tab-pane fade" id="history-pane" role="tabpanel" aria-labelledby="history-tab">
-                <div class="card shadow-sm p-4">
-                    <h2 class="h5 fw-bold text-dark mb-3">Central Shift & Duty History (Last 50 Entries)</h2>
-                    <div class="table-responsive">
-                        <table class="table table-striped align-middle">
+            <div x-show="activeTab === 'history'" class="space-y-6" style="display: none;">
+                <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                    <h2 class="text-sm font-bold text-[#242424]">Central Shift & Duty History (Last 50 Entries)</h2>
+                    <div class="overflow-x-auto border border-[#e0e0e0] rounded-[4px]">
+                        <table class="w-full text-left text-xs border-collapse">
                             <thead>
-                                <tr class="table-light">
-                                    <th>User</th>
-                                    <th>Logged-In Branch</th>
-                                    <th>Work Date</th>
-                                    <th>Login Timestamp</th>
+                                <tr class="bg-[#fafafa] border-b border-[#e0e0e0] text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c]">
+                                    <th class="px-4 py-2.5">User</th>
+                                    <th class="px-4 py-2.5">Logged-In Branch</th>
+                                    <th class="px-4 py-2.5">Work Date</th>
+                                    <th class="px-4 py-2.5">Login Timestamp</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-[#e0e0e0]">
                                 <?php if (count($activities) === 0): ?>
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">No duty history logs recorded yet.</td>
+                                        <td colspan="4" class="text-center text-[#5c5c5c] py-6">No duty history logs recorded yet.</td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($activities as $act): ?>
-                                        <tr>
-                                            <td class="fw-semibold text-dark"><?php echo htmlspecialchars($act['username']); ?></td>
-                                            <td class="fw-medium text-teal"><?php echo htmlspecialchars($act['business_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($act['work_date']); ?></td>
-                                            <td class="text-muted" style="font-size: 13px;"><?php echo htmlspecialchars($act['login_time']); ?></td>
+                                        <tr class="hover:bg-[#f9f9f9]">
+                                            <td class="px-4 py-2.5 font-bold text-[#242424]"><?php echo htmlspecialchars($act['username']); ?></td>
+                                            <td class="px-4 py-2.5 font-semibold text-[#008272]"><?php echo htmlspecialchars($act['business_name']); ?></td>
+                                            <td class="px-4 py-2.5"><?php echo htmlspecialchars($act['work_date']); ?></td>
+                                            <td class="px-4 py-2.5 text-[#5c5c5c]"><?php echo htmlspecialchars($act['login_time']); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -479,23 +426,23 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
             </div>
 
             <!-- Printer Settings Pane -->
-            <div class="tab-pane fade" id="printer-pane" role="tabpanel" aria-labelledby="printer-tab">
-                <div class="row g-4">
-                    <div class="col-12 col-md-6">
-                        <div class="card shadow-sm p-4">
-                            <h2 class="h5 fw-bold text-dark mb-3">🖨️ Thermal Printer Configuration</h2>
-                            <p class="text-muted small mb-4">Modify the default font styling and print scaling size applied across all branch customer receipts and shift closing sheets.</p>
+            <div x-show="activeTab === 'printer'" class="space-y-6" style="display: none;">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div>
+                        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                            <h2 class="text-sm font-bold text-[#242424]">🖨️ Thermal Printer Configuration</h2>
+                            <p class="text-xs text-[#5c5c5c] leading-relaxed">Modify the default font styling and print scaling size applied across all branch customer receipts and shift closing sheets.</p>
                             
                             <template x-if="successMsg">
-                                <div class="alert alert-success border-0 py-2 small mb-3 text-success" style="background-color: #d4edda; border-left: 4px solid var(--brand-green) !important;" x-text="successMsg"></div>
+                                <div class="bg-green-50 border border-[#7fba00]/40 text-[#7fba00] text-xs py-2 px-3 rounded-[4px] font-medium" x-text="successMsg"></div>
                             </template>
                             <template x-if="errorMsg">
-                                <div class="alert alert-danger border-0 py-2 small mb-3 text-danger" style="background-color: #f8d7da; border-left: 4px solid var(--brand-red) !important;" x-text="errorMsg"></div>
+                                <div class="bg-red-50 border border-[#f25022]/40 text-[#f25022] text-xs py-2 px-3 rounded-[4px] font-medium" x-text="errorMsg"></div>
                             </template>
 
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-secondary">Default Printer Font</label>
-                                <select class="form-select" x-model="fontFamily">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Default Printer Font</label>
+                                <select class="w-full px-3 py-2 text-xs border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" x-model="fontFamily">
                                     <option value="'Courier New', Courier, monospace">Courier Monospace (Default Thermal)</option>
                                     <option value="'Consolas', 'Monaco', 'Lucida Console', monospace">Consolas Monospace (Ultra Clear)</option>
                                     <option value="'Segoe UI', system-ui, sans-serif">Segoe UI System (High Contrast)</option>
@@ -505,30 +452,32 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
                                 </select>
                             </div>
 
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-secondary d-block">Font Print Size</label>
-                                <div class="d-flex align-items-center gap-3">
-                                    <button type="button" @click="if(fontSize > 8) fontSize--" class="btn btn-outline-secondary px-3" style="font-weight: bold; font-size: 16px;">−</button>
-                                    <span class="fs-5 fw-bold text-dark" style="min-width: 60px; text-align: center;"><span x-text="fontSize"></span> px</span>
-                                    <button type="button" @click="if(fontSize < 24) fontSize++" class="btn btn-outline-secondary px-3" style="font-weight: bold; font-size: 16px;">+</button>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Font Print Size</label>
+                                <div class="flex items-center gap-3">
+                                    <button type="button" @click="if(fontSize > 8) fontSize--" class="px-3 py-1 bg-white border border-[#e0e0e0] hover:bg-[#f3f3f3] text-[#242424] font-bold rounded-[4px] text-base">−</button>
+                                    <span class="text-base font-bold text-[#242424] min-w-12 text-center"><span x-text="fontSize"></span> px</span>
+                                    <button type="button" @click="if(fontSize < 24) fontSize++" class="px-3 py-1 bg-white border border-[#e0e0e0] hover:bg-[#f3f3f3] text-[#242424] font-bold rounded-[4px] text-base">+</button>
                                 </div>
                             </div>
 
-                            <button type="button" @click="saveSettings()" class="btn btn-primary px-4 py-2 text-white" :disabled="isSaving">
-                                <span x-show="!isSaving">💾 Save Settings</span>
-                                <span x-show="isSaving" class="spinner-border spinner-border-sm" role="status"></span>
-                            </button>
+                            <div class="pt-2">
+                                <button type="button" @click="saveSettings()" class="py-2.5 px-6 bg-[#00a4ef] hover:bg-[#0086c4] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs" :disabled="isSaving">
+                                    <span x-show="!isSaving">💾 Save Settings</span>
+                                    <span x-show="isSaving" class="animate-spin text-xs">🌀</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Right Side: Live Thermal Receipt Preview -->
-                    <div class="col-12 col-md-6">
-                        <div class="card shadow-sm p-4">
-                            <h2 class="h5 fw-bold text-dark mb-3">Print Preview</h2>
+                    <div>
+                        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 space-y-4">
+                            <h2 class="text-sm font-bold text-[#242424]">Print Preview</h2>
                             
-                            <div class="border p-3 bg-white" style="width: 80mm; max-width: 100%; border-style: dashed !important; border-color: #c0c0c0 !important; border-radius: 0 !important;">
+                            <div class="border border-dashed border-[#c0c0c0] p-4 bg-white w-[80mm] max-w-full">
                                 <div :style="'font-family: ' + fontFamily + '; font-size: ' + fontSize + 'px; line-height: 1.35; color: #000;'">
-                                    <div class="text-center mb-2" style="border-bottom: 1px dashed #000; padding-bottom: 6px;">
+                                    <div class="text-center mb-2 pb-2 border-b border-dashed border-black">
                                         <h3 style="font-size: 1.25em; font-weight: bold; margin: 0;">PHONE LAB</h3>
                                         <p style="font-size: 0.85em; margin: 2px 0 0 0;">32 O'Connell St, Ennis</p>
                                     </div>
@@ -570,7 +519,8 @@ $activities = $masterDb->query($activityQuery)->fetchAll();
         </div>
     </main>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Standard Footer -->
+    <?php require_once __DIR__ . '/footer.php'; ?>
+
 </body>
 </html>

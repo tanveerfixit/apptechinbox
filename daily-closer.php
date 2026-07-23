@@ -126,62 +126,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
     <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
     <link rel="manifest" href="/public/icons/site.webmanifest">
     
-    <!-- Outfit Font & Bootstrap 5 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <style>
-        :root {
-            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
-            --card-bg: #ffffff;
-            --card-border: #e0e0e0;
-            --text-primary: #242424;
-            --text-secondary: #5c5c5c;
-            --brand-green: #7fba00;
-            --brand-blue: #00a4ef;
-            --font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: var(--font-family);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
-        }
-
-        .btn-brand {
-            background-color: var(--brand-green);
-            border-color: var(--brand-green);
-            color: #ffffff;
-        }
-
-        .btn-brand:hover {
-            background-color: #6da000;
-            border-color: #6da000;
-            color: #ffffff;
-        }
-    </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="flex flex-col min-h-screen bg-[#f3f3f3] text-[#242424] font-sans antialiased">
 
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
     <!-- Main Container -->
-    <main class="container-fluid px-2 px-sm-3 py-3 py-md-4 flex-grow-1" style="max-width: 550px; margin: 0 auto;" 
+    <main class="w-full max-w-xl mx-auto px-4 sm:px-6 py-6 flex-1" 
           x-data="{ 
               isDbConnected: <?php echo $tenantDbConnected ? 'true' : 'false'; ?>,
               suggestedDbName: '<?php echo htmlspecialchars($tenantDbName); ?>',
@@ -205,57 +159,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
               }
           }">
           
-        <div class="card shadow-sm border-1 overflow-hidden" style="border-radius: 6px;">
-            <div class="card-header bg-white py-3 px-4 border-bottom" style="border-left: 4px solid var(--brand-green) !important;">
-                <h1 class="h5 fw-bold text-dark mb-1">Daily Sales Closure</h1>
-                <div class="small text-muted fw-semibold"><?php echo htmlspecialchars($currentDateStr); ?></div>
+        <?php require __DIR__ . '/nav_buttons.php'; ?>
+
+        <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-[#e0e0e0] border-l-4 border-l-[#7fba00] bg-white">
+                <h1 class="text-xl font-bold text-[#242424] tracking-tight">Daily Sales Closure</h1>
+                <div class="text-xs text-[#5c5c5c] font-semibold mt-0.5"><?php echo htmlspecialchars($currentDateStr); ?></div>
             </div>
 
-            <div class="card-body p-4 bg-white">
+            <div class="p-6 bg-white space-y-4">
                 <?php if (!$tenantDbConnected): ?>
-                    <div class="alert alert-danger p-3 mb-4 border-0 shadow-sm" style="font-size: 13.5px; border-radius: 6px; border-left: 4px solid var(--brand-red) !important; background-color: #fdf2f2; color: #9b1c1c;">
-                        <strong>⚠️ Database Not Connected</strong><br>
+                    <div class="bg-red-50 border-l-4 border-[#f25022] p-4 text-xs text-red-900 rounded-[4px]">
+                        <strong class="font-bold">⚠️ Database Not Connected</strong><br>
                         This business is not connected to its relevant database. Please create the database <strong>`<?php echo htmlspecialchars($tenantDbName); ?>`</strong> in Hostinger and assign user privileges to allow saving daily closing records.
                     </div>
                 <?php endif; ?>
                 <?php if ($successMsg): ?>
-                    <div class="alert alert-success py-2 px-3 small text-center mb-3" style="font-size: 13px; border-radius: 4px;">
+                    <div class="bg-green-50 border border-[#7fba00]/40 text-[#7fba00] text-xs py-2 px-3 rounded-[4px] text-center font-medium">
                         <?php echo htmlspecialchars($successMsg); ?>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($errorMsg): ?>
-                    <div class="alert alert-danger py-2 px-3 small text-center mb-3" style="font-size: 13px; border-radius: 4px;">
+                    <div class="bg-red-50 border border-[#f25022]/40 text-[#f25022] text-xs py-2 px-3 rounded-[4px] text-center font-medium">
                         <?php echo htmlspecialchars($errorMsg); ?>
                     </div>
                 <?php endif; ?>
 
-                <form id="closureForm" method="POST" action="daily-closer.php" x-on:submit="if (!isDbConnected) { event.preventDefault(); alert('⚠️ Database Connection Error\n\nThis business is not connected to its relevant database.\n\nPlease create the database \'' + suggestedDbName + '\' in Hostinger and assign user privileges to save closing records.'); }">
+                <form id="closureForm" method="POST" action="daily-closer.php" class="space-y-4" x-on:submit="if (!isDbConnected) { event.preventDefault(); alert('⚠️ Database Connection Error\n\nThis business is not connected to its relevant database.\n\nPlease create the database \'' + suggestedDbName + '\' in Hostinger and assign user privileges to save closing records.'); }">
                     <input type="hidden" name="save_action" value="1">
                     
-                    <div class="mb-3">
-                        <label for="cash_sale" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Cash Sale (€)</label>
-                        <input type="number" step="0.01" min="0" name="cash_sale" id="cash_sale" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="cash" style="font-size: 18px;">
+                    <div>
+                        <label for="cash_sale" class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Cash Sale (€)</label>
+                        <input type="number" step="0.01" min="0" name="cash_sale" id="cash_sale" class="w-full px-3 py-2 text-lg font-bold text-right border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" x-model.number="cash">
                     </div>
 
-                    <div class="mb-3">
-                        <label for="card_boi" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Card BOI (€)</label>
-                        <input type="number" step="0.01" min="0" name="card_boi" id="card_boi" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="boi" style="font-size: 18px;">
+                    <div>
+                        <label for="card_boi" class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Card BOI (€)</label>
+                        <input type="number" step="0.01" min="0" name="card_boi" id="card_boi" class="w-full px-3 py-2 text-lg font-bold text-right border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" x-model.number="boi">
                     </div>
 
-                    <div class="mb-4">
-                        <label for="card_fixed" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Card Fixed (€)</label>
-                        <input type="number" step="0.01" min="0" name="card_fixed" id="card_fixed" class="form-control py-2 text-end fw-bold fs-5 rounded-1" x-model.number="fixed" style="font-size: 18px;">
+                    <div>
+                        <label for="card_fixed" class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Card Fixed (€)</label>
+                        <input type="number" step="0.01" min="0" name="card_fixed" id="card_fixed" class="w-full px-3 py-2 text-lg font-bold text-right border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" x-model.number="fixed">
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center bg-light border p-3 rounded mb-4" style="border-radius: 4px;">
-                        <span class="small fw-bold text-uppercase text-muted" style="font-size: 11px; letter-spacing: 0.5px;">Total Sale</span>
-                        <span class="h3 fw-bold mb-0" style="color: var(--brand-green);">€<span x-text="total">0.00</span></span>
+                    <div class="flex justify-between items-center bg-[#fafafa] border border-[#e0e0e0] p-4 rounded-[4px] my-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-[#5c5c5c]">Total Sale</span>
+                        <span class="text-2xl font-bold text-[#7fba00]">€<span x-text="total">0.00</span></span>
                     </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-brand py-2 flex-grow-1 fw-bold text-uppercase rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">Save</button>
-                        <button type="button" x-on:click="printTicket()" class="btn btn-outline-secondary py-2 flex-grow-1 fw-bold text-uppercase rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">Print</button>
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" class="flex-1 py-2.5 px-4 bg-[#7fba00] hover:bg-[#6ea200] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs">
+                            Save
+                        </button>
+                        <button type="button" x-on:click="printTicket()" class="flex-1 py-2.5 px-4 bg-white border border-[#e0e0e0] hover:bg-[#f3f3f3] text-[#242424] text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors">
+                            Print
+                        </button>
                     </div>
                 </form>
             </div>
@@ -300,21 +260,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
         </div>
     </div>
 
-    <!-- Redesigned Clean Footer -->
-    <footer class="bg-white border-top py-3 mt-auto w-100 shadow-sm" style="border-color: var(--card-border) !important;">
-        <div class="container-fluid px-3 text-center">
-            <span class="text-muted" style="font-size: 12px; letter-spacing: 0.1px;">
-                Developer: <span class="fw-semibold text-dark">Tanveer</span>
-                <span class="mx-2" style="color: var(--card-border);">&bull;</span>
-                Support: <a href="mailto:support@techinbox.ie" class="text-decoration-none fw-semibold" style="color: var(--brand-blue) !important;">support@techinbox.ie</a>
-            </span>
-        </div>
-    </footer>
+    <!-- Standard Footer -->
+    <?php require_once __DIR__ . '/footer.php'; ?>
 
-    <!-- Bootstrap 5 JavaScript Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-    <!-- Print styling scoped for printing -->
+    <!-- Print styling scoped for thermal printing -->
     <style>
         @media print {
             @page {

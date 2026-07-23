@@ -69,89 +69,18 @@ try {
     <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
     <link rel="manifest" href="/public/icons/site.webmanifest">
     
-    <!-- Outfit Font & Bootstrap 5 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <style>
-        :root {
-            --bg-color: #f3f3f3; /* Microsoft Fluent Light Gray */
-            --card-bg: #ffffff;
-            --card-border: #e0e0e0;
-            --text-primary: #242424;
-            --text-secondary: #5c5c5c;
-            --brand-teal: #008272;
-            --brand-blue: #00a4ef;
-            --brand-green: #7fba00;
-            --font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: var(--font-family);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Page-specific styles only (global resets handled by header.php) */
-        .btn-brand {
-            background-color: #f25022;
-            border-color: #f25022;
-            color: #ffffff;
-        }
-
-        .btn-brand:hover {
-            background-color: #d83b01;
-            border-color: #d83b01;
-            color: #ffffff;
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--brand-green);
-            display: inline-block;
-        }
-
-        .status-badge {
-            background-color: #f3f3f3;
-            color: var(--text-secondary);
-            font-size: 11px;
-            font-weight: 600;
-            padding: 6px 12px;
-            border: 1px solid var(--card-border) !important;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Scan viewfinder styling */
-        .scan-frame {
-            border: 2px dotted #242424 !important;
-            padding: 16px;
-            background: #ffffff;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 0;
-        }
-    </style>
     <!-- QR Code Generator Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="flex flex-col min-h-screen bg-[#f3f3f3] text-[#242424] font-sans antialiased">
 
     <!-- Header Navigation -->
     <?php require_once __DIR__ . '/header.php'; ?>
 
-    <main class="container-fluid px-2 px-md-4 py-3 py-md-4 flex-grow-1" 
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1" 
           x-data="{
               isDbConnected: <?php echo $tenantDbConnected ? 'true' : 'false'; ?>,
               suggestedDbName: '<?php echo htmlspecialchars($tenantDbName); ?>',
@@ -199,17 +128,16 @@ try {
                   this.$nextTick(() => {
                       const intakeUrl = window.location.origin + '/intake.php?session_id=' + this.sessionId + '&t=' + this.timestamp + '&b=' + encodeURIComponent(this.businessName) + '&bid=' + encodeURIComponent(this.businessId);
                        new QRious({
-                           element: document.getElementById('intakeQr'),
-                           value: intakeUrl,
-                           size: 300,
-                           foreground: '#000000', // Pure Black for maximum contrast
-                           level: 'M',           // Medium error correction for reading robustness
-                           padding: 0            // No internal padding — CSS handles the gap
+                            element: document.getElementById('intakeQr'),
+                            value: intakeUrl,
+                            size: 300,
+                            foreground: '#000000',
+                            level: 'M',
+                            padding: 0
                        });
                   });
               },
               init() {
-                  // Do not automatically generate QR code or start session on init
                   this.isExpired = true;
               },
               pollInterval: null,
@@ -231,14 +159,13 @@ try {
                               this.pollInterval = null;
                           }
                           
-                          // Play modern notification chime
                           const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                           const osc = audioCtx.createOscillator();
                           const gain = audioCtx.createGain();
                           osc.connect(gain);
                           gain.connect(audioCtx.destination);
                           osc.type = 'sine';
-                          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+                          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime);
                           gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
                           osc.start();
                           osc.stop(audioCtx.currentTime + 0.1);
@@ -247,7 +174,7 @@ try {
                               const osc2 = audioCtx.createOscillator();
                               osc2.connect(gain);
                               osc2.type = 'sine';
-                              osc2.frequency.setValueAtTime(880.00, audioCtx.currentTime); // A5
+                              osc2.frequency.setValueAtTime(880.00, audioCtx.currentTime);
                               osc2.start();
                               osc2.stop(audioCtx.currentTime + 0.15);
                           }, 100);
@@ -260,7 +187,6 @@ try {
                   return Math.max(0.00, parseFloat(this.quote || 0) - parseFloat(this.deposit || 0)).toFixed(2);
               },
               printReceipt() {
-                  // Populate print ticket items
                   document.getElementById('rCustomer').textContent = this.name;
                   document.getElementById('rPhone').textContent = this.phone;
                   document.getElementById('rEmail').textContent = this.email || 'N/A';
@@ -270,7 +196,6 @@ try {
                   document.getElementById('rDeposit').textContent = '€' + parseFloat(this.deposit || 0).toFixed(2);
                   document.getElementById('rBalance').textContent = '€' + this.balance;
 
-                  // Generate Ticket ID and timestamp
                   const now = new Date();
                   const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                   const ticketNum = 'TI-' + now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
@@ -288,194 +213,193 @@ try {
                    if (!this.name || !this.phone || !this.device || !this.fault) {
                       alert('Please fill in all required fields (Name, Phone, Device, and Description).');
                       return;
-                  }
-                  const bookingData = {
-                      name: this.name,
-                      phone: this.phone,
-                      email: this.email,
-                      device: this.device,
-                      fault: this.fault,
-                      quote: this.quote,
-                      deposit: this.deposit,
-                      business_name: this.businessName
-                  };
-                  try {
-                      const response = await fetch('api.php?action=save_booking', {
-                          method: 'POST',
-                          headers: {
-                              'Content-Type': 'application/json'
-                          },
-                          body: JSON.stringify(bookingData)
-                      });
-                      const result = await response.json();
-                      if (result.status === 'success') {
-                          if (andPrint) {
-                              const ticketId = result.ticket_id || 'TI-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-                              
-                              // Populate print ticket items
-                              document.getElementById('rCustomer').textContent = this.name;
-                              document.getElementById('rPhone').textContent = this.phone;
-                              document.getElementById('rEmail').textContent = this.email || 'N/A';
-                              document.getElementById('rDevice').textContent = this.device;
-                              document.getElementById('rFault').textContent = this.fault;
-                              document.getElementById('rQuote').textContent = '€' + parseFloat(this.quote || 0).toFixed(2);
-                              document.getElementById('rDeposit').textContent = '€' + parseFloat(this.deposit || 0).toFixed(2);
-                              document.getElementById('rBalance').textContent = '€' + this.balance;
+                   }
+                   const bookingData = {
+                       name: this.name,
+                       phone: this.phone,
+                       email: this.email,
+                       device: this.device,
+                       fault: this.fault,
+                       quote: this.quote,
+                       deposit: this.deposit,
+                       business_name: this.businessName
+                   };
+                   try {
+                       const response = await fetch('api.php?action=save_booking', {
+                           method: 'POST',
+                           headers: {
+                               'Content-Type': 'application/json'
+                           },
+                           body: JSON.stringify(bookingData)
+                       });
+                       const result = await response.json();
+                       if (result.status === 'success') {
+                           if (andPrint) {
+                               const ticketId = result.ticket_id || 'TI-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+                               
+                               document.getElementById('rCustomer').textContent = this.name;
+                               document.getElementById('rPhone').textContent = this.phone;
+                               document.getElementById('rEmail').textContent = this.email || 'N/A';
+                               document.getElementById('rDevice').textContent = this.device;
+                               document.getElementById('rFault').textContent = this.fault;
+                               document.getElementById('rQuote').textContent = '€' + parseFloat(this.quote || 0).toFixed(2);
+                               document.getElementById('rDeposit').textContent = '€' + parseFloat(this.deposit || 0).toFixed(2);
+                               document.getElementById('rBalance').textContent = '€' + this.balance;
 
-                              const now = new Date();
-                              const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                              document.getElementById('receiptDate').textContent = 'Date: ' + dateStr;
-                              document.getElementById('receiptTicketNum').textContent = 'Ticket #: ' + ticketId;
+                               const now = new Date();
+                               const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                               document.getElementById('receiptDate').textContent = 'Date: ' + dateStr;
+                               document.getElementById('receiptTicketNum').textContent = 'Ticket #: ' + ticketId;
 
-                              window.print();
-                          }
-                          window.location.reload();
-                      } else {
-                          alert('Error saving booking: ' + (result.message || 'Unknown error'));
-                      }
-                  } catch (e) {
-                      alert('Failed to save booking. Please try again.');
-                  }
-              }
+                               window.print();
+                           }
+                           window.location.reload();
+                       } else {
+                           alert('Error saving booking: ' + (result.message || 'Unknown error'));
+                       }
+                   } catch (e) {
+                       alert('Failed to save booking. Please try again.');
+                   }
+               }
           }">
           
-        <div class="row g-4 align-items-start">
-            <!-- Left Side / Sidebar: QR Customer Intake Code Block -->
-            <div class="col-12 col-md-5 col-lg-4 col-xl-3">
-                <div class="card p-4 bg-white text-center" style="min-height: 425px; display: flex; flex-direction: column;">
-                    <h3 class="small fw-bold text-uppercase text-muted mb-3" style="font-size: 11px; letter-spacing: 0.5px; color: var(--brand-teal) !important;">
-                        📲 Mobile Customer Intake
-                    </h3>
-                    
-                    <div x-show="!isExpired" class="d-flex flex-column flex-grow-1 justify-content-between">
-                        <div>
-                            <div class="mb-3">
-                                <span class="status-badge">
-                                    <span class="pulse-dot"></span> Active Scan Session
-                                </span>
-                            </div>
-                            
-                            <p class="text-muted mb-3" style="font-size: 12px; line-height: 1.4;">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
-                            
-                            <div class="d-flex justify-content-center mb-3">
-                                 <div class="scan-frame">
-                                     <canvas id="intakeQr" width="300" height="300" style="width: 190px; height: 190px; display: block;"></canvas>
-                                 </div>
-                            </div>
+        <?php require __DIR__ . '/nav_buttons.php'; ?>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+            <!-- Left Side / Main: New Repair Booking Form -->
+            <div class="md:col-span-7 lg:col-span-8 xl:col-span-9 flex flex-col">
+                <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs overflow-hidden h-full flex flex-col justify-between">
+                    <div>
+                        <div class="p-6 border-b border-[#e0e0e0] border-l-4 border-l-[#008272] bg-white">
+                            <h1 class="text-2xl font-extrabold text-[#242424] tracking-tight mb-1">New Repair Booking</h1>
+                            <div class="text-sm text-[#5c5c5c] font-medium">Enter customer and device details below</div>
                         </div>
-                        
-                        <div>
-                            <div class="small text-muted d-flex align-items-center justify-content-center gap-2 mb-3" style="font-size: 11px; background: #f8f9fa; padding: 6px; border-radius: 4px; border: 1px solid var(--card-border);">
-                                <span>ID: <strong class="text-dark" x-text="sessionId"></strong></span>
-                                <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp + '&b=' + encodeURIComponent(businessName) + '&bid=' + encodeURIComponent(businessId)); alert('Intake link copied to clipboard!')" class="btn p-0 border-0 d-inline-flex align-items-center" title="Copy Intake Link" style="color: var(--brand-teal); transition: opacity 0.15s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                </button>
-                            </div>
-                            
-                            <button type="button" @click="checkIntake()" class="btn btn-sm btn-light border w-100 py-2 text-teal d-inline-flex align-items-center justify-content-center gap-2 rounded-1" style="font-size: 11.5px; border-color: var(--card-border) !important; color: var(--brand-teal) !important;" :disabled="isPulling">
-                                <span x-show="!isPulling">⚡ Check Submission</span>
-                                <span x-show="isPulling" class="spinner-border spinner-border-sm" role="status"></span>
-                            </button>
+
+                        <div class="p-6 bg-white space-y-5">
+                            <?php if (!$tenantDbConnected): ?>
+                                <div class="bg-red-50 border-l-4 border-[#008272] p-4 text-sm text-red-900 rounded-[4px]">
+                                    <strong class="font-bold">⚠️ Database Not Connected</strong><br>
+                                    This business is not connected to its relevant database. Please create the database <strong>`<?php echo htmlspecialchars($tenantDbName); ?>`</strong> in Hostinger and assign user privileges to allow saving repair bookings.
+                                </div>
+                            <?php endif; ?>
+                            <form x-on:submit.prevent="saveBooking(true)" class="space-y-5">
+                                
+                                <!-- Customer Name, Phone & Email -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label for="c_cust_name" class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Customer Name *</label>
+                                        <input type="text" id="c_cust_name" name="c_cust_name" class="w-full px-2.5 py-1.5 text-sm font-medium border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" placeholder="Full Name" required autocomplete="new-password" x-model="name">
+                                    </div>
+                                    <div>
+                                        <label for="phoneNumber" class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Phone Number *</label>
+                                        <input type="text" id="phoneNumber" class="w-full px-2.5 py-1.5 text-sm font-medium border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" placeholder="08X XXX XXXX" required autocomplete="off" x-model="phone">
+                                    </div>
+                                    <div>
+                                        <label for="customerEmail" class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Email Address <span class="text-[#5c5c5c] font-normal">(Optional)</span></label>
+                                        <input type="email" id="customerEmail" class="w-full px-2.5 py-1.5 text-sm font-medium border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" placeholder="email@example.com" autocomplete="off" x-model="email">
+                                    </div>
+                                </div>
+
+                                <!-- Device Model -->
+                                <div>
+                                    <label for="deviceModel" class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Device Model *</label>
+                                    <input type="text" id="deviceModel" class="w-full px-2.5 py-1.5 text-sm font-medium border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" placeholder="e.g. iPhone 13, Samsung S22" required autocomplete="off" x-model="device">
+                                </div>
+
+                                <!-- Problem Description -->
+                                <div>
+                                    <label for="problemDescription" class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Problem Description *</label>
+                                    <textarea id="problemDescription" class="w-full px-2.5 py-1.5 text-sm font-medium border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" rows="3" placeholder="Describe the fault..." required x-model="fault"></textarea>
+                                </div>
+
+                                <div class="border-t border-[#e0e0e0] my-3"></div>
+
+                                <!-- Pricing Block -->
+                                <div class="p-4 rounded-[6px] bg-[#fafafa] border border-[#e0e0e0] space-y-3">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="totalQuote" class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Total Quote</label>
+                                            <div class="flex">
+                                                <span class="inline-flex items-center px-2.5 text-sm text-[#5c5c5c] bg-white border border-r-0 border-[#e0e0e0] rounded-l-[4px]">€</span>
+                                                <input type="number" step="0.01" min="0" id="totalQuote" class="w-full px-2.5 py-1.5 text-sm font-bold border border-[#e0e0e0] rounded-r-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" x-model.number="quote">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label for="depositPaid" class="block text-xs font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Deposit Paid</label>
+                                            <div class="flex">
+                                                <span class="inline-flex items-center px-2.5 text-sm text-[#5c5c5c] bg-white border border-r-0 border-[#e0e0e0] rounded-l-[4px]">€</span>
+                                                <input type="number" step="0.01" min="0" id="depositPaid" class="w-full px-2.5 py-1.5 text-sm font-bold border border-[#e0e0e0] rounded-r-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" x-model.number="deposit">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-2 border-t border-[#e0e0e0]">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-[#5c5c5c]">Remaining Balance Due</span>
+                                        <span class="text-2xl font-extrabold text-[#f25022]">€<span x-text="balance">0.00</span></span>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="grid grid-cols-2 gap-3 pt-1">
+                                    <button type="button" @click="saveBooking(false)" class="w-full py-2.5 px-4 bg-[#5c5c5c] hover:bg-[#4a4a4a] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs">
+                                        Save
+                                    </button>
+                                    <button type="submit" class="w-full py-3 px-4 bg-[#f25022] hover:bg-[#d83b01] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs">
+                                        Save and Print
+                                    </button>
+                                </div>
+
+                            </form>
                         </div>
-                    </div>
-                    
-                    <div x-show="isExpired" class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
-                        <span class="fs-4 mb-2">⏳</span>
-                        <h4 class="h6 fw-bold text-secondary mb-1">QR Code Expired</h4>
-                        <p class="text-muted small mb-4" style="font-size: 11px; max-width: 200px; line-height: 1.4;">This intake session has timed out or has not been generated yet.</p>
-                        <button type="button" @click="refreshSession()" class="btn btn-sm btn-teal text-white w-100 py-2 rounded-1" style="font-size: 12px; background-color: var(--brand-teal); border: 0; font-weight: 600; letter-spacing: 0.3px;">
-                            Generate QR Code
-                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Side / Main: New Repair Booking Form -->
-            <div class="col-12 col-md-7 col-lg-8 col-xl-9">
-                <div class="card overflow-hidden bg-white">
-                    <div class="card-header bg-white py-3 px-4 border-bottom" style="border-left: 4px solid var(--brand-teal) !important;">
-                        <h1 class="h5 fw-bold text-dark mb-1">New Repair Booking</h1>
-                        <div class="small text-muted fw-semibold">Enter customer and device details below</div>
-                    </div>
-
-                    <div class="card-body p-4 bg-white">
-                        <?php if (!$tenantDbConnected): ?>
-                            <div class="alert alert-danger p-3 mb-4 border-0" style="font-size: 13.5px; border-left: 4px solid var(--brand-teal) !important; background-color: #fdf2f2; color: #9b1c1c;">
-                                <strong>⚠️ Database Not Connected</strong><br>
-                                This business is not connected to its relevant database. Please create the database <strong>`<?php echo htmlspecialchars($tenantDbName); ?>`</strong> in Hostinger and assign user privileges to allow saving repair bookings.
-                            </div>
-                        <?php endif; ?>
-                        <form x-on:submit.prevent="saveBooking(true)">
-                            
-                            <!-- Customer Name, Phone & Email -->
-                            <div class="row g-3 mb-3">
-                                <div class="col-12 col-md-4">
-                                    <label for="c_cust_name" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Customer Name *</label>
-                                    <input type="text" id="c_cust_name" name="c_cust_name" class="form-control py-2 rounded-1" placeholder="Full Name" required autocomplete="new-password" x-model="name" style="font-size: 14px;">
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    <label for="phoneNumber" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Phone Number *</label>
-                                    <input type="text" id="phoneNumber" class="form-control py-2 rounded-1" placeholder="08X XXX XXXX" required autocomplete="off" x-model="phone" style="font-size: 14px;">
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    <label for="customerEmail" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Email Address <span class="text-muted fw-normal">(Optional)</span></label>
-                                    <input type="email" id="customerEmail" class="form-control py-2 rounded-1" placeholder="email@example.com" autocomplete="off" x-model="email" style="font-size: 14px;">
-                                </div>
-                            </div>
-
-                            <!-- Device Model -->
+            <!-- Right Side / Sidebar: QR Customer Intake Code Block -->
+            <div class="md:col-span-5 lg:col-span-4 xl:col-span-3 flex flex-col">
+                <div class="bg-white border border-[#e0e0e0] rounded-[6px] shadow-xs p-6 text-center h-full flex flex-col justify-between space-y-4">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[#008272]">
+                        📲 Mobile Customer Intake
+                    </h3>
+                    
+                    <div x-show="!isExpired" class="flex flex-col flex-1 justify-between space-y-4">
+                        <div>
                             <div class="mb-3">
-                                <label for="deviceModel" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Device Model *</label>
-                                <input type="text" id="deviceModel" class="form-control py-2 rounded-1" placeholder="e.g. iPhone 13, Samsung S22" required autocomplete="off" x-model="device" style="font-size: 14px;">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#f3f3f3] border border-[#e0e0e0] text-xs font-semibold text-[#5c5c5c] rounded-full">
+                                    <span class="w-2 h-2 bg-[#7fba00] rounded-full animate-pulse"></span> Active Scan Session
+                                </span>
                             </div>
-
-                            <!-- Problem Description -->
-                            <div class="mb-4">
-                                <label for="problemDescription" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px;">Problem Description *</label>
-                                <textarea id="problemDescription" class="form-control rounded-1" rows="3" placeholder="Describe the fault..." required x-model="fault" style="font-size: 14px;"></textarea>
+                            
+                            <p class="text-xs text-[#5c5c5c] leading-relaxed mb-4">Scan this QR code with a phone camera to quickly enter customer Name, Phone, and Device details.</p>
+                            
+                            <div class="flex justify-center mb-4">
+                                 <div class="border-2 border-dashed border-[#242424] p-3 bg-white inline-flex items-center justify-center">
+                                     <canvas id="intakeQr" width="300" height="300" class="w-[180px] h-[180px] block"></canvas>
+                                 </div>
                             </div>
-
-                            <div class="border-top my-4"></div>
-
-                            <!-- Pricing Block -->
-                            <div class="p-3 rounded-2 mb-4 bg-light border" style="border-radius: 6px;">
-                                <div class="row g-3">
-                                    <div class="col-6">
-                                        <label for="totalQuote" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px; color: var(--text-secondary) !important;">Total Quote</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-white border-end-0 text-muted" style="font-size: 14px;">€</span>
-                                            <input type="number" step="0.01" min="0" id="totalQuote" class="form-control fw-semibold border-start-0 rounded-end-1 py-2" x-model.number="quote" style="font-size: 15px;">
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <label for="depositPaid" class="d-block small fw-bold text-uppercase text-muted mb-1" style="font-size: 10px; letter-spacing: 0.5px; color: var(--text-secondary) !important;">Deposit Paid</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-white border-end-0 text-muted" style="font-size: 14px;">€</span>
-                                            <input type="number" step="0.01" min="0" id="depositPaid" class="form-control fw-semibold border-start-0 rounded-end-1 py-2" x-model.number="deposit" style="font-size: 15px;">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top" style="border-top: 1px solid var(--card-border) !important;">
-                                    <span class="small fw-bold text-uppercase text-muted" style="font-size: 10px; letter-spacing: 0.5px; color: var(--text-secondary) !important;">Remaining Balance Due</span>
-                                    <span class="h4 fw-bold mb-0 text-danger">€<span x-text="balance">0.00</span></span>
-                                </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="text-xs text-[#5c5c5c] flex items-center justify-center gap-2 bg-[#fafafa] p-2.5 rounded-[4px] border border-[#e0e0e0]">
+                                <span>ID: <strong class="text-[#242424] text-xs" x-text="sessionId"></strong></span>
+                                <button type="button" @click="navigator.clipboard.writeText(window.location.origin + '/intake.php?session_id=' + sessionId + '&t=' + timestamp + '&b=' + encodeURIComponent(businessName) + '&bid=' + encodeURIComponent(businessId)); alert('Intake link copied to clipboard!')" class="text-[#008272] hover:opacity-75 transition-opacity" title="Copy Intake Link">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                </button>
                             </div>
-
-                            <!-- Action Buttons -->
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <button type="button" @click="saveBooking(false)" class="btn btn-secondary w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px; background-color: #5c5c5c; border-color: #5c5c5c; color: #ffffff;">
-                                        Save
-                                    </button>
-                                </div>
-                                <div class="col-6">
-                                    <button type="submit" class="btn btn-brand w-100 py-3 text-uppercase fw-bold rounded-1" style="font-size: 13px; letter-spacing: 0.5px;">
-                                        Save and Print
-                                    </button>
-                                </div>
-                            </div>
-
-                        </form>
+                            
+                            <button type="button" @click="checkIntake()" class="w-full py-2.5 px-3 bg-white border border-[#e0e0e0] hover:bg-[#f3f3f3] text-[#008272] font-bold text-xs rounded-[4px] inline-flex items-center justify-center gap-2 transition-colors" :disabled="isPulling">
+                                <span x-show="!isPulling">⚡ Check Submission</span>
+                                <span x-show="isPulling" class="animate-spin text-xs">🌀</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div x-show="isExpired" class="flex flex-col items-center justify-center flex-1 my-auto space-y-2">
+                        <span class="text-3xl">⏳</span>
+                        <h4 class="text-base font-bold text-[#5c5c5c]">QR Code Expired</h4>
+                        <p class="text-xs text-[#5c5c5c] max-w-[220px] leading-relaxed mb-3">This intake session has timed out or has not been generated yet.</p>
+                        <button type="button" @click="refreshSession()" class="w-full py-3 px-4 bg-[#008272] hover:bg-[#006e60] text-white text-xs font-bold uppercase tracking-wider rounded-[4px] transition-colors shadow-xs">
+                            Generate QR Code
+                        </button>
                     </div>
                 </div>
             </div>
@@ -528,11 +452,8 @@ try {
         </div>
     </div>
 
-    <!-- Redesigned Clean Footer -->
+    <!-- Standard Footer -->
     <?php require_once __DIR__ . '/footer.php'; ?>
-
-    <!-- Bootstrap 5 JavaScript Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <!-- Print styling scoped for printing -->
     <style>
@@ -602,13 +523,5 @@ try {
             }
         }
     </style>
-    <script>
-    console.log("=== TECHINBOX DIAGNOSTICS ===");
-    console.log("Session User ID:", "<?php echo htmlspecialchars($_SESSION['user_id'] ?? 'NONE'); ?>");
-    console.log("Session Business ID:", "<?php echo htmlspecialchars($_SESSION['business_id'] ?? 'NONE'); ?>");
-    console.log("Session Tenant DB:", "<?php echo htmlspecialchars($_SESSION['tenant_db_name'] ?? 'NONE'); ?>");
-    console.log("Tenant DB Connected:", "<?php echo $tenantDbConnected ? 'YES' : 'NO'; ?>");
-    console.log("=============================");
-    </script>
 </body>
 </html>
