@@ -5,12 +5,12 @@ $isLoggedIn = isset($_SESSION['user_id']);
 $currentScript = basename($_SERVER['PHP_SELF']);
 
 // Dynamically resolve compiled Tailwind CSS asset path from Vite manifest
-$tailwindCssPath = '/resources/css/app.css';
+$tailwindCssPath = 'resources/css/app.css';
 $manifestPath = __DIR__ . '/public/build/manifest.json';
 if (file_exists($manifestPath)) {
     $manifest = json_decode(file_get_contents($manifestPath), true);
     if (isset($manifest['resources/css/app.css']['file'])) {
-        $tailwindCssPath = '/public/build/' . $manifest['resources/css/app.css']['file'];
+        $tailwindCssPath = 'public/build/' . $manifest['resources/css/app.css']['file'];
     }
 }
 ?>
