@@ -337,6 +337,7 @@ if ($db !== null && $db !== $masterDb) {
             cash_sale DECIMAL(10, 2) DEFAULT 0.00,
             card_boi DECIMAL(10, 2) DEFAULT 0.00,
             card_fixed DECIMAL(10, 2) DEFAULT 0.00,
+            other_payment DECIMAL(10, 2) DEFAULT 0.00,
             total_sale DECIMAL(10, 2) DEFAULT 0.00,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -391,6 +392,14 @@ if ($db !== null && $db !== $masterDb) {
     // Create indexes to optimize query speeds (Silent fail if index already exists or syntax differences)
     try {
         $db->exec("CREATE INDEX idx_daily_closures_date ON daily_closures (closure_date)");
+    } catch (Exception $e) {}
+
+    // Migration: Add other_payment column to daily_closures table
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM daily_closures LIKE 'other_payment'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE daily_closures ADD COLUMN other_payment DECIMAL(10, 2) DEFAULT 0.00 AFTER card_fixed");
+        }
     } catch (Exception $e) {}
 
     // Migration: Add status column to bookings table

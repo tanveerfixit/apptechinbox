@@ -67,7 +67,7 @@ $todayIso = date('Y-m-d');
 $todayClosure = null;
 if ($tenantDbConnected && $db !== null) {
     try {
-        $fetchStmt = $db->prepare("SELECT cash_sale, card_boi, card_fixed, total_sale FROM daily_closures WHERE closure_date = ?");
+        $fetchStmt = $db->prepare("SELECT cash_sale, card_boi, card_fixed, other_payment, total_sale FROM daily_closures WHERE closure_date = ?");
         $fetchStmt->execute([$todayIso]);
         $todayClosure = $fetchStmt->fetch();
     } catch (PDOException $e) {}
@@ -76,6 +76,7 @@ if ($tenantDbConnected && $db !== null) {
 $cashVal = $todayClosure ? (float)$todayClosure['cash_sale'] : 0.00;
 $boiVal = $todayClosure ? (float)$todayClosure['card_boi'] : 0.00;
 $fixedVal = $todayClosure ? (float)$todayClosure['card_fixed'] : 0.00;
+$otherVal = $todayClosure ? (float)$todayClosure['other_payment'] : 0.00;
 
 // Handle Save Action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
@@ -85,26 +86,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
         $cashInput = floatval($_POST['cash_sale'] ?? 0);
         $boiInput = floatval($_POST['card_boi'] ?? 0);
         $fixedInput = floatval($_POST['card_fixed'] ?? 0);
-        $totalInput = $cashInput + $boiInput + $fixedInput;
+        $otherInput = floatval($_POST['other_payment'] ?? 0);
+        $totalInput = $cashInput + $boiInput + $fixedInput + $otherInput;
 
         try {
             $saveStmt = $db->prepare("
-                INSERT INTO daily_closures (user_id, business_name, closure_date, cash_sale, card_boi, card_fixed, total_sale)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO daily_closures (user_id, business_name, closure_date, cash_sale, card_boi, card_fixed, other_payment, total_sale)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE 
                     user_id = VALUES(user_id),
                     business_name = VALUES(business_name),
                     cash_sale = VALUES(cash_sale),
                     card_boi = VALUES(card_boi),
                     card_fixed = VALUES(card_fixed),
+                    other_payment = VALUES(other_payment),
                     total_sale = VALUES(total_sale)
             ");
             
-            if ($saveStmt->execute([$userId, $businessName, $todayIso, $cashInput, $boiInput, $fixedInput, $totalInput])) {
+            if ($saveStmt->execute([$userId, $businessName, $todayIso, $cashInput, $boiInput, $fixedInput, $otherInput, $totalInput])) {
                 $successMsg = "Daily closure saved successfully!";
                 $cashVal = $cashInput;
                 $boiVal = $boiInput;
                 $fixedVal = $fixedInput;
+                $otherVal = $otherInput;
             } else {
                 $errorMsg = "Failed to save daily closure.";
             }
@@ -142,8 +146,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
               cash: <?php echo $cashVal; ?>, 
               boi: <?php echo $boiVal; ?>, 
               fixed: <?php echo $fixedVal; ?>,
+              other: <?php echo $otherVal; ?>,
               get total() {
-                  return (parseFloat(this.cash || 0) + parseFloat(this.boi || 0) + parseFloat(this.fixed || 0)).toFixed(2);
+                  return (parseFloat(this.cash || 0) + parseFloat(this.boi || 0) + parseFloat(this.fixed || 0) + parseFloat(this.other || 0)).toFixed(2);
               },
               printTicket() {
                   const now = new Date();
@@ -153,6 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
                   document.getElementById('pCash').textContent = '€' + parseFloat(this.cash || 0).toFixed(2);
                   document.getElementById('pBoi').textContent = '€' + parseFloat(this.boi || 0).toFixed(2);
                   document.getElementById('pFixed').textContent = '€' + parseFloat(this.fixed || 0).toFixed(2);
+                  document.getElementById('pOther').textContent = '€' + parseFloat(this.other || 0).toFixed(2);
                   document.getElementById('pTotal').textContent = '€' + this.total;
                   
                   window.print();
@@ -204,6 +210,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
                         <input type="number" step="0.01" min="0" name="card_fixed" id="card_fixed" class="w-full px-3 py-2 text-lg font-bold text-right border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" x-model.number="fixed">
                     </div>
 
+                    <div>
+                        <label for="other_payment" class="block text-[10px] font-bold uppercase tracking-wider text-[#5c5c5c] mb-1">Other Payment (€)</label>
+                        <input type="number" step="0.01" min="0" name="other_payment" id="other_payment" class="w-full px-3 py-2 text-lg font-bold text-right border border-[#e0e0e0] rounded-[4px] bg-white text-[#242424] focus:outline-none focus:border-[#00a4ef]" x-model.number="other">
+                    </div>
+
                     <div class="flex justify-between items-center bg-[#fafafa] border border-[#e0e0e0] p-4 rounded-[4px] my-4">
                         <span class="text-xs font-bold uppercase tracking-wider text-[#5c5c5c]">Total Sale</span>
                         <span class="text-2xl font-bold text-[#7fba00]">€<span x-text="total">0.00</span></span>
@@ -252,6 +263,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_action'])) {
         <div class="receipt-row" style="font-size: 14px;">
             <span>Card Fixed:</span>
             <span id="pFixed">€0.00</span>
+        </div>
+        <div class="receipt-row" style="font-size: 14px;">
+            <span>Other Payment:</span>
+            <span id="pOther">€0.00</span>
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-row" style="font-weight: bold; font-size: 18px;">
