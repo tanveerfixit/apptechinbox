@@ -86,29 +86,29 @@ $absoluteCssUrl = $cleanDir . '/' . $tailwindCssPath;
         </div>
         <div class="p-3 flex-1 overflow-y-auto space-y-1">
             <div class="text-[10px] font-bold text-[#5c5c5c] uppercase tracking-wider px-2 mb-1.5">Applications</div>
-            <a href="bookings.php" class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'bookings.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#00a4ef] text-[#00a4ef]' : 'text-[#5c5c5c] hover:text-[#242424] hover:bg-[#f3f3f3]'; ?>">
-                <svg class="w-4 h-4 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <a href="bookings.php" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'bookings.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#00a4ef] text-[#00a4ef]' : 'text-[#5c5c5c] hover:text-[#242424] hover:bg-[#f3f3f3]'; ?>">
+                <svg class="w-5 h-5 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
                 </svg>
                 <span>Booked Jobs</span>
             </a>
-            <a href="booking.php" class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'booking.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#008272] text-[#008272]' : 'text-[#5c5c5c] hover:text-[#242424] hover:bg-[#f3f3f3]'; ?>">
-                <svg class="w-4 h-4 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <a href="booking.php" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'booking.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#008272] text-[#008272]' : 'text-[#5c5c5c] hover:text-[#242424] hover:bg-[#f3f3f3]'; ?>">
+                <svg class="w-5 h-5 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
                     <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
                 </svg>
                 <span>Device Booking</span>
             </a>
-            <a href="daily-closer.php" class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'daily-closer.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#7fba00] text-[#7fba00]' : 'text-[#5c5c5c] hover:text-[#242424] hover:bg-[#f3f3f3]'; ?>">
-                <svg class="w-4 h-4 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <a href="daily-closer.php" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'daily-closer.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#7fba00] text-[#7fba00]' : 'text-[#5c5c5c] hover:text-[#242424] hover:bg-[#f3f3f3]'; ?>">
+                <svg class="w-5 h-5 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10"/>
                     <line x1="12" y1="20" x2="12" y2="4"/>
                     <line x1="6" y1="20" x2="6" y2="14"/>
                 </svg>
                 <span>Daily Closer</span>
             </a>
-            <a href="screen-protector-finder.php" class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'screen-protector-finder.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#ffb900] text-[#d99b00]' : 'text-[#5c5c5c] hover:text-[#242424] hover:bg-[#f3f3f3]'; ?>">
-                <svg class="w-4 h-4 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <a href="screen-protector-finder.php" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-[4px] transition-colors <?php echo ($currentScript === 'screen-protector-finder.php') ? 'bg-[#f3f3f3] font-semibold border-l-4 border-[#ffb900] text-[#d99b00]' : 'text-[#5c5c5c] hover:text-[#242424] hover:bg-[#f3f3f3]'; ?>">
+                <svg class="w-5 h-5 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
                     <path d="M12 18h.01"/>
                 </svg>
@@ -165,42 +165,42 @@ function openLoginModal() {
 </script>
 
 <div class="flex flex-1">
-    <aside class="bg-white border-r border-[#e0e0e0] hidden lg:flex flex-col py-4 px-2 w-[210px] shrink-0 min-h-[calc(100vh-49px)]">
+    <aside class="bg-white border-r border-[#e0e0e0] hidden lg:flex flex-col py-4 px-2 w-[230px] shrink-0 min-h-[calc(100vh-49px)]">
         <div class="space-y-1">
             <!-- Booked Jobs -->
-            <a href="bookings.php" class="flex items-center gap-2.5 px-3 py-2.5 rounded-[6px] transition-all border <?php echo ($currentScript === 'bookings.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#00a4ef] border-[#e0e0e0] text-[#00a4ef] font-semibold shadow-xs' : 'border-transparent text-[#5c5c5c] hover:bg-[#f3f3f3] hover:border-[#e0e0e0] hover:text-[#242424]'; ?>">
-                <svg class="w-4 h-4 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <a href="bookings.php" class="flex items-center gap-3 px-3 py-2.5 rounded-[6px] transition-all border <?php echo ($currentScript === 'bookings.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#00a4ef] border-[#e0e0e0] text-[#00a4ef] font-semibold shadow-xs' : 'border-transparent text-[#5c5c5c] hover:bg-[#f3f3f3] hover:border-[#e0e0e0] hover:text-[#242424]'; ?>">
+                <svg class="w-5 h-5 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
                 </svg>
-                <span class="text-xs font-semibold tracking-tight leading-tight">Booked Jobs</span>
+                <span class="text-sm font-semibold tracking-tight leading-tight">Booked Jobs</span>
             </a>
 
             <!-- Device Booking -->
-            <a href="booking.php" class="flex items-center gap-2.5 px-3 py-2.5 rounded-[6px] transition-all border <?php echo ($currentScript === 'booking.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#008272] border-[#e0e0e0] text-[#008272] font-semibold shadow-xs' : 'border-transparent text-[#5c5c5c] hover:bg-[#f3f3f3] hover:border-[#e0e0e0] hover:text-[#242424]'; ?>">
-                <svg class="w-4 h-4 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <a href="booking.php" class="flex items-center gap-3 px-3 py-2.5 rounded-[6px] transition-all border <?php echo ($currentScript === 'booking.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#008272] border-[#e0e0e0] text-[#008272] font-semibold shadow-xs' : 'border-transparent text-[#5c5c5c] hover:bg-[#f3f3f3] hover:border-[#e0e0e0] hover:text-[#242424]'; ?>">
+                <svg class="w-5 h-5 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
                     <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
                 </svg>
-                <span class="text-xs font-semibold tracking-tight leading-tight">Device Booking</span>
+                <span class="text-sm font-semibold tracking-tight leading-tight">Device Booking</span>
             </a>
 
             <!-- Daily Closer -->
-            <a href="daily-closer.php" class="flex items-center gap-2.5 px-3 py-2.5 rounded-[6px] transition-all border <?php echo ($currentScript === 'daily-closer.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#7fba00] border-[#e0e0e0] text-[#7fba00] font-semibold shadow-xs' : 'border-transparent text-[#5c5c5c] hover:bg-[#f3f3f3] hover:border-[#e0e0e0] hover:text-[#242424]'; ?>">
-                <svg class="w-4 h-4 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <a href="daily-closer.php" class="flex items-center gap-3 px-3 py-2.5 rounded-[6px] transition-all border <?php echo ($currentScript === 'daily-closer.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#7fba00] border-[#e0e0e0] text-[#7fba00] font-semibold shadow-xs' : 'border-transparent text-[#5c5c5c] hover:bg-[#f3f3f3] hover:border-[#e0e0e0] hover:text-[#242424]'; ?>">
+                <svg class="w-5 h-5 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10"/>
                     <line x1="12" y1="20" x2="12" y2="4"/>
                     <line x1="6" y1="20" x2="6" y2="14"/>
                 </svg>
-                <span class="text-xs font-semibold tracking-tight leading-tight">Daily Closer</span>
+                <span class="text-sm font-semibold tracking-tight leading-tight">Daily Closer</span>
             </a>
 
             <!-- Phone Screen Protector -->
-            <a href="screen-protector-finder.php" class="flex items-center gap-2.5 px-3 py-2.5 rounded-[6px] transition-all border <?php echo ($currentScript === 'screen-protector-finder.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#ffb900] border-[#e0e0e0] text-[#d99b00] font-semibold shadow-xs' : 'border-transparent text-[#5c5c5c] hover:bg-[#f3f3f3] hover:border-[#e0e0e0] hover:text-[#242424]'; ?>">
-                <svg class="w-4 h-4 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <a href="screen-protector-finder.php" class="flex items-center gap-3 px-3 py-2.5 rounded-[6px] transition-all border <?php echo ($currentScript === 'screen-protector-finder.php') ? 'bg-[#f3f3f3] border-l-4 border-l-[#ffb900] border-[#e0e0e0] text-[#d99b00] font-semibold shadow-xs' : 'border-transparent text-[#5c5c5c] hover:bg-[#f3f3f3] hover:border-[#e0e0e0] hover:text-[#242424]'; ?>">
+                <svg class="w-5 h-5 shrink-0 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
                     <path d="M12 18h.01"/>
                 </svg>
-                <span class="text-xs font-semibold tracking-tight leading-tight">Phone Screen Protector</span>
+                <span class="text-sm font-semibold tracking-tight leading-tight">Phone Screen Protector</span>
             </a>
         </div>
     </aside>
