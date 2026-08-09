@@ -2,6 +2,7 @@
 export default {
   content: [
     "./*.php",
+    "./clayoven/**/*.php",
     "./resources/**/*.blade.php",
     "./resources/**/*.js",
     "./resources/**/*.vue",

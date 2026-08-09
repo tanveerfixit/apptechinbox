@@ -1,0 +1,779 @@
+/* ==========================================================================
+   Mileta Triple-Sided Acrylic Poster Maker - Stylesheet
+   ========================================================================== */
+
+:root {
+  /* Microsoft Fluent Light Theme Palette */
+  --bg-app: #f3f3f3;
+  --bg-card: #ffffff;
+  --bg-card-border: #e0e0e0;
+  --text-main: #242424;
+  --text-muted: #5c5c5c;
+  
+  /* Brand Accents */
+  --color-accent: #00a4ef; /* Fluent Blue */
+  --color-accent-hover: #008be5;
+  --color-accent-rgb: 0, 164, 239;
+  --color-success: #7fba00; /* Fluent Green */
+  --color-danger: #f25022; /* Fluent Red */
+
+  /* Fonts */
+  --font-sans: 'Outfit', 'Segoe UI', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+
+  /* Layout Constants */
+  --header-height: 80px;
+}
+
+/* Base resets & resets for printing */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   App Layout
+   ========================================================================== */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header */
+.app-header {
+  height: var(--header-height);
+  background: #ffffff;
+  border-bottom: 1px solid var(--bg-card-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  z-index: 10;
+}
+
+.brand-logo {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--color-accent);
+  line-height: 1.1;
+}
+
+.brand-tag {
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.app-title-container {
+  text-align: center;
+}
+
+.app-title-container h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.app-title-container p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Workspace */
+.workspace {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.editor-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section-header h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: 0.25rem;
+}
+
+.section-header p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   A4 Interactive Sheet Layout
+   ========================================================================== */
+
+.a4-sheet-container {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 12px;
+  padding: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Precision A4 Landscape: 297mm x 210mm (Aspect ratio: 1.4142) */
+.a4-sheet {
+  width: 100%;
+  max-width: 840px; /* Scaling down for typical desktop view */
+  aspect-ratio: 297 / 210;
+  background-color: #ffffff;
+  color: #000000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Vertical guide fold lines */
+.a4-sheet.show-guides::before,
+.a4-sheet.show-guides::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  border-left: 1px dashed rgba(197, 168, 128, 0.5);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.a4-sheet.show-guides::before {
+  left: 33.3333%;
+}
+
+.a4-sheet.show-guides::after {
+  left: 66.6666%;
+}
+
+/* Crop/Cut Marks */
+.a4-sheet.show-marks::before {
+  /* We render crosshair or line marks around the edges using background gradients */
+}
+
+/* Individual Panel Columns */
+.panel-column {
+  position: relative;
+  height: 100%;
+  border-right: 1px solid rgba(0,0,0,0.05);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.panel-column:last-child {
+  border-right: none;
+}
+
+.panel-viewport {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+/* Image scaling & dragging container */
+.image-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-wrapper:active {
+  cursor: grabbing;
+}
+
+.uploaded-image {
+  pointer-events: none;
+  display: none;
+  max-width: none;
+  max-height: none;
+}
+
+.uploaded-image.loaded {
+  display: block;
+}
+
+/* Upload zone placeholder styling */
+.upload-placeholder {
+  position: absolute;
+  inset: 12px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  text-align: center;
+  transition: all 0.25s ease;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.panel-column:hover .upload-placeholder {
+  border-color: var(--color-accent);
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.upload-placeholder svg {
+  margin-bottom: 0.5rem;
+  transition: transform 0.25s ease;
+}
+
+.panel-column:hover .upload-placeholder svg {
+  transform: translateY(-3px);
+}
+
+.upload-placeholder span {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.upload-placeholder .subtext {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+}
+
+/* Brand imprint at the bottom of printed stand panels */
+.panel-brand {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  color: rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  font-weight: bold;
+  display: block;
+}
+
+.hide-branding .panel-brand {
+  display: none !important;
+}
+
+.file-input {
+  display: none;
+}
+
+/* Crop Marks Styling using CSS pseudo-elements (render outside bounds) */
+.a4-sheet.show-marks::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Toolbars */
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.toolbar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.toolbar-group h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   3D Acrylic Prism Preview Stand
+   ========================================================================== */
+
+.mockup-container {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 380px;
+  overflow: hidden;
+}
+
+/* Perspective viewport */
+.scene {
+  width: 150px;
+  height: 280px;
+  perspective: 1200px;
+  perspective-origin: 50% 30%;
+}
+
+/* 3D Prism */
+.prism {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(-10deg) rotateY(30deg);
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.prism.spinning {
+  animation: spinPrism 16s linear infinite;
+}
+
+@keyframes spinPrism {
+  0% { transform: rotateX(-10deg) rotateY(0deg); }
+  100% { transform: rotateX(-10deg) rotateY(360deg); }
+}
+
+/* Triangular Prism Faces */
+/* Dimensions: Width 120px, Height 254px (Ratio ~0.47)
+   In equilateral triangle of side W = 120px:
+   In-radius R = W / (2 * sqrt(3)) = 120 / 3.4641 = 34.64px */
+.prism-face {
+  position: absolute;
+  width: 120px;
+  height: 254px;
+  left: 15px; /* Center within scene */
+  top: 13px;
+  background: #ffffff;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1), 0 0 5px rgba(0, 0, 0, 0.2);
+  transform-origin: center center;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.face-a {
+  transform: rotateY(0deg) translateZ(34.64px);
+}
+
+.face-b {
+  transform: rotateY(120deg) translateZ(34.64px);
+}
+
+.face-c {
+  transform: rotateY(240deg) translateZ(34.64px);
+}
+
+/* Glare & reflections inside acrylic mockup */
+.face-acrylic-glare {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.1) 100%);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.face-content {
+  width: 100%;
+  height: 100%;
+  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 0.5rem;
+  color: rgba(0,0,0,0.15);
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.prism-img-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prism-image {
+  pointer-events: none;
+  display: none;
+  max-width: none;
+  max-height: none;
+}
+
+.prism-image.loaded {
+  display: block;
+}
+
+/* Control buttons for 3D */
+.mockup-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.mockup-btn {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  color: #242424;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mockup-btn:hover {
+  background: #f3f3f3;
+  border-color: var(--color-accent);
+}
+
+.mockup-btn.btn-active {
+  background: rgba(var(--color-accent-rgb), 0.08);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* ==========================================================================
+   Tuning & Settings Sidebar UI
+   ========================================================================== */
+
+.fine-tuning-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.fine-tuning-panel h3 {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+}
+
+.tuning-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.25rem;
+  border-radius: 8px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: var(--text-main);
+}
+
+.tab-btn.active {
+  background: var(--bg-card);
+  color: var(--color-accent);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.tab-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.control-row label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.control-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-accent);
+}
+
+#zoom-val {
+  font-size: 0.8rem;
+  align-self: flex-end;
+  color: var(--color-accent);
+  font-weight: bold;
+}
+
+.hinttext {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   UI Interactive Elements (Buttons, Inputs, Toggles)
+   ========================================================================== */
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  box-shadow: 0 4px 15px rgba(0, 164, 239, 0.25);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  color: #242424;
+}
+
+.btn-secondary:hover {
+  background: #f3f3f3;
+  border-color: var(--color-accent);
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  color: var(--text-muted);
+}
+
+.btn-outline:hover, .btn-outline.active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(var(--color-accent-rgb), 0.08);
+}
+
+.btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Custom Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #e0e0e0;
+  transition: .3s;
+  border-radius: 22px;
+  border: 1px solid #d0d0d0;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--color-accent);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* ==========================================================================
+   PRINT MEDIA RULES - PERFECT 1:1 A4 LANDSCAPE PRINTING
+   ========================================================================== */
+
+@media print {
+  /* Setup page margins and landscape layout */
+  @page {
+    size: A4 landscape;
+    margin: 0mm;
+  }
+
+  /* Force background colors and images to print in high quality */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Hide all app wrapper elements and UI controls */
+  html, body, .app-container {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app-header, 
+  .sidebar-section, 
+  .toolbar, 
+  .section-header, 
+  .editor-section > *:not(.a4-sheet-container),
+  .a4-sheet-container {
+    display: none !important;
+  }
+
+  /* Expand the canvas sheet to fill exactly 100% of the viewport */
+  .a4-sheet-container {
+    display: block !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .a4-sheet {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 297mm !important;
+    height: 210mm !important;
+    max-width: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* If Guides are toggled off by user, hide them in print */
+  .a4-sheet:not(.show-guides)::before,
+  .a4-sheet:not(.show-guides)::after {
+    display: none !important;
+  }
+
+  .a4-sheet.show-guides::before,
+  .a4-sheet.show-guides::after {
+    border-left: 1px dashed rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* Customize/Print crop lines if enabled */
+  .a4-sheet.show-marks::after {
+    border: 1px solid rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .upload-placeholder {
+    display: none !important;
+  }
+}
