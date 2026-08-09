@@ -1,9 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Huroof-e-Abjad Computation</title>
+    <meta name="description" content="Calculate the Abjad (Huroof-e-Abjad) values of Urdu, Persian, and Arabic names or words instantly. Free online calculator featuring real-time letter breakdown, digital roots, and search suggestions.">
+    <meta name="keywords" content="Abjad calculator, Huroof-e-Abjad, Urdu abjad calculator, Arabic abjad, Persian abjad, abjad calculations, letter value calculator, digital root, islamic name calculator">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://apps.techinbox.ie/abjad/">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://apps.techinbox.ie/abjad/">
+    <meta property="og:title" content="Huroof-e-Abjad Computation | Abjad Calculator">
+    <meta property="og:description" content="Calculate the Abjad values of Urdu, Persian, and Arabic words instantly with complete letter breakdowns, digital roots, and suggestions.">
+    <meta property="og:image" content="https://apps.techinbox.ie/public/icons/site.png">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://apps.techinbox.ie/abjad/">
+    <meta property="twitter:title" content="Huroof-e-Abjad Computation | Abjad Calculator">
+    <meta property="twitter:description" content="Calculate the Abjad values of Urdu, Persian, and Arabic words instantly with complete letter breakdowns, digital roots, and suggestions.">
+    <meta property="twitter:image" content="https://apps.techinbox.ie/public/icons/site.png">
+    <title>Huroof-e-Abjad Computation | Abjad Calculator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -49,7 +63,7 @@
             max-width: 800px;
         }
 
-        h2 {
+        h1 {
             font-size: 1.4rem;
             font-weight: 700;
             background: linear-gradient(135deg, #fff 30%, #a5b4fc 100%);
@@ -572,7 +586,7 @@
             header {
                 margin-bottom: 1.5rem;
             }
-            h2 {
+            h1 {
                 font-size: 1.25rem;
             }
             .container {
@@ -622,7 +636,7 @@
             header {
                 margin-bottom: 1rem;
             }
-            h2 {
+            h1 {
                 font-size: 1.1rem;
             }
             .calculator-card {
@@ -696,7 +710,7 @@
                 radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.05) 0, transparent 50%);
         }
 
-        body.soft-mode h2 {
+        body.soft-mode h1 {
             background: linear-gradient(135deg, #1f2937 30%, #4f46e5 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -890,13 +904,13 @@
 <body>
 
     <header style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 2.5rem; position: relative;">
-        <h2 style="margin-bottom: 0;">Huroof-e-Abjad Computation</h2>
+        <h1 style="margin-bottom: 0;">Huroof-e-Abjad Computation</h1>
         <button id="btnThemeToggle" class="btn" aria-label="Toggle Theme" style="padding: 0; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); cursor: pointer;">
             <span id="themeToggleIcon" style="font-size: 1.1rem; line-height: 1;">🌗</span>
         </button>
     </header>
 
-    <div class="container">
+    <main class="container">
         
         <!-- Interactive Calculator -->
         <div class="calculator-card">
@@ -1061,7 +1075,7 @@
             </div>
 
         </div>
-    </div>
+    </main>
 
     <script>
         // Data containing all individual letters and their values (split where appropriate)
