@@ -1,4 +1,5 @@
 .env
+env.php
 .gemini/
 .agents/
 *.db

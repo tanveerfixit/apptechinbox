@@ -33,6 +33,18 @@ function loadEnv($path) {
 // Load environment variables
 loadEnv(__DIR__ . '/.env');
 
+// Support loading from env.php configuration (easy to edit on Hostinger/cPanel, git-ignored)
+if (file_exists(__DIR__ . '/env.php')) {
+    $envVars = include __DIR__ . '/env.php';
+    if (is_array($envVars)) {
+        foreach ($envVars as $key => $val) {
+            putenv("{$key}={$val}");
+            $_ENV[$key] = $val;
+            $_SERVER[$key] = $val;
+        }
+    }
+}
+
 // Ensure session is started to read tenant database name
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
