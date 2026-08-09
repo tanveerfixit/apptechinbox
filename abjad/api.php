@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         try {
             $stmt = $db->query("SELECT id, name, total, single, origin, meanings FROM calculations ORDER BY id DESC");
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode($rows);
+            echo json_encode($rows, JSON_UNESCAPED_UNICODE);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['error' => $e->getMessage()]);

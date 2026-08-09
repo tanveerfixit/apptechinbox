@@ -1621,7 +1621,7 @@
                 return;
             }
 
-            tableBody.innerHTML = processedData.map(item => `
+             tableBody.innerHTML = processedData.map(item => `
                 <tr>
                     <td class="arabic-cell">${item.name}</td>
                     <td>${item.total}</td>
@@ -1629,8 +1629,8 @@
                     <td>${item.origin || '-'}</td>
                     <td>${item.meanings || '-'}</td>
                     <td style="text-align: center; display: flex; gap: 0.35rem; justify-content: center;">
-                        <button class="btn btn-primary" onclick="startEditRecord(${item.id}, '${item.name}', ${item.total}, ${item.single}, '${item.origin || ''}', '${item.meanings || ''}')" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer;">Edit</button>
-                        <button class="btn btn-danger" onclick="deleteRecord(${item.id}, '${item.name}')" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer;">Delete</button>
+                        <button class="btn btn-primary" onclick="startEditRecord(${item.id})" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer;">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteRecord(${item.id})" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer;">Delete</button>
                     </td>
                 </tr>
             `).join('');
@@ -1675,14 +1675,16 @@
         });
 
         // Start editing existing record
-        function startEditRecord(id, name, total, single, origin, meanings) {
+        function startEditRecord(id) {
+            const item = calculationsHistory.find(x => x.id === id);
+            if (!item) return;
             formTitle.textContent = 'Edit Record';
-            editRecordId.value = id;
-            formName.value = name;
-            formTotal.value = total;
-            formSingle.value = single;
-            formOrigin.value = origin;
-            formMeanings.value = meanings;
+            editRecordId.value = item.id;
+            formName.value = item.name;
+            formTotal.value = item.total;
+            formSingle.value = item.single;
+            formOrigin.value = item.origin || '';
+            formMeanings.value = item.meanings || '';
             addEditRecordForm.style.display = 'block';
             formName.focus();
             activeInputField = formName;
@@ -1690,8 +1692,10 @@
         }
 
         // Delete calculation record with confirmation
-        function deleteRecord(id, name) {
-            if (confirm(`Are you sure you want to delete the record for "${name}"?`)) {
+        function deleteRecord(id) {
+            const item = calculationsHistory.find(x => x.id === id);
+            if (!item) return;
+            if (confirm(`Are you sure you want to delete the record for "${item.name}"?`)) {
                 fetch('api.php?action=delete', {
                     method: 'POST',
                     headers: {
