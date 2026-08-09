@@ -5,6 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Include main database connection
 require_once dirname(__DIR__) . '/db.php';
+$db = $masterDb;
 
 // Ensure the calculations table exists in the connected database
 try {

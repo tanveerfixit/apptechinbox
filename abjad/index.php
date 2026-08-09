@@ -50,7 +50,7 @@
         }
 
         h2 {
-            font-size: 1.85rem;
+            font-size: 1.4rem;
             font-weight: 700;
             background: linear-gradient(135deg, #fff 30%, #a5b4fc 100%);
             -webkit-background-clip: text;
@@ -566,33 +566,110 @@
 
         /* Mobile Responsiveness Viewports */
         @media (max-width: 768px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+            header {
+                margin-bottom: 1.5rem;
+            }
+            h2 {
+                font-size: 1.25rem;
+            }
+            .container {
+                gap: 1.5rem;
+            }
+            .calculator-card {
+                padding: 1.25rem;
+                border-radius: 16px;
+                gap: 1.25rem;
+            }
             .calc-results {
                 flex-direction: column;
                 align-items: stretch;
+                padding: 1rem;
+                gap: 1rem;
             }
             .values-wrapper {
                 justify-content: center;
-                margin-bottom: 1.5rem;
+                margin-bottom: 0.5rem;
+                gap: 1.5rem;
             }
             .letters-grid {
-                max-width: 480px;
+                max-width: 100%;
+                gap: 0.5rem;
+            }
+            .letter-card {
+                width: 60px;
+                height: 60px;
+            }
+            .modal-content {
+                padding: 1.25rem;
+                border-radius: 16px;
+                gap: 1.25rem;
+                max-height: 95vh;
+            }
+            .floating-keyboard {
+                width: 92%;
+                bottom: 1rem;
+                max-width: 360px;
             }
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 0.75rem 0.25rem;
+            }
+            header {
+                margin-bottom: 1rem;
+            }
+            h2 {
+                font-size: 1.1rem;
+            }
+            .calculator-card {
+                padding: 1rem;
+                border-radius: 14px;
+                gap: 1rem;
+            }
+            .calc-input {
+                padding: 0.65rem 1rem;
+                font-size: 1.2rem;
+            }
+            .calc-results {
+                padding: 0.75rem;
+                gap: 0.75rem;
+            }
             .values-wrapper {
-                gap: 1.5rem;
+                gap: 1rem;
             }
             .total-value {
-                font-size: 1.75rem;
+                font-size: 1.5rem;
             }
             .letters-grid {
-                max-width: 315px;
-                gap: 0.5rem;
+                gap: 0.35rem;
             }
             .letter-card {
-                width: 69px;
-                height: 69px;
+                width: 48px;
+                height: 48px;
+                border-radius: 8px;
+            }
+            .letter-arabic {
+                font-size: 1.4rem;
+            }
+            .letter-value {
+                font-size: 0.65rem;
+                bottom: 2px;
+                left: 4px;
+            }
+            .btn {
+                padding: 0.5rem 0.85rem;
+                font-size: 0.8rem;
+            }
+            .floating-keyboard .letter-card {
+                width: 36px !important;
+                height: 36px !important;
+            }
+            .floating-keyboard .letter-card .letter-arabic {
+                font-size: 1.3rem !important;
             }
         }
 
@@ -736,14 +813,86 @@
             border-color: rgba(220, 38, 38, 0.2);
             background: rgba(220, 38, 38, 0.08);
         }
+
+        /* Suggestions Dropdown Style */
+        .suggestions-box {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            margin-top: 0.35rem;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            direction: rtl;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .suggestion-name {
+            font-family: 'Amiri', serif;
+            font-size: 1.25rem;
+            color: var(--text-main);
+        }
+
+        .suggestion-details {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            direction: ltr;
+        }
+
+        .suggestion-val {
+            color: var(--gold-accent);
+            font-weight: 700;
+        }
+
+        /* Soft mode compatibility */
+        body.soft-mode .suggestions-box {
+            background: rgba(255, 255, 255, 0.98);
+            border-color: rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        body.soft-mode .suggestion-item {
+            border-bottom-color: rgba(0, 0, 0, 0.05);
+        }
+        body.soft-mode .suggestion-item:hover {
+            background: rgba(99, 102, 241, 0.08);
+        }
+        body.soft-mode .suggestion-name {
+            color: #1f2937;
+        }
     </style>
 </head>
 <body>
 
-    <header style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 2.5rem; position: relative;">
+    <header style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 2.5rem; position: relative;">
         <h2 style="margin-bottom: 0;">Huroof-e-Abjad Computation</h2>
-        <button id="btnThemeToggle" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; height: 34px; border-radius: 20px; display: flex; align-items: center; gap: 0.4rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border);">
-            <span id="themeToggleIcon">🌗</span> <span id="themeToggleText">Soft Mode</span>
+        <button id="btnThemeToggle" class="btn" aria-label="Toggle Theme" style="padding: 0; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); cursor: pointer;">
+            <span id="themeToggleIcon" style="font-size: 1.1rem; line-height: 1;">🌗</span>
         </button>
     </header>
 
@@ -753,10 +902,11 @@
         <div class="calculator-card">
             
             <!-- Main Name Field -->
-            <div class="input-group">
+            <div class="input-group" style="position: relative;">
                 <div class="input-wrapper">
-                    <input type="text" id="calcInput" class="calc-input" placeholder="Type Urdu text here or click reference grid boxes below to input...">
+                    <input type="text" id="calcInput" class="calc-input" placeholder="Type Urdu text here or click reference grid boxes below to input..." autocomplete="off">
                 </div>
+                <div id="suggestionsBox" class="suggestions-box" style="display: none;"></div>
             </div>
 
             <!-- Optional Fields Row: Buttons, Origin and Meanings (Meaning fills the rest of the space) -->
@@ -1347,6 +1497,9 @@
                 }).join('');
                 highlightLetters(activeChars);
             }
+            if (typeof updateSuggestions === 'function') {
+                updateSuggestions();
+            }
         }
 
         // Action Handlers
@@ -1674,10 +1827,69 @@
         document.getElementById('modalBtnSpaceBar').addEventListener('click', () => { insertModalCharacter(' '); });
         document.getElementById('modalBtnBackspace').addEventListener('click', backspaceModalCharacter);
 
-        // Event Listeners
-        document.getElementById('calcInput').addEventListener('input', calculateAbjad);
-        document.getElementById('btnClear').addEventListener('click', () => { clearInput(); });
-        document.getElementById('btnSave').addEventListener('click', () => { saveCalculation(); });
+        // Event Listeners & Suggestions Logic
+        const calcInput = document.getElementById('calcInput');
+        const suggestionsBox = document.getElementById('suggestionsBox');
+
+        calcInput.addEventListener('input', () => {
+            calculateAbjad();
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target !== calcInput && e.target !== suggestionsBox) {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        function updateSuggestions() {
+            const cInput = document.getElementById('calcInput');
+            const sBox = document.getElementById('suggestionsBox');
+            if (!cInput || !sBox) return;
+
+            const query = cInput.value.trim();
+            if (!query) {
+                sBox.style.display = 'none';
+                return;
+            }
+
+            // Filter history for matches in name, origin, or meanings
+            const matches = calculationsHistory.filter(item => 
+                item.name.includes(query) || 
+                (item.origin && item.origin.toLowerCase().includes(query.toLowerCase())) ||
+                (item.meanings && item.meanings.toLowerCase().includes(query.toLowerCase()))
+            );
+
+            if (matches.length === 0) {
+                sBox.style.display = 'none';
+                return;
+            }
+
+            sBox.innerHTML = matches.slice(0, 5).map(item => `
+                <div class="suggestion-item" onclick="selectSuggestion('${item.name.replace(/'/g, "\\'")}', '${(item.origin || '').replace(/'/g, "\\'")}', '${(item.meanings || '').replace(/'/g, "\\'")}')">
+                    <span class="suggestion-name">${item.name}</span>
+                    <span class="suggestion-details">
+                        <span>${item.origin || ''}</span>
+                        <span class="suggestion-val">Abjad: ${item.total}</span>
+                    </span>
+                </div>
+            `).join('');
+
+            sBox.style.display = 'block';
+        }
+
+        window.selectSuggestion = function(name, origin, meanings) {
+            const cInput = document.getElementById('calcInput');
+            const sBox = document.getElementById('suggestionsBox');
+            if (cInput) cInput.value = name;
+            document.getElementById('originInput').value = origin;
+            document.getElementById('meaningInput').value = meanings;
+            calculateAbjad();
+            if (sBox) sBox.style.display = 'none';
+        };
+
+        document.getElementById('btnClear').addEventListener('click', () => { clearInput(); const sBox = document.getElementById('suggestionsBox'); if (sBox) sBox.style.display = 'none'; });
+        document.getElementById('btnSave').addEventListener('click', () => { saveCalculation(); const sBox = document.getElementById('suggestionsBox'); if (sBox) sBox.style.display = 'none'; });
 
         // Initial Renders
         renderMainGrid(); // Main grid stays visible and holds letter values
@@ -1691,17 +1903,14 @@
         // Dark/Soft Mode Theme Toggle logic
         const btnThemeToggle = document.getElementById('btnThemeToggle');
         const themeToggleIcon = document.getElementById('themeToggleIcon');
-        const themeToggleText = document.getElementById('themeToggleText');
 
         // Check if theme was saved previously
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'soft') {
             document.body.classList.add('soft-mode');
             themeToggleIcon.textContent = '☀️';
-            themeToggleText.textContent = 'Dark Mode';
         } else {
             themeToggleIcon.textContent = '🌗';
-            themeToggleText.textContent = 'Soft Mode';
         }
 
         btnThemeToggle.addEventListener('click', () => {
@@ -1709,11 +1918,9 @@
             if (document.body.classList.contains('soft-mode')) {
                 localStorage.setItem('theme', 'soft');
                 themeToggleIcon.textContent = '☀️';
-                themeToggleText.textContent = 'Dark Mode';
             } else {
                 localStorage.setItem('theme', 'dark');
                 themeToggleIcon.textContent = '🌗';
-                themeToggleText.textContent = 'Soft Mode';
             }
         });
     </script>
