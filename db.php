@@ -50,11 +50,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$host = getenv('DB_HOST') ?: 'localhost';
+$host = getenv('DB_HOST') ?: 'srv2113.hstgr.io';
 $port = getenv('DB_PORT') ?: '3306';
-$masterDbName = getenv('DB_DATABASE') ?: '';
-$user = getenv('DB_USERNAME') ?: '';
-$password = getenv('DB_PASSWORD') ?: '';
+$masterDbName = getenv('DB_DATABASE') ?: 'u583652021_apps';
+$user = getenv('DB_USERNAME') ?: 'u583652021_techinbox';
+$password = getenv('DB_PASSWORD') ?: 'Techinbox@8877';
 
 // 1. Connect to Master Database
 try {
@@ -313,7 +313,7 @@ if ($bizCount == 0) {
     $stmtBiz = $masterDb->prepare("INSERT INTO businesses (id, name, db_name, db_user, db_password, contact, email, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     
     $defaultBusinesses = [
-        ['phone-lab', 'Phone Lab', sanitizeTenantDbName('Phone Lab', $masterDbName), getenv('TENANT_DB_USER') ?: 'phone_lab_user', getenv('TENANT_DB_PASSWORD') ?: '', '(065) 672 4192', 'phone.lab.ennis@gmail.com', '32 O\'Connell Street, Clonroad Beg, Ennis, Co. Clare, V95 EW74'],
+        ['phone-lab', 'Phone Lab', sanitizeTenantDbName('Phone Lab', $masterDbName), 'u583652021_phone_lab', 'Techinbox@8877', '(065) 672 4192', 'phone.lab.ennis@gmail.com', '32 O\'Connell Street, Clonroad Beg, Ennis, Co. Clare, V95 EW74'],
         ['fixd-gort', 'FIXD GORT', sanitizeTenantDbName('FIXD GORT', $masterDbName), null, null, '(089) 981 5157', 'fixd.gort@gmail.com', '1 Bridge St, Ballyhugh, Gort, Co. Galway, H91 FRC8'],
         ['gadget-repair', 'Gadget Repair & Vape shop', sanitizeTenantDbName('Gadget Repair & Vape shop', $masterDbName), null, null, '(089) 961 7473', 'istoreirl@gmail.com', 'Apartment 1, Unit 1, Millennium House, Loughrea, Co. Galway, H62 H573'],
         ['ipear-ennis', 'iPear Ennis', sanitizeTenantDbName('iPear Ennis', $masterDbName), null, null, '(065) 682 2900', '', '6 Parnell St, Clonroad Beg, Ennis, Co. Clare, V95 X073'],
@@ -334,9 +334,7 @@ if ($bizCount == 0) {
         }
     }
     // Force set the custom db credentials for phone-lab on Hostinger
-    $tUser = getenv('TENANT_DB_USER') ?: 'phone_lab_user';
-    $tPass = getenv('TENANT_DB_PASSWORD') ?: '';
-    $masterDb->exec("UPDATE businesses SET db_user = '{$tUser}', db_password = '{$tPass}' WHERE id = 'phone-lab'");
+    $masterDb->exec("UPDATE businesses SET db_user = 'u583652021_phone_lab', db_password = 'Techinbox@8877' WHERE id = 'phone-lab'");
 }
 
 
