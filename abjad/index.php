@@ -1527,7 +1527,7 @@
             activeInputField = inputField;
         }
 
-        // SQLite Save functionality
+        // MySQL Save functionality
         function saveCalculation() {
             const inputVal = document.getElementById('calcInput').value.trim();
             const totalVal = parseInt(document.getElementById('totalValue').textContent, 10);
@@ -1564,7 +1564,7 @@
             });
         }
 
-        // SQLite Load history functionality (Populates modal table dynamically)
+        // MySQL Load history functionality (Populates modal table dynamically)
         function loadHistory() {
             fetch('api.php?action=history')
             .then(res => res.json())
@@ -1722,7 +1722,7 @@
             addEditRecordForm.style.display = 'none';
         });
 
-        // Submit Form (handles both Add and Edit via SQLite endpoints)
+        // Submit Form (handles both Add and Edit via MySQL endpoints)
         document.getElementById('btnSubmitForm').addEventListener('click', () => {
             const nameVal = formName.value.trim();
             const totalVal = parseInt(formTotal.value, 10);
