@@ -616,11 +616,64 @@
                 width: 60px;
                 height: 60px;
             }
+            .modal-overlay {
+                padding: 0 !important;
+                background: var(--bg-color) !important;
+                backdrop-filter: none !important;
+            }
             .modal-content {
-                padding: 1.25rem;
-                border-radius: 16px;
-                gap: 1.25rem;
-                max-height: 95vh;
+                padding: 0.75rem 0.5rem !important;
+                border-radius: 0 !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+                box-shadow: none !important;
+                background: var(--bg-color) !important;
+                gap: 0.75rem !important;
+                display: flex;
+                flex-direction: column;
+            }
+            .modal-header {
+                padding-bottom: 0.5rem !important;
+                border-bottom-color: var(--card-border) !important;
+            }
+            .modal-title {
+                font-size: 1.15rem !important;
+            }
+            .history-table-wrapper {
+                flex: 1 !important;
+                max-height: calc(100vh - 120px) !important;
+                border-radius: 8px !important;
+                background: var(--card-bg) !important;
+            }
+            .history-table th, .history-table td {
+                padding: 0.4rem 0.35rem !important;
+                font-size: 0.8rem !important;
+            }
+            .history-table td.arabic-cell {
+                font-size: 1.05rem !important;
+            }
+            .table-search-input {
+                padding: 0.25rem 0.35rem !important;
+                font-size: 0.75rem !important;
+            }
+            /* Form inside modal responsiveness */
+            #addEditRecordForm {
+                padding: 0.75rem !important;
+                margin-bottom: 0.5rem !important;
+                border-radius: 8px !important;
+                background: var(--card-bg) !important;
+            }
+            #addEditRecordForm h3 {
+                font-size: 0.95rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            #addEditRecordForm input {
+                height: 34px !important;
+                font-size: 0.9rem !important;
+                padding: 0.35rem 0.5rem !important;
             }
             .floating-keyboard {
                 width: 92%;
