@@ -969,11 +969,55 @@
         <div class="calculator-card">
             
             <!-- Main Name Field -->
-            <div class="input-group" style="position: relative;">
+            <div class="input-group" style="position: relative; margin-bottom: 0.5rem;">
                 <div class="input-wrapper">
                     <input type="text" id="calcInput" class="calc-input" placeholder="Type Urdu text here or click reference grid boxes below to input..." autocomplete="off">
                 </div>
                 <div id="suggestionsBox" class="suggestions-box" style="display: none;"></div>
+            </div>
+
+            <!-- Elemental Temperament (عناصر کی کیفیت) - One Line, No Background box -->
+            <div class="elements-line-container" style="display: flex; gap: 0.75rem; width: 100%; margin-top: -0.25rem; margin-bottom: 0.75rem; padding: 0 0.25rem; font-family: var(--font-sans); direction: rtl; flex-wrap: wrap;">
+                <!-- Fire Element -->
+                <div style="flex: 1; min-width: 75px; display: flex; flex-direction: column; gap: 0.15rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: #f87171;">
+                        <span>🔥 Fire (آتشی)</span>
+                        <span id="val-fire">0%</span>
+                    </div>
+                    <div style="width: 100%; height: 4px; background: rgba(120, 120, 120, 0.15); border-radius: 2px; overflow: hidden;">
+                        <div id="bar-fire" style="width: 0%; height: 100%; background: #f87171; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+                <!-- Air Element -->
+                <div style="flex: 1; min-width: 75px; display: flex; flex-direction: column; gap: 0.15rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: #38bdf8;">
+                        <span>💨 Air (بادی)</span>
+                        <span id="val-air">0%</span>
+                    </div>
+                    <div style="width: 100%; height: 4px; background: rgba(120, 120, 120, 0.15); border-radius: 2px; overflow: hidden;">
+                        <div id="bar-air" style="width: 0%; height: 100%; background: #38bdf8; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+                <!-- Water Element -->
+                <div style="flex: 1; min-width: 75px; display: flex; flex-direction: column; gap: 0.15rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: #60a5fa;">
+                        <span>💧 Water (آبی)</span>
+                        <span id="val-water">0%</span>
+                    </div>
+                    <div style="width: 100%; height: 4px; background: rgba(120, 120, 120, 0.15); border-radius: 2px; overflow: hidden;">
+                        <div id="bar-water" style="width: 0%; height: 100%; background: #60a5fa; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+                <!-- Earth Element -->
+                <div style="flex: 1; min-width: 75px; display: flex; flex-direction: column; gap: 0.15rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: #fbbf24;">
+                        <span>🪨 Earth (خاکی)</span>
+                        <span id="val-earth">0%</span>
+                    </div>
+                    <div style="width: 100%; height: 4px; background: rgba(120, 120, 120, 0.15); border-radius: 2px; overflow: hidden;">
+                        <div id="bar-earth" style="width: 0%; height: 100%; background: #fbbf24; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Optional Fields Row: Buttons, Origin and Meanings (Meaning fills the rest of the space) -->
@@ -1179,6 +1223,18 @@
         letterData.forEach(item => {
             letterMap[item.char] = item.value;
         });
+
+        // Elemental Temperaments Mapping (Fire, Air, Water, Earth)
+        const elementMap = {
+            // Fire (آتشی)
+            'ا': 'fire', 'آ': 'fire', 'ہ': 'fire', 'ه': 'fire', 'ھ': 'fire', 'ط': 'fire', 'م': 'fire', 'ف': 'fire', 'ش': 'fire', 'ذ': 'fire',
+            // Air (بادی)
+            'ب': 'air', 'پ': 'air', 'و': 'air', 'ی': 'air', 'ے': 'air', 'ن': 'air', 'ں': 'air', 'ص': 'air', 'ت': 'air', 'ٹ': 'air', 'ض': 'air',
+            // Water (آبی)
+            'ج': 'water', 'چ': 'water', 'ز': 'water', 'ژ': 'water', 'ک': 'water', 'گ': 'water', 'س': 'water', 'ق': 'water', 'ث': 'water', 'ظ': 'water',
+            // Earth (خاکی)
+            'د': 'earth', 'ڈ': 'earth', 'ح': 'earth', 'ل': 'earth', 'ع': 'earth', 'ر': 'earth', 'ڑ': 'earth', 'خ': 'earth', 'غ': 'earth'
+        };
 
         // Regex pattern containing all allowed Urdu letters, space, and Hamza variations
         const allowedUrduRegex = /[^\sاآبپتٹثجچحخدڈذرڑزژسشصضطظعغفقکگلمنںوہھءیے]/g;
@@ -1564,6 +1620,37 @@
                 }).join('');
                 highlightLetters(activeChars);
             }
+
+            // Calculate Elemental Temperaments
+            const elementCounts = { fire: 0, air: 0, water: 0, earth: 0 };
+            let totalElementLetters = 0;
+
+            for (let i = 0; i < inputVal.length; i++) {
+                const char = inputVal[i];
+                if (/\s/.test(char)) continue;
+
+                if (letterMap[char] !== undefined || char === 'ء' || char === 'ئ' || char === 'ؤ' || char === 'ة') {
+                    let element = null;
+                    if (char === 'ء' || char === 'ئ' || char === 'ؤ' || char === 'ة') {
+                        element = 'fire';
+                    } else {
+                        element = elementMap[char];
+                    }
+
+                    if (element) {
+                        elementCounts[element]++;
+                        totalElementLetters++;
+                    }
+                }
+            }
+
+            const elements = ['fire', 'air', 'water', 'earth'];
+            elements.forEach(el => {
+                const pct = totalElementLetters > 0 ? Math.round((elementCounts[el] / totalElementLetters) * 100) : 0;
+                document.getElementById(`val-${el}`).textContent = `${pct}%`;
+                document.getElementById(`bar-${el}`).style.width = `${pct}%`;
+            });
+
             if (typeof updateSuggestions === 'function') {
                 updateSuggestions();
             }
