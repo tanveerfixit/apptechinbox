@@ -14,10 +14,8 @@ if (file_exists($manifestPath)) {
     }
 }
 
-// Generate robust host-relative path for Hostinger
-$scriptDir = dirname($_SERVER['SCRIPT_NAME']);
-$cleanDir = ($scriptDir === '/' || $scriptDir === '\\') ? '' : rtrim($scriptDir, '/\\');
-$absoluteCssUrl = $cleanDir . '/' . $tailwindCssPath;
+// Generate robust root-relative asset URL for Hostinger and local server
+$absoluteCssUrl = '/' . ltrim($tailwindCssPath, '/');
 ?>
 <link rel="stylesheet" href="<?php echo htmlspecialchars($absoluteCssUrl); ?>">
 
