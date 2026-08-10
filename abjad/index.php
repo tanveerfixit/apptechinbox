@@ -584,37 +584,68 @@
                 padding: 0.5rem 0.25rem;
             }
             header {
-                margin-bottom: 1.25rem;
+                margin-bottom: 1rem;
             }
             h1 {
-                font-size: 1.25rem;
+                font-size: 1.15rem;
             }
             .container {
-                gap: 1rem;
+                gap: 0.75rem;
             }
             .calculator-card {
-                padding: 0.75rem;
-                border-radius: 12px;
-                gap: 1rem;
+                padding: 0.6rem;
+                border-radius: 10px;
+                gap: 0.75rem;
+            }
+            .calc-input {
+                padding: 0.6rem 0.75rem;
+                font-size: 1.25rem;
+                border-radius: 8px;
+            }
+            .calc-input::placeholder {
+                font-size: 0.8rem;
+            }
+            /* Elemental bars - tighter on tablets */
+            .elements-line-container {
+                gap: 0.5rem !important;
+                margin-bottom: 0.5rem !important;
+                margin-top: 0 !important;
             }
             .calc-results {
                 flex-direction: column;
                 align-items: stretch;
-                padding: 1rem;
-                gap: 1rem;
+                padding: 0.6rem;
+                gap: 0.75rem;
+                border-radius: 10px;
             }
             .values-wrapper {
                 justify-content: center;
-                margin-bottom: 0.5rem;
-                gap: 1.5rem;
+                margin-bottom: 0.25rem;
+                gap: 1.25rem;
+            }
+            .total-value {
+                font-size: 1.6rem;
+            }
+            .breakdown-container {
+                min-width: 0;
+            }
+            .breakdown-item {
+                padding: 0.25rem 0.35rem;
+                min-width: 32px;
+            }
+            .breakdown-letter {
+                font-size: 0.95rem;
+            }
+            .breakdown-val {
+                font-size: 0.6rem;
             }
             .letters-grid {
                 max-width: 100%;
-                gap: 0.5rem;
+                gap: 0.4rem;
             }
             .letter-card {
-                width: 60px;
-                height: 60px;
+                width: 55px;
+                height: 55px;
             }
             .modal-overlay {
                 padding: 0 !important;
@@ -684,59 +715,100 @@
 
         @media (max-width: 480px) {
             body {
-                padding: 0.25rem 0.1rem;
+                padding: 0.15rem 0;
             }
             header {
-                margin-bottom: 0.75rem;
+                margin-bottom: 0.5rem;
             }
             h1 {
-                font-size: 1.1rem;
+                font-size: 1rem;
+            }
+            .container {
+                gap: 0.5rem;
             }
             .calculator-card {
-                padding: 0.5rem;
-                border-radius: 8px;
-                gap: 0.75rem;
+                padding: 0.4rem;
+                border-radius: 6px;
+                gap: 0.5rem;
             }
             .calc-input {
-                padding: 0.65rem 1rem;
-                font-size: 1.2rem;
+                padding: 0.5rem 0.6rem;
+                font-size: 1.15rem;
+                border-radius: 6px;
+            }
+            .calc-input::placeholder {
+                font-size: 0.7rem;
+            }
+            /* Elemental bars - compact for phones */
+            .elements-line-container {
+                gap: 0.35rem !important;
+                padding: 0 !important;
+                margin-top: 0 !important;
+                margin-bottom: 0.35rem !important;
+            }
+            .elements-line-container > div {
+                min-width: 60px !important;
+            }
+            .elements-line-container span {
+                font-size: 0.62rem !important;
             }
             .calc-results {
-                padding: 0.75rem;
-                gap: 0.75rem;
-            }
-            .values-wrapper {
-                gap: 1rem;
-            }
-            .total-value {
-                font-size: 1.5rem;
-            }
-            .letters-grid {
-                gap: 0.35rem;
-            }
-            .letter-card {
-                width: 48px;
-                height: 48px;
+                padding: 0.5rem;
+                gap: 0.5rem;
                 border-radius: 8px;
             }
+            .values-wrapper {
+                gap: 0.75rem;
+            }
+            .total-value {
+                font-size: 1.35rem;
+            }
+            .total-value-label {
+                font-size: 0.7rem;
+            }
+            .breakdown-item {
+                padding: 0.2rem 0.3rem;
+                min-width: 28px;
+                border-radius: 4px;
+            }
+            .breakdown-letter {
+                font-size: 0.85rem;
+            }
+            .breakdown-val {
+                font-size: 0.55rem;
+            }
+            .breakdown-flow {
+                gap: 0.25rem;
+            }
+            .letters-grid {
+                gap: 0.3rem;
+            }
+            .letter-card {
+                width: 45px;
+                height: 45px;
+                border-radius: 6px;
+            }
             .letter-arabic {
-                font-size: 1.4rem;
+                font-size: 1.3rem;
+                top: 6px;
+                right: 5px;
             }
             .letter-value {
-                font-size: 0.65rem;
+                font-size: 0.6rem;
                 bottom: 2px;
-                left: 4px;
+                left: 3px;
             }
             .btn {
-                padding: 0.5rem 0.85rem;
-                font-size: 0.8rem;
+                padding: 0.4rem 0.6rem;
+                font-size: 0.75rem;
+                border-radius: 6px;
             }
             .floating-keyboard .letter-card {
-                width: 36px !important;
-                height: 36px !important;
+                width: 34px !important;
+                height: 34px !important;
             }
             .floating-keyboard .letter-card .letter-arabic {
-                font-size: 1.3rem !important;
+                font-size: 1.2rem !important;
             }
         }
 
@@ -1021,19 +1093,19 @@
             </div>
 
             <!-- Optional Fields Row: Buttons, Origin and Meanings (Meaning fills the rest of the space) -->
-            <div style="display: flex; gap: 0.5rem; width: 100%; flex-wrap: wrap; align-items: flex-end;">
-                <button id="btnClear" class="btn btn-primary" style="padding: 0.6rem 0.8rem; margin: 0; font-size: 0.85rem; height: 38px; border-radius: 10px;">Clear</button>
-                <button id="btnSave" class="btn btn-primary" style="padding: 0.6rem 0.8rem; margin: 0; font-size: 0.85rem; height: 38px; border-radius: 10px;">Save</button>
-                <button id="btnMemo" class="btn btn-primary" style="padding: 0.6rem 0.8rem; margin: 0; font-size: 0.85rem; height: 38px; border-radius: 10px;">Memo</button>
+            <div style="display: flex; gap: 0.4rem; width: 100%; flex-wrap: wrap; align-items: flex-end;">
+                <button id="btnClear" class="btn btn-primary" style="padding: 0.5rem 0.65rem; margin: 0; font-size: 0.8rem; height: 34px; border-radius: 8px;">Clear</button>
+                <button id="btnSave" class="btn btn-primary" style="padding: 0.5rem 0.65rem; margin: 0; font-size: 0.8rem; height: 34px; border-radius: 8px;">Save</button>
+                <button id="btnMemo" class="btn btn-primary" style="padding: 0.5rem 0.65rem; margin: 0; font-size: 0.8rem; height: 34px; border-radius: 8px;">Memo</button>
                 
-                <div style="width: 100px; display: flex; flex-direction: column; gap: 0.3rem; flex-shrink: 0;">
-                    <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Origin</label>
-                    <input type="text" id="originInput" class="calc-input detail-input" placeholder="Origin..." style="padding: 0.5rem 0.6rem; font-size: 0.9rem; border-radius: 10px; height: 38px;">
+                <div style="width: 80px; display: flex; flex-direction: column; gap: 0.2rem; flex-shrink: 0;">
+                    <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Origin</label>
+                    <input type="text" id="originInput" class="calc-input detail-input" placeholder="Origin..." style="padding: 0.4rem 0.5rem; font-size: 0.85rem; border-radius: 8px; height: 34px;">
                 </div>
                 
-                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.3rem;">
-                    <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Meanings (Optional)</label>
-                    <input type="text" id="meaningInput" class="calc-input detail-input" placeholder="e.g. Gracious, King..." style="padding: 0.5rem 0.75rem; font-size: 0.9rem; border-radius: 10px; height: 38px;">
+                <div style="flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 0.2rem;">
+                    <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Meanings (Optional)</label>
+                    <input type="text" id="meaningInput" class="calc-input detail-input" placeholder="e.g. Gracious, King..." style="padding: 0.4rem 0.5rem; font-size: 0.85rem; border-radius: 8px; height: 34px;">
                 </div>
             </div>
 
