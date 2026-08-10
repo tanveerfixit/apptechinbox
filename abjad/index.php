@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Calculate the Abjad (Huroof-e-Abjad) values of Urdu, Persian, and Arabic names or words instantly. Free online calculator featuring real-time letter breakdown, digital roots, and search suggestions.">
     <meta name="keywords" content="Abjad calculator, Huroof-e-Abjad, Urdu abjad calculator, Arabic abjad, Persian abjad, abjad calculations, letter value calculator, digital root, islamic name calculator">
     <meta name="robots" content="index, follow">
@@ -243,6 +245,72 @@
             border-left: 2px dashed rgba(255, 255, 255, 0.15);
             margin: 0 0.35rem;
             display: inline-block;
+        }
+
+        /* Elemental Temperament Layout */
+        .elements-line-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+            margin-top: -0.2rem;
+            margin-bottom: 0.5rem;
+            padding: 0 0.1rem;
+            direction: rtl;
+        }
+
+        .element-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            min-width: 0;
+        }
+
+        .element-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .element-bar-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(120, 120, 120, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        /* Action Row & Detail Input Layout */
+        .action-fields-row {
+            display: flex;
+            gap: 0.4rem;
+            width: 100%;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .action-buttons-group {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+        }
+
+        .origin-input-wrapper {
+            width: 90px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            flex-shrink: 0;
+        }
+
+        .meaning-input-wrapper {
+            flex: 1;
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
         }
 
         /* Buttons */
@@ -1048,62 +1116,64 @@
                 <div id="suggestionsBox" class="suggestions-box" style="display: none;"></div>
             </div>
 
-            <!-- Elemental Temperament (عناصر کی کیفیت) - One Line, No Background box -->
-            <div class="elements-line-container" style="display: flex; gap: 0.75rem; width: 100%; margin-top: -0.25rem; margin-bottom: 0.75rem; padding: 0 0.25rem; font-family: var(--font-sans); direction: rtl; flex-wrap: wrap;">
+            <!-- Elemental Temperament (عناصر کی کیفیت) - Fluid 4-Column Grid -->
+            <div class="elements-line-container">
                 <!-- Fire Element -->
-                <div style="flex: 1; min-width: 75px; display: flex; flex-direction: column; gap: 0.15rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: #f87171;">
+                <div class="element-item">
+                    <div class="element-header" style="color: #f87171;">
                         <span>🔥 Fire (آتشی)</span>
                         <span id="val-fire">0%</span>
                     </div>
-                    <div style="width: 100%; height: 4px; background: rgba(120, 120, 120, 0.15); border-radius: 2px; overflow: hidden;">
+                    <div class="element-bar-track">
                         <div id="bar-fire" style="width: 0%; height: 100%; background: #f87171; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Air Element -->
-                <div style="flex: 1; min-width: 75px; display: flex; flex-direction: column; gap: 0.15rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: #38bdf8;">
+                <div class="element-item">
+                    <div class="element-header" style="color: #38bdf8;">
                         <span>💨 Air (بادی)</span>
                         <span id="val-air">0%</span>
                     </div>
-                    <div style="width: 100%; height: 4px; background: rgba(120, 120, 120, 0.15); border-radius: 2px; overflow: hidden;">
+                    <div class="element-bar-track">
                         <div id="bar-air" style="width: 0%; height: 100%; background: #38bdf8; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Water Element -->
-                <div style="flex: 1; min-width: 75px; display: flex; flex-direction: column; gap: 0.15rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: #60a5fa;">
+                <div class="element-item">
+                    <div class="element-header" style="color: #60a5fa;">
                         <span>💧 Water (آبی)</span>
                         <span id="val-water">0%</span>
                     </div>
-                    <div style="width: 100%; height: 4px; background: rgba(120, 120, 120, 0.15); border-radius: 2px; overflow: hidden;">
+                    <div class="element-bar-track">
                         <div id="bar-water" style="width: 0%; height: 100%; background: #60a5fa; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Earth Element -->
-                <div style="flex: 1; min-width: 75px; display: flex; flex-direction: column; gap: 0.15rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: #fbbf24;">
+                <div class="element-item">
+                    <div class="element-header" style="color: #fbbf24;">
                         <span>🪨 Earth (خاکی)</span>
                         <span id="val-earth">0%</span>
                     </div>
-                    <div style="width: 100%; height: 4px; background: rgba(120, 120, 120, 0.15); border-radius: 2px; overflow: hidden;">
+                    <div class="element-bar-track">
                         <div id="bar-earth" style="width: 0%; height: 100%; background: #fbbf24; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Optional Fields Row: Buttons, Origin and Meanings (Meaning fills the rest of the space) -->
-            <div style="display: flex; gap: 0.4rem; width: 100%; flex-wrap: wrap; align-items: flex-end;">
-                <button id="btnClear" class="btn btn-primary" style="padding: 0.5rem 0.65rem; margin: 0; font-size: 0.8rem; height: 34px; border-radius: 8px;">Clear</button>
-                <button id="btnSave" class="btn btn-primary" style="padding: 0.5rem 0.65rem; margin: 0; font-size: 0.8rem; height: 34px; border-radius: 8px;">Save</button>
-                <button id="btnMemo" class="btn btn-primary" style="padding: 0.5rem 0.65rem; margin: 0; font-size: 0.8rem; height: 34px; border-radius: 8px;">Memo</button>
+            <!-- Optional Fields Row: Buttons, Origin and Meanings -->
+            <div class="action-fields-row">
+                <div class="action-buttons-group">
+                    <button id="btnClear" class="btn btn-primary" style="padding: 0.5rem 0.65rem; margin: 0; font-size: 0.8rem; height: 34px; border-radius: 8px;">Clear</button>
+                    <button id="btnSave" class="btn btn-primary" style="padding: 0.5rem 0.65rem; margin: 0; font-size: 0.8rem; height: 34px; border-radius: 8px;">Save</button>
+                    <button id="btnMemo" class="btn btn-primary" style="padding: 0.5rem 0.65rem; margin: 0; font-size: 0.8rem; height: 34px; border-radius: 8px;">Memo</button>
+                </div>
                 
-                <div style="width: 80px; display: flex; flex-direction: column; gap: 0.2rem; flex-shrink: 0;">
+                <div class="origin-input-wrapper">
                     <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Origin</label>
                     <input type="text" id="originInput" class="calc-input detail-input" placeholder="Origin..." style="padding: 0.4rem 0.5rem; font-size: 0.85rem; border-radius: 8px; height: 34px;">
                 </div>
                 
-                <div style="flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 0.2rem;">
+                <div class="meaning-input-wrapper">
                     <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Meanings (Optional)</label>
                     <input type="text" id="meaningInput" class="calc-input detail-input" placeholder="e.g. Gracious, King..." style="padding: 0.4rem 0.5rem; font-size: 0.85rem; border-radius: 8px; height: 34px;">
                 </div>
