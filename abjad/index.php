@@ -581,21 +581,21 @@
         /* Mobile Responsiveness Viewports */
         @media (max-width: 768px) {
             body {
-                padding: 1rem 0.5rem;
+                padding: 0.5rem 0.25rem;
             }
             header {
-                margin-bottom: 1.5rem;
+                margin-bottom: 1.25rem;
             }
             h1 {
                 font-size: 1.25rem;
             }
             .container {
-                gap: 1.5rem;
+                gap: 1rem;
             }
             .calculator-card {
-                padding: 1.25rem;
-                border-radius: 16px;
-                gap: 1.25rem;
+                padding: 0.75rem;
+                border-radius: 12px;
+                gap: 1rem;
             }
             .calc-results {
                 flex-direction: column;
@@ -684,18 +684,18 @@
 
         @media (max-width: 480px) {
             body {
-                padding: 0.75rem 0.25rem;
+                padding: 0.25rem 0.1rem;
             }
             header {
-                margin-bottom: 1rem;
+                margin-bottom: 0.75rem;
             }
             h1 {
                 font-size: 1.1rem;
             }
             .calculator-card {
-                padding: 1rem;
-                border-radius: 14px;
-                gap: 1rem;
+                padding: 0.5rem;
+                border-radius: 8px;
+                gap: 0.75rem;
             }
             .calc-input {
                 padding: 0.65rem 1rem;
