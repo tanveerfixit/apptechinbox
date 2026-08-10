@@ -61,7 +61,7 @@
 
         header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 0.75rem;
             max-width: 800px;
         }
 
@@ -652,7 +652,7 @@
                 padding: 0.5rem 0.25rem;
             }
             header {
-                margin-bottom: 1rem;
+                margin-bottom: 0.4rem;
             }
             h1 {
                 font-size: 1.15rem;
@@ -760,19 +760,38 @@
             }
             /* Form inside modal responsiveness */
             #addEditRecordForm {
-                padding: 0.75rem !important;
+                padding: 0.6rem !important;
                 margin-bottom: 0.5rem !important;
                 border-radius: 8px !important;
                 background: var(--card-bg) !important;
             }
             #addEditRecordForm h3 {
-                font-size: 0.95rem !important;
-                margin-bottom: 0.75rem !important;
+                font-size: 0.9rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            #addEditRecordForm > div:first-of-type {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.4rem !important;
+            }
+            #addEditRecordForm > div:first-of-type > div {
+                width: 100% !important;
+                min-width: 0 !important;
+                flex: none !important;
+            }
+            #addEditRecordForm > div:first-of-type > div:first-child {
+                grid-column: span 2 !important; /* Name field spans full width */
+            }
+            #addEditRecordForm > div:first-of-type > div:last-child {
+                grid-column: span 2 !important; /* Meanings field spans full width */
             }
             #addEditRecordForm input {
-                height: 34px !important;
-                font-size: 0.9rem !important;
-                padding: 0.35rem 0.5rem !important;
+                height: 32px !important;
+                font-size: 0.85rem !important;
+                padding: 0.3rem 0.4rem !important;
+            }
+            .history-table {
+                min-width: 580px; /* Ensure table scrolls smoothly without squishing */
             }
             .floating-keyboard {
                 width: 92%;
@@ -786,7 +805,7 @@
                 padding: 0.15rem 0;
             }
             header {
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.25rem;
             }
             h1 {
                 font-size: 1rem;
@@ -1096,7 +1115,7 @@
 </head>
 <body>
 
-    <header style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 2.5rem; position: relative;">
+    <header style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; position: relative;">
         <h1 style="margin-bottom: 0;">Huroof-e-Abjad Computation</h1>
         <button id="btnThemeToggle" class="btn" aria-label="Toggle Theme" style="padding: 0; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); cursor: pointer;">
             <span id="themeToggleIcon" style="font-size: 1.1rem; line-height: 1;">🌗</span>
