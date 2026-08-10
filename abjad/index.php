@@ -355,60 +355,91 @@
             border-color: rgba(239, 68, 68, 0.45);
         }
 
-        /* Modal Overlay & Saved History Modal Popup */
+        /* Full Screen Saved / Memo Page View */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(11, 15, 25, 0.85);
-            backdrop-filter: blur(8px);
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-color);
             display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 1rem;
+            flex-direction: column;
+            z-index: 10000;
+            overflow-y: auto;
+            padding: 0;
         }
 
         .modal-content {
-            background: rgba(22, 28, 45, 0.95);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            width: 100%;
-            max-width: 850px;
-            padding: 2.0rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            background: var(--bg-color);
+            border: none;
+            border-radius: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            padding: 1.25rem 1.5rem;
+            box-shadow: none;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1rem;
             position: relative;
-            max-height: 92vh;
         }
 
         .modal-header {
             display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            width: 100%;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 0.75rem;
+        }
+
+        .modal-header-top {
+            display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 1rem;
-            direction: rtl; /* Form headers right-to-left */
+            width: 100%;
+            gap: 0.5rem;
+        }
+
+        .modal-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .modal-title-icon {
+            font-size: 1.2rem;
         }
 
         .modal-title {
-            font-size: 1.4rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .modal-header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: flex-end;
         }
 
         .modal-close {
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             cursor: pointer;
             transition: color 0.2s;
             line-height: 1;
+            padding: 0 0.25rem;
         }
 
         .modal-close:hover {
@@ -735,11 +766,26 @@
                 flex-direction: column;
             }
             .modal-header {
-                padding-bottom: 0.5rem !important;
+                padding-bottom: 0.4rem !important;
                 border-bottom-color: var(--card-border) !important;
+                gap: 0.4rem !important;
             }
             .modal-title {
-                font-size: 1.15rem !important;
+                font-size: 0.95rem !important;
+            }
+            .modal-title-icon {
+                font-size: 1rem !important;
+            }
+            .modal-header-actions {
+                width: 100% !important;
+                justify-content: stretch !important;
+                gap: 0.4rem !important;
+            }
+            .modal-header-actions .btn {
+                flex: 1 !important;
+                text-align: center !important;
+                font-size: 0.78rem !important;
+                padding: 0.4rem 0.5rem !important;
             }
             .history-table-wrapper {
                 flex: 1 !important;
@@ -1220,11 +1266,16 @@
             </div>
         </div>
 
-        <!-- Main Page Keyboard (Remains visible at all times, has NO numeric row, shows letter values) -->
+        <!-- Main Page Keyboard -->
         <div class="chart-section" id="keyboardContainer">
-            <div class="section-header" style="flex-direction: column; align-items: stretch; gap: 0.75rem;">
-                <!-- Action Row (Space bar & Backspace, aligned with width of characters grid) -->
-                <div style="display: flex; gap: 0.6rem; width: 100%; max-width: 640px; margin: 0 auto;">
+            <div class="section-header" style="flex-direction: column; align-items: stretch; gap: 0.5rem;">
+                <!-- Header with Hide/Show Keyboard Toggle Button -->
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 640px; margin: 0 auto; padding: 0 0.1rem;">
+                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Urdu Keyboard ⌨️</span>
+                    <button id="btnToggleMainKeyboard" class="btn" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; border-color: var(--accent-color); color: var(--text-main);">Hide Keyboard ⌨️</button>
+                </div>
+                <!-- Action Row (Space bar & Backspace) -->
+                <div id="keyboardActionRow" style="display: flex; gap: 0.6rem; width: 100%; max-width: 640px; margin: 0 auto;">
                     <button id="btnSpaceBar" class="btn btn-primary" style="flex: 1; margin: 0; padding: 0.75rem 0; text-align: center;">Space Bar ␣</button>
                     <button id="btnBackspace" class="btn" style="flex: 1; margin: 0; padding: 0.75rem 0; text-align: center; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171;">Backspace ⌫</button>
                 </div>
@@ -1237,19 +1288,26 @@
 
     </div>
 
-    <!-- Saved History Modal Popup -->
+    <!-- Full Screen Saved History & Memo Page -->
     <div id="memoModal" class="modal-overlay">
         <div class="modal-content">
-            <!-- Modal Header (RTL order: Add New and Show Keyboard side-by-side on right, title, Close button) -->
+            <!-- Full Screen Responsive Header Bar -->
             <div class="modal-header">
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <button id="btnAddNew" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Add New</button>
-                    <!-- Keyboard Toggle Button relocated beside Add New button -->
-                    <button id="btnToggleKeyboard" class="btn" style="font-size: 0.85rem; padding: 0.5rem 1rem; border-color: var(--accent-color); color: var(--text-main);">Show Keyboard</button>
+                <div class="modal-header-top">
+                    <button class="btn btn-primary" id="btnBackToCalc" style="font-size: 0.8rem; padding: 0.35rem 0.65rem; display: flex; align-items: center; gap: 0.25rem;">
+                        ← Back
+                    </button>
+                    <div class="modal-title-wrapper">
+                        <span class="modal-title-icon">💾</span>
+                        <span class="modal-title">Saved History & Memos</span>
+                    </div>
+                    <button class="modal-close" id="btnCloseModal" title="Close">&times;</button>
                 </div>
                 
-                <span class="modal-title" style="margin-right: auto;">💾 Saved History</span>
-                <button class="modal-close" id="btnCloseModal">&times;</button>
+                <div class="modal-header-actions">
+                    <button id="btnAddNew" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.35rem 0.65rem;">+ Add New</button>
+                    <button id="btnToggleKeyboard" class="btn" style="font-size: 0.8rem; padding: 0.35rem 0.65rem; border-color: var(--accent-color); color: var(--text-main);">Show Keyboard</button>
+                </div>
             </div>
             
             <!-- Manual Add/Edit Form Container (hidden by default) -->
@@ -1486,6 +1544,79 @@
                 document.ontouchend = null;
                 document.ontouchmove = null;
             }
+        }
+
+        // List of all editable text input fields
+        const editableInputIds = [
+            'calcInput', 'originInput', 'meaningInput',
+            'formName', 'formTotal', 'formSingle', 'formOrigin', 'formMeanings',
+            'search-name', 'search-total', 'search-single', 'search-origin', 'search-meanings'
+        ];
+
+        // Function to suppress or restore phone OS native virtual keyboard
+        function setNativeKeyboardSuppression(suppress) {
+            editableInputIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (suppress) {
+                        el.setAttribute('inputmode', 'none');
+                    } else {
+                        el.removeAttribute('inputmode');
+                    }
+                }
+            });
+        }
+
+        // Initially suppress native phone keyboard because custom built-in keyboard is active
+        setNativeKeyboardSuppression(true);
+
+        // Main Built-in Keyboard Toggle Handler
+        const btnToggleMainKeyboard = document.getElementById('btnToggleMainKeyboard');
+        const keyboardActionRow = document.getElementById('keyboardActionRow');
+        const lettersGrid = document.getElementById('lettersGrid');
+        let isMainKeyboardOpen = true;
+
+        if (btnToggleMainKeyboard) {
+            btnToggleMainKeyboard.addEventListener('click', () => {
+                isMainKeyboardOpen = !isMainKeyboardOpen;
+                if (isMainKeyboardOpen) {
+                    keyboardActionRow.style.display = 'flex';
+                    lettersGrid.style.display = 'flex';
+                    btnToggleMainKeyboard.textContent = 'Hide Keyboard ⌨️';
+                    btnToggleMainKeyboard.style.borderColor = 'var(--accent-color)';
+                    setNativeKeyboardSuppression(true);
+                } else {
+                    keyboardActionRow.style.display = 'none';
+                    lettersGrid.style.display = 'none';
+                    btnToggleMainKeyboard.textContent = 'Show Keyboard ⌨️';
+                    btnToggleMainKeyboard.style.borderColor = 'var(--card-border)';
+                    setNativeKeyboardSuppression(false);
+                }
+            });
+        }
+
+        // Modal Open / Close Helpers
+        function closeModal() {
+            const memoModal = document.getElementById('memoModal');
+            if (memoModal) {
+                memoModal.style.display = 'none';
+            }
+        }
+
+        function openModal() {
+            const memoModal = document.getElementById('memoModal');
+            if (memoModal) {
+                loadHistory();
+                memoModal.style.display = 'flex';
+            }
+        }
+
+        // Back to Calculator button inside full-screen Saved/Memo view
+        const btnBackToCalc = document.getElementById('btnBackToCalc');
+        if (btnBackToCalc) {
+            btnBackToCalc.addEventListener('click', () => {
+                closeModal();
+            });
         }
 
         // Show Keyboard function helper
@@ -2106,14 +2237,15 @@
 
         // Modal Open / Close Event Listeners
         const memoModal = document.getElementById('memoModal');
-        document.getElementById('btnMemo').addEventListener('click', () => {
-            loadHistory();
-            memoModal.style.display = 'flex';
-        });
+        const btnMemo = document.getElementById('btnMemo');
+        if (btnMemo) {
+            btnMemo.addEventListener('click', openModal);
+        }
 
-        document.getElementById('btnCloseModal').addEventListener('click', () => {
-            memoModal.style.display = 'none';
-        });
+        const btnCloseModal = document.getElementById('btnCloseModal');
+        if (btnCloseModal) {
+            btnCloseModal.addEventListener('click', closeModal);
+        }
 
         // Close modal when clicking outside the content area
         window.addEventListener('click', (e) => {
