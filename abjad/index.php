@@ -1171,42 +1171,42 @@
             <div class="elements-line-container">
                 <!-- Fire Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #ef4444;">
+                    <div class="element-header" style="color: #FF5722;">
                         <span>🔥 Fire (آتشی)</span>
                         <span id="val-fire">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-fire" style="width: 0%; height: 100%; background: #ef4444; transition: width 0.3s ease;"></div>
+                        <div id="bar-fire" style="width: 0%; height: 100%; background: #FF5722; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Air Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #f59e0b;">
+                    <div class="element-header" style="color: #3B82F6;">
                         <span>💨 Air (بادی)</span>
                         <span id="val-air">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-air" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.3s ease;"></div>
+                        <div id="bar-air" style="width: 0%; height: 100%; background: #3B82F6; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Water Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #38bdf8;">
+                    <div class="element-header" style="color: #1E1B4B;">
                         <span>💧 Water (آبی)</span>
                         <span id="val-water">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-water" style="width: 0%; height: 100%; background: #38bdf8; transition: width 0.3s ease;"></div>
+                        <div id="bar-water" style="width: 0%; height: 100%; background: #1E1B4B; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Earth Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #10b981;">
+                    <div class="element-header" style="color: #B45309;">
                         <span>🪨 Earth (خاکی)</span>
                         <span id="val-earth">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-earth" style="width: 0%; height: 100%; background: #10b981; transition: width 0.3s ease;"></div>
+                        <div id="bar-earth" style="width: 0%; height: 100%; background: #B45309; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
             </div>
@@ -2139,11 +2139,11 @@
                             }
                             const getPct = (el) => totalLetters > 0 ? Math.round((elCounts[el] / totalLetters) * 100) : 0;
                             return `
-                                <div style="display: inline-flex; gap: 0.4rem; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; direction: ltr;">
-                                    <span style="color: #ef4444;" title="Fire">${getPct('fire')}%</span>
-                                    <span style="color: #f59e0b;" title="Air">${getPct('air')}%</span>
-                                    <span style="color: #38bdf8;" title="Water">${getPct('water')}%</span>
-                                    <span style="color: #10b981;" title="Earth">${getPct('earth')}%</span>
+                                <div style="display: inline-flex; gap: 0.4rem; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; direction: rtl;">
+                                    <span style="color: #FF5722;" title="Fire">${getPct('fire')}%</span>
+                                    <span style="color: #3B82F6;" title="Air">${getPct('air')}%</span>
+                                    <span style="color: #1E1B4B;" title="Water">${getPct('water')}%</span>
+                                    <span style="color: #B45309;" title="Earth">${getPct('earth')}%</span>
                                 </div>
                             `;
                         })()}
