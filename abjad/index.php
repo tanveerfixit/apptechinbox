@@ -1171,42 +1171,42 @@
             <div class="elements-line-container">
                 <!-- Fire Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #f87171;">
+                    <div class="element-header" style="color: #ef4444;">
                         <span>🔥 Fire (آتشی)</span>
                         <span id="val-fire">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-fire" style="width: 0%; height: 100%; background: #f87171; transition: width 0.3s ease;"></div>
+                        <div id="bar-fire" style="width: 0%; height: 100%; background: #ef4444; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Air Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #38bdf8;">
+                    <div class="element-header" style="color: #f59e0b;">
                         <span>💨 Air (بادی)</span>
                         <span id="val-air">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-air" style="width: 0%; height: 100%; background: #38bdf8; transition: width 0.3s ease;"></div>
+                        <div id="bar-air" style="width: 0%; height: 100%; background: #f59e0b; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Water Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #60a5fa;">
+                    <div class="element-header" style="color: #38bdf8;">
                         <span>💧 Water (آبی)</span>
                         <span id="val-water">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-water" style="width: 0%; height: 100%; background: #60a5fa; transition: width 0.3s ease;"></div>
+                        <div id="bar-water" style="width: 0%; height: 100%; background: #38bdf8; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Earth Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #fbbf24;">
+                    <div class="element-header" style="color: #10b981;">
                         <span>🪨 Earth (خاکی)</span>
                         <span id="val-earth">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-earth" style="width: 0%; height: 100%; background: #fbbf24; transition: width 0.3s ease;"></div>
+                        <div id="bar-earth" style="width: 0%; height: 100%; background: #10b981; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
             </div>
