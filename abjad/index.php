@@ -25,16 +25,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: rgba(22, 28, 45, 0.6);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --primary-glow: rgba(99, 102, 241, 0.15);
-            --accent-color: #6366f1;
-            --accent-glow: #4f46e5;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --gold-accent: #f59e0b;
-            --gold-glow: rgba(245, 158, 11, 0.2);
+            --bg-color: #000000;
+            --card-bg: #1c1c1e;
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-glow: rgba(0, 122, 255, 0.12);
+            --accent-color: #007AFF;
+            --accent-glow: #0056CC;
+            --text-main: #f5f5f7;
+            --text-muted: #86868b;
+            --gold-accent: #FF9F0A;
+            --gold-glow: rgba(255, 159, 10, 0.15);
         }
 
         * {
@@ -46,17 +46,12 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Outfit', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Outfit', sans-serif;
             min-height: 100vh;
             padding: 2rem 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(30, 27, 75, 0.4) 0, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(17, 24, 39, 0.6) 0, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.1) 0, transparent 50%);
-            background-attachment: fixed;
         }
 
         header {
@@ -68,9 +63,7 @@
         h1 {
             font-size: 1.4rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff 30%, #a5b4fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-main);
             margin-bottom: 0.5rem;
             letter-spacing: -0.02em;
         }
@@ -87,10 +80,9 @@
         .calculator-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 2rem;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
@@ -99,16 +91,6 @@
             width: 100%;
             max-width: 756px;
             margin: 0 auto;
-        }
-
-        .calculator-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
         }
 
         .input-group {
@@ -125,29 +107,30 @@
 
         .calc-input {
             width: 100%;
-            padding: 0.75rem 1.25rem;
-            background: rgba(17, 24, 39, 0.7);
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
+            border-radius: 8px;
             color: var(--text-main);
             font-family: 'Amiri', serif;
             font-size: 1.4rem;
             direction: rtl;
-            transition: all 0.3s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .calc-input:focus {
             outline: none;
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 4px var(--primary-glow);
+            box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
         .calc-input::placeholder {
-            font-family: 'Outfit', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
             font-size: 1rem;
             direction: ltr;
             text-align: left;
-            color: rgba(156, 163, 175, 0.4);
+            color: var(--text-muted);
+            opacity: 0.5;
         }
 
         /* Detail input fields */
@@ -162,10 +145,10 @@
             gap: 1.5rem;
             align-items: center;
             justify-content: space-between;
-            background: rgba(17, 24, 39, 0.4);
+            background: rgba(255, 255, 255, 0.04);
             padding: 1.25rem;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
         }
 
         .values-wrapper {
@@ -194,7 +177,6 @@
             font-weight: 800;
             color: var(--gold-accent);
             line-height: 1;
-            text-shadow: 0 0 10px var(--gold-glow);
         }
 
         .breakdown-container {
@@ -217,8 +199,8 @@
         }
 
         .breakdown-item {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
             padding: 0.35rem 0.5rem;
             border-radius: 6px;
             display: flex;
@@ -315,27 +297,26 @@
 
         /* Buttons */
         .btn {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--card-border);
             color: var(--text-main);
             padding: 0.6rem 1.2rem;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 500;
             font-size: 0.9rem;
-            font-family: 'Outfit', sans-serif;
-            transition: all 0.2s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            transition: background 0.15s ease, border-color 0.15s ease;
         }
 
         .btn:hover {
             background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .btn-primary {
             background: var(--accent-color);
             border-color: var(--accent-color);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            color: #fff;
         }
 
         .btn-primary:hover {
@@ -344,15 +325,14 @@
         }
 
         .btn-danger {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            transition: all 0.2s ease;
+            background: rgba(255, 59, 48, 0.1);
+            border-color: rgba(255, 59, 48, 0.2);
+            color: #FF453A;
         }
 
         .btn-danger:hover {
-            background: rgba(239, 68, 68, 0.25);
-            border-color: rgba(239, 68, 68, 0.45);
+            background: rgba(255, 59, 48, 0.18);
+            border-color: rgba(255, 59, 48, 0.35);
         }
 
         /* Full Screen Saved / Memo Page View */
@@ -443,16 +423,18 @@
         }
 
         .modal-close:hover {
-            color: #f87171;
+            color: #FF453A;
         }
 
         /* History Table Styling: Configured for RTL layout & Grid lines */
         .history-table-wrapper {
             overflow-x: auto;
-            max-height: 60vh;
-            border-radius: 12px;
+            flex: 1;
+            min-height: 250px;
+            max-height: calc(100vh - 220px);
+            border-radius: 10px;
             border: 1px solid var(--card-border);
-            background: rgba(11, 15, 25, 0.4);
+            background: var(--card-bg);
         }
 
         .history-table {
@@ -464,11 +446,11 @@
         }
 
         .history-table th {
-            background: rgba(22, 28, 45, 0.95);
+            background: rgba(255, 255, 255, 0.04);
             color: var(--text-main);
-            font-weight: 800; /* Bold headers */
+            font-weight: 600;
             padding: 0.75rem 1rem;
-            border: 1px solid var(--card-border); /* Visible grid lines */
+            border: 1px solid var(--card-border);
             user-select: none;
         }
 
@@ -487,28 +469,28 @@
         }
 
         .history-table th.sortable:hover {
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(0, 122, 255, 0.08);
             color: var(--text-main);
             cursor: pointer;
         }
 
         .history-table td {
             padding: 0.75rem 1rem;
-            border: 1px solid var(--card-border); /* Visible grid lines */
+            border: 1px solid var(--card-border);
             color: var(--text-main);
             vertical-align: middle;
         }
 
         /* Alternate color rows (zebra grid) */
         .history-table tbody tr:nth-child(even) {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
         }
         .history-table tbody tr:nth-child(odd) {
-            background: rgba(255, 255, 255, 0.005);
+            background: transparent;
         }
 
         .history-table tr:hover {
-            background: rgba(99, 102, 241, 0.05);
+            background: rgba(0, 122, 255, 0.06);
         }
 
         .history-table td.arabic-cell {
@@ -527,7 +509,7 @@
         .table-search-input {
             width: 100%;
             padding: 0.35rem 0.5rem;
-            background: rgba(11, 15, 25, 0.8);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--card-border);
             border-radius: 6px;
             color: var(--text-main);
@@ -539,7 +521,7 @@
 
         .table-search-input:focus {
             border-color: var(--accent-color);
-            background: rgba(17, 24, 39, 0.95);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         /* Floating, Draggable style for modal keyboard copy */
@@ -550,13 +532,13 @@
             transform: translateX(-50%);
             width: auto;
             max-width: 440px;
-            background: rgba(15, 23, 42, 0.98) !important;
-            border: 2px solid var(--accent-color) !important;
-            border-radius: 16px !important;
+            background: var(--card-bg) !important;
+            border: 1px solid var(--card-border) !important;
+            border-radius: 12px !important;
             padding: 1rem !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
             z-index: 1010;
-            cursor: move; /* Drag cursor hint */
+            cursor: move;
         }
 
         /* Reduce the keyboard's grid boxes just to 2px more than the size of urdu alphabets */
@@ -603,15 +585,14 @@
         }
 
         .letter-card {
-            background: var(--card-bg);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(8px);
+            transition: background 0.15s ease, border-color 0.15s ease;
             cursor: pointer;
             user-select: none;
             width: 71px;
@@ -621,19 +602,17 @@
         }
 
         .letter-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(99, 102, 241, 0.4);
-            box-shadow: 0 6px 12px -3px rgba(99, 102, 241, 0.15);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .letter-card:active {
-            transform: scale(0.95);
+            transform: scale(0.97);
         }
 
         .letter-card.highlighted {
-            background: rgba(99, 102, 241, 0.18);
+            background: rgba(0, 122, 255, 0.12);
             border-color: var(--accent-color);
-            box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
         }
 
         /* Keyboard Modes: Arabic letters only (without bottom values) */
@@ -952,86 +931,89 @@
 
         /* Soft Mode Styles */
         body.soft-mode {
-            --bg-color: #f3f4f6;
-            --card-bg: rgba(255, 255, 255, 0.75);
+            --bg-color: #f5f5f7;
+            --card-bg: #ffffff;
             --card-border: rgba(0, 0, 0, 0.08);
-            --primary-glow: rgba(99, 102, 241, 0.1);
-            --accent-color: #4f46e5;
-            --accent-glow: #3730a3;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --gold-accent: #d97706;
-            --gold-glow: rgba(217, 119, 6, 0.15);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(224, 231, 255, 0.6) 0, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(243, 244, 246, 0.8) 0, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.05) 0, transparent 50%);
+            --primary-glow: rgba(0, 122, 255, 0.1);
+            --accent-color: #007AFF;
+            --accent-glow: #0056CC;
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --gold-accent: #c93400;
+            --gold-glow: rgba(201, 52, 0, 0.1);
         }
 
         body.soft-mode h1 {
-            background: linear-gradient(135deg, #1f2937 30%, #4f46e5 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1d1d1f;
         }
 
         body.soft-mode .calc-input {
-            background: rgba(255, 255, 255, 0.85);
-            color: #1f2937;
-            border-color: rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            color: #1d1d1f;
+            border-color: rgba(0, 0, 0, 0.12);
         }
 
         body.soft-mode .calc-input::placeholder {
-            color: rgba(107, 114, 128, 0.5);
+            color: #86868b;
+            opacity: 0.6;
         }
 
         body.soft-mode .calc-results {
-            background: rgba(243, 244, 246, 0.6);
-            border-color: rgba(0, 0, 0, 0.04);
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.06);
         }
 
         body.soft-mode .letter-arabic {
-            color: #1f2937;
+            color: #1d1d1f;
+        }
+
+        body.soft-mode .letter-card {
+            background: rgba(0, 0, 0, 0.03);
         }
 
         body.soft-mode .letter-card:hover {
-            border-color: rgba(99, 102, 241, 0.6);
-            box-shadow: 0 6px 12px -3px rgba(99, 102, 241, 0.25);
+            background: rgba(0, 0, 0, 0.06);
+            border-color: rgba(0, 0, 0, 0.15);
         }
 
         body.soft-mode .modal-content {
-            background: rgba(255, 255, 255, 0.98);
-            border-color: rgba(0, 0, 0, 0.1);
+            background: var(--bg-color);
+            border-color: rgba(0, 0, 0, 0.08);
         }
 
         body.soft-mode .modal-title {
-            color: #1f2937;
+            color: #1d1d1f;
         }
 
         body.soft-mode .history-table-wrapper {
-            background: rgba(243, 244, 246, 0.6);
+            background: #ffffff;
         }
 
         body.soft-mode .history-table th {
-            background: rgba(255, 255, 255, 0.95);
-            color: #1f2937;
+            background: var(--bg-color);
+            color: #1d1d1f;
             border-color: rgba(0, 0, 0, 0.08);
         }
 
         body.soft-mode .history-table td {
-            color: #1f2937;
-            border-color: rgba(0, 0, 0, 0.08);
+            color: #1d1d1f;
+            border-color: rgba(0, 0, 0, 0.06);
         }
 
         body.soft-mode .history-table tbody tr:nth-child(even) {
             background: rgba(0, 0, 0, 0.015);
         }
         body.soft-mode .history-table tbody tr:nth-child(odd) {
-            background: rgba(0, 0, 0, 0.003);
+            background: transparent;
+        }
+
+        body.soft-mode .history-table tr:hover {
+            background: rgba(0, 122, 255, 0.04);
         }
 
         body.soft-mode .table-search-input {
-            background: rgba(255, 255, 255, 0.9);
-            color: #1f2937;
+            background: #ffffff;
+            color: #1d1d1f;
             border-color: rgba(0, 0, 0, 0.1);
         }
 
@@ -1041,49 +1023,54 @@
         }
 
         body.soft-mode .floating-keyboard {
-            background: rgba(255, 255, 255, 0.98) !important;
-            border: 2px solid var(--accent-color) !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+            background: #ffffff !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
         }
 
-        body.soft-mode #addEditRecordForm {
-            background: rgba(243, 244, 246, 0.6);
+        body.soft-mode #addEditRecordForm > div {
+            background: #ffffff;
             border-color: rgba(0, 0, 0, 0.1);
         }
 
         body.soft-mode #addEditRecordForm label {
-            color: #000000 !important;
-            font-weight: bold !important;
+            color: #1d1d1f !important;
+            font-weight: 600 !important;
         }
 
         body.soft-mode #formTitle {
-            color: #1f2937;
+            color: #1d1d1f;
         }
 
         body.soft-mode .btn-primary {
             color: #ffffff;
         }
 
-        body.soft-mode .btn:not(.btn-primary) {
-            color: #374151;
-            border-color: rgba(0, 0, 0, 0.15);
+        body.soft-mode .btn:not(.btn-primary):not(.btn-danger) {
+            color: #1d1d1f;
+            background: rgba(0, 0, 0, 0.04);
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        body.soft-mode .btn:not(.btn-primary):not(.btn-danger):hover {
+            background: rgba(0, 0, 0, 0.07);
         }
 
         body.soft-mode .btn-danger {
-            background: rgba(220, 38, 38, 0.08);
-            border-color: rgba(220, 38, 38, 0.2);
-            color: #dc2626;
+            background: rgba(255, 59, 48, 0.06);
+            border-color: rgba(255, 59, 48, 0.15);
+            color: #FF3B30;
         }
 
         body.soft-mode .btn-danger:hover {
-            background: rgba(220, 38, 38, 0.15);
-            border-color: rgba(220, 38, 38, 0.3);
+            background: rgba(255, 59, 48, 0.12);
+            border-color: rgba(255, 59, 48, 0.25);
         }
 
         body.soft-mode #btnBackspace, body.soft-mode #modalBtnBackspace {
-            color: #dc2626;
-            border-color: rgba(220, 38, 38, 0.2);
-            background: rgba(220, 38, 38, 0.08);
+            color: #FF3B30;
+            border-color: rgba(255, 59, 48, 0.15);
+            background: rgba(255, 59, 48, 0.06);
         }
 
         /* Suggestions Dropdown Style */
@@ -1092,15 +1079,14 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: rgba(15, 23, 42, 0.95);
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
+            border-radius: 10px;
             margin-top: 0.35rem;
             max-height: 200px;
             overflow-y: auto;
             z-index: 100;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
             direction: rtl;
         }
 
@@ -1110,8 +1096,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: background 0.2s ease;
+            border-bottom: 1px solid var(--card-border);
+            transition: background 0.15s ease;
         }
 
         .suggestion-item:last-child {
@@ -1119,7 +1105,7 @@
         }
 
         .suggestion-item:hover {
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(0, 122, 255, 0.08);
         }
 
         .suggestion-name {
@@ -1144,18 +1130,18 @@
 
         /* Soft mode compatibility */
         body.soft-mode .suggestions-box {
-            background: rgba(255, 255, 255, 0.98);
+            background: #ffffff;
             border-color: rgba(0, 0, 0, 0.1);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
         }
         body.soft-mode .suggestion-item {
             border-bottom-color: rgba(0, 0, 0, 0.05);
         }
         body.soft-mode .suggestion-item:hover {
-            background: rgba(99, 102, 241, 0.08);
+            background: rgba(0, 122, 255, 0.05);
         }
         body.soft-mode .suggestion-name {
-            color: #1f2937;
+            color: #1d1d1f;
         }
     </style>
 </head>
@@ -1249,7 +1235,7 @@
                 <div class="values-wrapper">
                     <div class="total-value-container">
                         <div class="total-value-label">Single</div>
-                        <div class="total-value" id="singleValue" style="color: var(--accent-color); text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);">0</div>
+                        <div class="total-value" id="singleValue" style="color: var(--accent-color);">0</div>
                     </div>
                     <div class="total-value-container" style="border-left: 1px solid rgba(255, 255, 255, 0.1); padding-left: 1.5rem;">
                         <div class="total-value-label">Total</div>
@@ -1277,7 +1263,7 @@
                 <!-- Action Row (Space bar & Backspace) -->
                 <div id="keyboardActionRow" style="display: flex; gap: 0.6rem; width: 100%; max-width: 640px; margin: 0 auto;">
                     <button id="btnSpaceBar" class="btn btn-primary" style="flex: 1; margin: 0; padding: 0.75rem 0; text-align: center;">Space Bar ␣</button>
-                    <button id="btnBackspace" class="btn" style="flex: 1; margin: 0; padding: 0.75rem 0; text-align: center; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171;">Backspace ⌫</button>
+                    <button id="btnBackspace" class="btn" style="flex: 1; margin: 0; padding: 0.75rem 0; text-align: center; background: rgba(255, 59, 48, 0.1); border-color: rgba(255, 59, 48, 0.2); color: #FF453A;">Backspace ⌫</button>
                 </div>
             </div>
             
@@ -1310,36 +1296,55 @@
                 </div>
             </div>
             
-            <!-- Manual Add/Edit Form Container (hidden by default) -->
-            <div id="addEditRecordForm" style="display: none; background: rgba(11, 15, 25, 0.5); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--card-border); margin-bottom: 0.5rem;">
-                <h3 id="formTitle" style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; text-align: center;">Add New Record</h3>
-                <input type="hidden" id="editRecordId">
-                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; direction: rtl;">
-                    <div style="flex: 1.5; min-width: 150px; display: flex; flex-direction: column; gap: 0.3rem;">
-                        <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-align: center;">Name</label>
-                        <input type="text" id="formName" class="calc-input" placeholder="e.g. احمد" style="height: 38px; font-size: 1rem; padding: 0.5rem 0.75rem;">
+            <!-- Clean Popup Modal for Add / Update Record -->
+            <div id="addEditRecordForm" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 20000; align-items: center; justify-content: center; padding: 1rem;">
+                <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; width: 100%; max-width: 520px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); overflow: hidden; animation: popIn 0.2s ease-out;">
+                    <!-- Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--card-border);">
+                        <h3 id="formTitle" style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0;">Update Record</h3>
+                        <button type="button" onclick="document.getElementById('addEditRecordForm').style.display='none';" style="background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; line-height: 1;">&times;</button>
                     </div>
-                    <!-- numeric fields total & single, formatted LTR -->
-                    <div style="width: 90px; display: flex; flex-direction: column; gap: 0.3rem;">
-                        <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-align: center;">Total</label>
-                        <input type="text" id="formTotal" class="calc-input" style="height: 38px; font-size: 1.1rem; padding: 0.5rem 0.75rem; direction: ltr; text-align: left;">
-                    </div>
-                    <div style="width: 90px; display: flex; flex-direction: column; gap: 0.3rem;">
-                        <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-align: center;">Single</label>
-                        <input type="text" id="formSingle" class="calc-input" style="height: 38px; font-size: 1.1rem; padding: 0.5rem 0.75rem; direction: ltr; text-align: left;">
-                    </div>
-                    <div style="width: 120px; display: flex; flex-direction: column; gap: 0.3rem;">
-                        <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-align: center;">Origin</label>
-                        <input type="text" id="formOrigin" class="calc-input" placeholder="Origin" style="height: 38px; font-size: 0.95rem; padding: 0.5rem 0.75rem; direction: auto; text-align: right;">
-                    </div>
-                    <div style="flex: 2; min-width: 180px; display: flex; flex-direction: column; gap: 0.3rem;">
-                        <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-align: center;">Meanings</label>
-                        <input type="text" id="formMeanings" class="calc-input" placeholder="Meanings" style="height: 38px; font-size: 0.95rem; padding: 0.5rem 0.75rem; direction: auto; text-align: right;">
-                    </div>
-                </div>
-                <div style="display: flex; gap: 0.5rem; justify-content: flex-start; margin-top: 1rem; direction: rtl;">
-                    <button id="btnSubmitForm" class="btn btn-primary" style="height: 36px; padding: 0 1.25rem; font-size: 0.85rem;">Save Record</button>
-                    <button id="btnCancelForm" class="btn" style="height: 36px; padding: 0 1.25rem; font-size: 0.85rem;">Cancel</button>
+                    
+                    <!-- Form Body -->
+                    <form onsubmit="return false;" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <input type="hidden" id="editRecordId">
+                        
+                        <!-- Name Field -->
+                        <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Name (اسم)</label>
+                            <input type="text" id="formName" class="calc-input" placeholder="e.g. احمد" style="height: 42px; font-size: 1.2rem; padding: 0.5rem 0.85rem; border-radius: 8px;">
+                        </div>
+                        
+                        <!-- Total & Single side-by-side -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Total (مجموع)</label>
+                                <input type="text" id="formTotal" class="calc-input" placeholder="0" style="height: 42px; font-size: 1.1rem; padding: 0.5rem 0.85rem; border-radius: 8px; direction: ltr; text-align: left;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Single (مفرد)</label>
+                                <input type="text" id="formSingle" class="calc-input" placeholder="0" style="height: 42px; font-size: 1.1rem; padding: 0.5rem 0.85rem; border-radius: 8px; direction: ltr; text-align: left;">
+                            </div>
+                        </div>
+                        
+                        <!-- Origin Field -->
+                        <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Origin (منشاء / اصل)</label>
+                            <input type="text" id="formOrigin" class="calc-input" placeholder="e.g. Arabic / Urdu" style="height: 40px; font-size: 0.95rem; padding: 0.5rem 0.85rem; border-radius: 8px; direction: auto; text-align: right;">
+                        </div>
+                        
+                        <!-- Meanings Field -->
+                        <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Meanings (معنی)</label>
+                            <input type="text" id="formMeanings" class="calc-input" placeholder="e.g. Highly Praised" style="height: 40px; font-size: 0.95rem; padding: 0.5rem 0.85rem; border-radius: 8px; direction: auto; text-align: right;">
+                        </div>
+                        
+                        <!-- Buttons Footer -->
+                        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;">
+                            <button type="button" id="btnCancelForm" class="btn" style="padding: 0.55rem 1.2rem; font-size: 0.85rem; border-radius: 8px;">Cancel</button>
+                            <button type="button" id="btnSubmitForm" class="btn btn-primary" style="padding: 0.55rem 1.4rem; font-size: 0.85rem; border-radius: 8px;">Save Changes</button>
+                        </div>
+                    </form>
                 </div>
             </div>
             
@@ -1349,27 +1354,48 @@
                     <thead>
                         <!-- Row 1: Search Inputs, with numeric columns search-total & search-single styled LTR -->
                         <tr>
-                            <th style="width: 20%;"><input type="text" class="table-search-input" id="search-name" placeholder="Search Name..."></th>
-                            <th style="width: 12%;"><input type="text" class="table-search-input" id="search-total" placeholder="Total..." style="direction: ltr; text-align: left;"></th>
-                            <th style="width: 12%;"><input type="text" class="table-search-input" id="search-single" placeholder="Single..." style="direction: ltr; text-align: left;"></th>
-                            <th style="width: 18%;"><input type="text" class="table-search-input" id="search-origin" placeholder="Search Origin..."></th>
-                            <th style="width: 23%;"><input type="text" class="table-search-input" id="search-meanings" placeholder="Search Meanings..."></th>
-                            <th style="width: 15%; text-align: center;"><button id="btnClearFilters" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; border-color: rgba(239, 68, 68, 0.4); color: #f87171; display: none;">Clear</button></th>
+                            <th style="width: 26%;"><input type="text" class="table-search-input" id="search-name" placeholder="Search Name..."></th>
+                            <th style="width: 10%;"><input type="text" class="table-search-input" id="search-total" placeholder="Total..." style="direction: ltr; text-align: left;"></th>
+                            <th style="width: 8%; min-width: 65px;"><input type="text" class="table-search-input" id="search-single" placeholder="Single..." style="direction: ltr; text-align: left;"></th>
+                            <th style="width: 14%; min-width: 80px;"><input type="text" class="table-search-input" id="search-origin" placeholder="Search Origin..."></th>
+                            <th style="width: 22%;"><input type="text" class="table-search-input" id="search-meanings" placeholder="Search Meanings..."></th>
+                            <th style="width: 20%; text-align: center;"><button id="btnClearFilters" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; border-color: rgba(255, 59, 48, 0.25); color: #FF453A; display: none;">Clear</button></th>
                         </tr>
                         <!-- Row 2: Sortable Column Headers -->
                         <tr id="sortHeaderRow">
-                            <th class="sortable" data-col="name" style="width: 20%;">Name <span id="sort-icon-name" class="sort-icon">⇅</span></th>
-                            <th class="sortable" data-col="total" style="width: 12%;">Total <span id="sort-icon-total" class="sort-icon">⇅</span></th>
-                            <th class="sortable" data-col="single" style="width: 12%;">Single <span id="sort-icon-single" class="sort-icon">⇅</span></th>
-                            <th class="sortable" data-col="origin" style="width: 18%;">Origin <span id="sort-icon-origin" class="sort-icon">⇅</span></th>
-                            <th class="sortable" data-col="meanings" style="width: 23%;">Meanings <span id="sort-icon-meanings" class="sort-icon">⇅</span></th>
-                            <th style="width: 15%; text-align: center;">Actions</th>
+                            <th class="sortable" data-col="name" style="width: 26%;">Name <span id="sort-icon-name" class="sort-icon">⇅</span></th>
+                            <th class="sortable" data-col="total" style="width: 10%;">Total <span id="sort-icon-total" class="sort-icon">⇅</span></th>
+                            <th class="sortable" data-col="single" style="width: 8%; min-width: 65px;">Single <span id="sort-icon-single" class="sort-icon">⇅</span></th>
+                            <th class="sortable" data-col="origin" style="width: 14%; min-width: 80px;">Origin <span id="sort-icon-origin" class="sort-icon">⇅</span></th>
+                            <th class="sortable" data-col="meanings" style="width: 22%;">Meanings <span id="sort-icon-meanings" class="sort-icon">⇅</span></th>
+                            <th style="width: 20%; text-align: center;">Temperaments %</th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">
                         <!-- Populated dynamically -->
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Table Pagination Controls -->
+            <div id="tablePaginationContainer" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 0.5rem 0.2rem; border-top: 1px solid var(--card-border); gap: 0.5rem; direction: ltr; font-size: 0.8rem; color: var(--text-muted);">
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <span>Rows per page:</span>
+                    <select id="pageSizeSelect" style="padding: 0.15rem 0.35rem; font-size: 0.8rem; background: transparent; border: 1px solid var(--card-border); border-radius: 4px; color: var(--text-main); outline: none;">
+                        <option value="10" style="background: var(--card-bg);">10</option>
+                        <option value="25" selected style="background: var(--card-bg);">25</option>
+                        <option value="50" style="background: var(--card-bg);">50</option>
+                        <option value="100" style="background: var(--card-bg);">100</option>
+                    </select>
+                    <span id="pageInfoText" style="margin-left: 0.4rem;">Showing 0-0 of 0</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                    <button id="btnFirstPage" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.4rem; font-size: 0.8rem; border-radius: 4px; transition: color 0.15s;">« First</button>
+                    <button id="btnPrevPage" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.4rem; font-size: 0.8rem; border-radius: 4px; transition: color 0.15s;">‹ Prev</button>
+                    <span id="currentPageBadge" style="padding: 0.15rem 0.5rem; color: var(--accent-color); font-weight: 700; font-size: 0.8rem;">1</span>
+                    <button id="btnNextPage" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.4rem; font-size: 0.8rem; border-radius: 4px; transition: color 0.15s;">Next ›</button>
+                    <button id="btnLastPage" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.4rem; font-size: 0.8rem; border-radius: 4px; transition: color 0.15s;">Last »</button>
+                </div>
             </div>
 
             <!-- Floating & Moveable Modal Keyboard Copy (Urdu alphabets only, numeric row on top) -->
@@ -1381,7 +1407,7 @@
                     <!-- Action Row (Space bar & Backspace inside modal) -->
                     <div style="display: flex; gap: 0.4rem; width: 100%; max-width: 640px; margin: 0 auto;">
                         <button id="modalBtnSpaceBar" class="btn btn-primary" style="flex: 1; margin: 0; padding: 0.5rem 0; text-align: center; font-size: 0.8rem;">Space ␣</button>
-                        <button id="modalBtnBackspace" class="btn" style="flex: 1; margin: 0; padding: 0.5rem 0; text-align: center; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171; font-size: 0.8rem;">Delete ⌫</button>
+                        <button id="modalBtnBackspace" class="btn" style="flex: 1; margin: 0; padding: 0.5rem 0; text-align: center; background: rgba(255, 59, 48, 0.1); border-color: rgba(255, 59, 48, 0.2); color: #FF453A; font-size: 0.8rem;">Delete ⌫</button>
                     </div>
                 </div>
                 
@@ -1476,6 +1502,10 @@
             origin: '',
             meanings: ''
         };
+
+        // Pagination State
+        let currentPage = 1;
+        let pageSize = 25;
 
         // Make floating element draggable by mouse or touch
         function makeElementDraggable(elm) {
@@ -2047,22 +2077,76 @@
                 });
             }
 
-            // 3. Render HTML
-            if (processedData.length === 0) {
+            // 3. Pagination calculation
+            const totalRecords = processedData.length;
+            const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalRecords);
+            const pageData = processedData.slice(startIndex, endIndex);
+
+            // Update Pagination UI
+            const pageInfo = document.getElementById('pageInfoText');
+            if (pageInfo) {
+                pageInfo.textContent = totalRecords === 0 
+                    ? 'Showing 0 of 0' 
+                    : `Showing ${startIndex + 1}-${endIndex} of ${totalRecords}`;
+            }
+            const currentBadge = document.getElementById('currentPageBadge');
+            if (currentBadge) currentBadge.textContent = `${currentPage} / ${totalPages}`;
+
+            const btnFirst = document.getElementById('btnFirstPage');
+            const btnPrev = document.getElementById('btnPrevPage');
+            const btnNext = document.getElementById('btnNextPage');
+            const btnLast = document.getElementById('btnLastPage');
+
+            if (btnFirst) btnFirst.disabled = currentPage === 1;
+            if (btnPrev) btnPrev.disabled = currentPage === 1;
+            if (btnNext) btnNext.disabled = currentPage === totalPages || totalPages === 0;
+            if (btnLast) btnLast.disabled = currentPage === totalPages || totalPages === 0;
+
+            if (totalRecords === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); font-style: italic;">No matching records found</td></tr>';
                 return;
             }
 
-             tableBody.innerHTML = processedData.map(item => `
+            tableBody.innerHTML = pageData.map(item => `
                 <tr>
-                    <td class="arabic-cell">${item.name}</td>
+                    <td class="arabic-cell" style="position: relative;">
+                        <a href="#" onclick="toggleRecordMenu(event, ${item.id}); return false;" style="color: var(--accent-color); font-weight: bold; text-decoration: none;">${item.name}</a>
+                        <div id="record-menu-${item.id}" class="record-action-dropdown" style="display: none; position: absolute; right: 10px; top: 100%; z-index: 100; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); padding: 0.4rem; min-width: 110px;">
+                            <button class="btn btn-primary" onclick="startEditRecord(${item.id}); closeAllRecordMenus();" style="width: 100%; text-align: right; padding: 0.35rem 0.6rem; font-size: 0.75rem; border-radius: 4px; margin-bottom: 0.3rem;">✏️ Edit</button>
+                            <button class="btn btn-danger" onclick="deleteRecord(${item.id}); closeAllRecordMenus();" style="width: 100%; text-align: right; padding: 0.35rem 0.6rem; font-size: 0.75rem; border-radius: 4px;">🗑️ Delete</button>
+                        </div>
+                    </td>
                     <td>${item.total}</td>
                     <td>${item.single}</td>
                     <td>${item.origin || '-'}</td>
                     <td>${item.meanings || '-'}</td>
-                    <td style="text-align: center; display: flex; gap: 0.35rem; justify-content: center;">
-                        <button class="btn btn-primary" onclick="startEditRecord(${item.id})" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer;">Edit</button>
-                        <button class="btn btn-danger" onclick="deleteRecord(${item.id})" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer;">Delete</button>
+                    <td style="text-align: center;">
+                        ${(function() {
+                            const elCounts = { fire: 0, air: 0, water: 0, earth: 0 };
+                            let totalLetters = 0;
+                            const str = item.name || '';
+                            for (let i = 0; i < str.length; i++) {
+                                const ch = str[i];
+                                if (/\s/.test(ch)) continue;
+                                let el = elementMap[ch];
+                                if (!el && (ch === 'ء' || ch === 'ئ' || ch === 'ؤ' || ch === 'ة')) el = 'fire';
+                                if (el) { elCounts[el]++; totalLetters++; }
+                            }
+                            const getPct = (el) => totalLetters > 0 ? Math.round((elCounts[el] / totalLetters) * 100) : 0;
+                            return `
+                                <div style="display: inline-flex; gap: 0.4rem; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; direction: ltr;">
+                                    <span style="color: #ef4444;" title="Fire">${getPct('fire')}%</span>
+                                    <span style="color: #f59e0b;" title="Air">${getPct('air')}%</span>
+                                    <span style="color: #38bdf8;" title="Water">${getPct('water')}%</span>
+                                    <span style="color: #10b981;" title="Earth">${getPct('earth')}%</span>
+                                </div>
+                            `;
+                        })()}
                     </td>
                 </tr>
             `).join('');
@@ -2080,6 +2164,27 @@
                 }
             });
         }
+
+        // Toggle action dropdown menu when clicking record name
+        function toggleRecordMenu(e, id) {
+            e.stopPropagation();
+            const targetMenu = document.getElementById(`record-menu-${id}`);
+            const isCurrentlyOpen = targetMenu && targetMenu.style.display === 'block';
+            closeAllRecordMenus();
+            if (targetMenu && !isCurrentlyOpen) {
+                targetMenu.style.display = 'block';
+            }
+        }
+
+        function closeAllRecordMenus() {
+            document.querySelectorAll('.record-action-dropdown').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        document.addEventListener('click', () => {
+            closeAllRecordMenus();
+        });
 
         // Add/Edit Form Controls
         const addEditRecordForm = document.getElementById('addEditRecordForm');
@@ -2100,7 +2205,7 @@
             formSingle.value = '';
             formOrigin.value = '';
             formMeanings.value = '';
-            addEditRecordForm.style.display = 'block';
+            addEditRecordForm.style.display = 'flex';
             formName.focus();
             activeInputField = formName;
             showModalKeyboard(); // Automatically popup keyboard
@@ -2117,7 +2222,7 @@
             formSingle.value = item.single;
             formOrigin.value = item.origin || '';
             formMeanings.value = item.meanings || '';
-            addEditRecordForm.style.display = 'block';
+            addEditRecordForm.style.display = 'flex';
             formName.focus();
             activeInputField = formName;
             showModalKeyboard(); // Automatically popup keyboard
@@ -2213,12 +2318,42 @@
             });
         });
 
+        // Pagination Controls Listeners
+        const pageSizeSel = document.getElementById('pageSizeSelect');
+        if (pageSizeSel) {
+            pageSizeSel.addEventListener('change', (e) => {
+                pageSize = parseInt(e.target.value, 10) || 25;
+                currentPage = 1;
+                renderTable();
+            });
+        }
+        document.getElementById('btnFirstPage')?.addEventListener('click', () => {
+            currentPage = 1;
+            renderTable();
+        });
+        document.getElementById('btnPrevPage')?.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
+        document.getElementById('btnNextPage')?.addEventListener('click', () => {
+            currentPage++;
+            renderTable();
+        });
+        document.getElementById('btnLastPage')?.addEventListener('click', () => {
+            const totalRecords = calculationsHistory.length;
+            currentPage = Math.ceil(totalRecords / pageSize) || 1;
+            renderTable();
+        });
+
         // Search input keyup/change handlers
         const searchInputs = ['name', 'total', 'single', 'origin', 'meanings'];
         searchInputs.forEach(col => {
             const input = document.getElementById(`search-${col}`);
             input.addEventListener('input', (e) => {
                 currentFilters[col] = e.target.value.trim();
+                currentPage = 1;
                 renderTable();
             });
         });
@@ -2232,6 +2367,7 @@
                     input.value = '';
                 }
             });
+            currentPage = 1;
             renderTable();
         });
 
