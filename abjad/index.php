@@ -43,6 +43,10 @@
             padding: 0;
         }
 
+        button, .btn, input, select, textarea, .calc-input {
+            border-radius: 0 !important;
+        }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
@@ -1145,13 +1149,10 @@
         }
     </style>
 </head>
-<body>
+<body class="soft-mode">
 
     <header style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; position: relative;">
         <h1 style="margin-bottom: 0;">Huroof-e-Abjad Computation</h1>
-        <button id="btnThemeToggle" class="btn" aria-label="Toggle Theme" style="padding: 0; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); cursor: pointer;">
-            <span id="themeToggleIcon" style="font-size: 1.1rem; line-height: 1;">🌗</span>
-        </button>
     </header>
 
     <main class="container">
@@ -1171,42 +1172,42 @@
             <div class="elements-line-container">
                 <!-- Fire Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #FF5722;">
+                    <div class="element-header" style="color: #FFC107;">
                         <span>🔥 Fire (آتشی)</span>
                         <span id="val-fire">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-fire" style="width: 0%; height: 100%; background: #FF5722; transition: width 0.3s ease;"></div>
+                        <div id="bar-fire" style="width: 0%; height: 100%; background: #FFC107; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Air Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #3B82F6;">
+                    <div class="element-header" style="color: #F44336;">
                         <span>💨 Air (بادی)</span>
                         <span id="val-air">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-air" style="width: 0%; height: 100%; background: #3B82F6; transition: width 0.3s ease;"></div>
+                        <div id="bar-air" style="width: 0%; height: 100%; background: #F44336; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Water Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #1E1B4B;">
+                    <div class="element-header" style="color: #2196F3;">
                         <span>💧 Water (آبی)</span>
                         <span id="val-water">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-water" style="width: 0%; height: 100%; background: #1E1B4B; transition: width 0.3s ease;"></div>
+                        <div id="bar-water" style="width: 0%; height: 100%; background: #2196F3; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
                 <!-- Earth Element -->
                 <div class="element-item">
-                    <div class="element-header" style="color: #B45309;">
+                    <div class="element-header" style="color: #000000;">
                         <span>🪨 Earth (خاکی)</span>
                         <span id="val-earth">0%</span>
                     </div>
                     <div class="element-bar-track">
-                        <div id="bar-earth" style="width: 0%; height: 100%; background: #B45309; transition: width 0.3s ease;"></div>
+                        <div id="bar-earth" style="width: 0%; height: 100%; background: #000000; transition: width 0.3s ease;"></div>
                     </div>
                 </div>
             </div>
@@ -1359,7 +1360,18 @@
                             <th style="width: 8%; min-width: 65px;"><input type="text" class="table-search-input" id="search-single" placeholder="Single..." style="direction: ltr; text-align: left;"></th>
                             <th style="width: 14%; min-width: 80px;"><input type="text" class="table-search-input" id="search-origin" placeholder="Search Origin..."></th>
                             <th style="width: 22%;"><input type="text" class="table-search-input" id="search-meanings" placeholder="Search Meanings..."></th>
-                            <th style="width: 20%; text-align: center;"><button id="btnClearFilters" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; border-color: rgba(255, 59, 48, 0.25); color: #FF453A; display: none;">Clear</button></th>
+                            <th style="width: 20%; text-align: center;">
+                                <div style="display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;">
+                                    <select id="search-temperament" style="padding: 0.15rem 0.25rem; font-size: 0.75rem; background: transparent; border: 1px solid var(--card-border); color: var(--text-main); outline: none; width: 85px; border-radius: 0;">
+                                        <option value="" style="background: var(--card-bg);">All</option>
+                                        <option value="fire" style="background: var(--card-bg);">🔥 Fire</option>
+                                        <option value="air" style="background: var(--card-bg);">💨 Air</option>
+                                        <option value="water" style="background: var(--card-bg);">💧 Water</option>
+                                        <option value="earth" style="background: var(--card-bg);">🪨 Earth</option>
+                                    </select>
+                                    <button id="btnClearFilters" class="btn" style="font-size: 0.75rem; padding: 0.15rem 0.35rem; border-color: rgba(255, 59, 48, 0.25); color: #FF453A; display: none; margin: 0; border-radius: 0;">✕</button>
+                                </div>
+                            </th>
                         </tr>
                         <!-- Row 2: Sortable Column Headers -->
                         <tr id="sortHeaderRow">
@@ -1368,7 +1380,7 @@
                             <th class="sortable" data-col="single" style="width: 8%; min-width: 65px;">Single <span id="sort-icon-single" class="sort-icon">⇅</span></th>
                             <th class="sortable" data-col="origin" style="width: 14%; min-width: 80px;">Origin <span id="sort-icon-origin" class="sort-icon">⇅</span></th>
                             <th class="sortable" data-col="meanings" style="width: 22%;">Meanings <span id="sort-icon-meanings" class="sort-icon">⇅</span></th>
-                            <th style="width: 20%; text-align: center;">Temperaments %</th>
+                            <th class="sortable" data-col="temperament" style="width: 20%; text-align: center;">Temperaments % <span id="sort-icon-temperament" class="sort-icon">⇅</span></th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">
@@ -1380,21 +1392,19 @@
             <!-- Table Pagination Controls -->
             <div id="tablePaginationContainer" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 0.5rem 0.2rem; border-top: 1px solid var(--card-border); gap: 0.5rem; direction: ltr; font-size: 0.8rem; color: var(--text-muted);">
                 <div style="display: flex; align-items: center; gap: 0.4rem;">
-                    <span>Rows per page:</span>
+                    <span>Rows:</span>
                     <select id="pageSizeSelect" style="padding: 0.15rem 0.35rem; font-size: 0.8rem; background: transparent; border: 1px solid var(--card-border); border-radius: 4px; color: var(--text-main); outline: none;">
                         <option value="10" style="background: var(--card-bg);">10</option>
                         <option value="25" selected style="background: var(--card-bg);">25</option>
                         <option value="50" style="background: var(--card-bg);">50</option>
                         <option value="100" style="background: var(--card-bg);">100</option>
                     </select>
-                    <span id="pageInfoText" style="margin-left: 0.4rem;">Showing 0-0 of 0</span>
+                    <span id="pageInfoText" style="margin-left: 0.4rem;">0-0 of 0</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.25rem;">
-                    <button id="btnFirstPage" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.4rem; font-size: 0.8rem; border-radius: 4px; transition: color 0.15s;">« First</button>
                     <button id="btnPrevPage" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.4rem; font-size: 0.8rem; border-radius: 4px; transition: color 0.15s;">‹ Prev</button>
                     <span id="currentPageBadge" style="padding: 0.15rem 0.5rem; color: var(--accent-color); font-weight: 700; font-size: 0.8rem;">1</span>
                     <button id="btnNextPage" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.4rem; font-size: 0.8rem; border-radius: 4px; transition: color 0.15s;">Next ›</button>
-                    <button id="btnLastPage" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.4rem; font-size: 0.8rem; border-radius: 4px; transition: color 0.15s;">Last »</button>
                 </div>
             </div>
 
@@ -1500,12 +1510,35 @@
             total: '',
             single: '',
             origin: '',
-            meanings: ''
+            meanings: '',
+            temperament: ''
         };
 
         // Pagination State
         let currentPage = 1;
         let pageSize = 25;
+
+        // Compute percentage metrics for Fire, Air, Water, Earth
+        function getElementPercentages(name) {
+            const elCounts = { fire: 0, air: 0, water: 0, earth: 0 };
+            let totalLetters = 0;
+            const str = name || '';
+            for (let i = 0; i < str.length; i++) {
+                const ch = str[i];
+                if (/\s/.test(ch)) continue;
+                let el = elementMap[ch];
+                if (!el && (ch === 'ء' || ch === 'ئ' || ch === 'ؤ' || ch === 'ة')) el = 'fire';
+                if (el) { elCounts[el]++; totalLetters++; }
+            }
+            const getPct = (el) => totalLetters > 0 ? Math.round((elCounts[el] / totalLetters) * 100) : 0;
+            return {
+                fire: getPct('fire'),
+                air: getPct('air'),
+                water: getPct('water'),
+                earth: getPct('earth'),
+                total: totalLetters
+            };
+        }
 
         // Make floating element draggable by mouse or touch
         function makeElementDraggable(elm) {
@@ -2057,18 +2090,44 @@
                 const singleMatch = String(item.single).includes(currentFilters.single);
                 const originMatch = (item.origin || '').toLowerCase().includes(currentFilters.origin.toLowerCase());
                 const meaningsMatch = (item.meanings || '').toLowerCase().includes(currentFilters.meanings.toLowerCase());
-                return nameMatch && totalMatch && singleMatch && originMatch && meaningsMatch;
+                
+                let temperamentMatch = true;
+                if (currentFilters.temperament) {
+                    const p = getElementPercentages(item.name);
+                    const maxPct = Math.max(p.fire, p.air, p.water, p.earth);
+                    let dominant = '';
+                    if (p.fire === maxPct) dominant = 'fire';
+                    else if (p.air === maxPct) dominant = 'air';
+                    else if (p.water === maxPct) dominant = 'water';
+                    else if (p.earth === maxPct) dominant = 'earth';
+                    temperamentMatch = (dominant === currentFilters.temperament);
+                }
+                
+                return nameMatch && totalMatch && singleMatch && originMatch && meaningsMatch && temperamentMatch;
             });
 
             // 2. Sort processedData
             if (currentSortCol) {
                 processedData.sort((a, b) => {
-                    let valA = a[currentSortCol];
-                    let valB = b[currentSortCol];
-
-                    if (typeof valA === 'string') {
-                        valA = valA.toLowerCase();
-                        valB = valB.toLowerCase();
+                    let valA, valB;
+                    if (currentSortCol === 'temperament') {
+                        const filterEl = currentFilters.temperament;
+                        if (filterEl) {
+                            valA = getElementPercentages(a.name)[filterEl];
+                            valB = getElementPercentages(b.name)[filterEl];
+                        } else {
+                            const pA = getElementPercentages(a.name);
+                            const pB = getElementPercentages(b.name);
+                            valA = Math.max(pA.fire, pA.air, pA.water, pA.earth);
+                            valB = Math.max(pB.fire, pB.air, pB.water, pB.earth);
+                        }
+                    } else {
+                        valA = a[currentSortCol];
+                        valB = b[currentSortCol];
+                        if (typeof valA === 'string') {
+                            valA = valA.toLowerCase();
+                            valB = valB.toLowerCase();
+                        }
                     }
                     
                     if (valA < valB) return currentSortDir === 'asc' ? -1 : 1;
@@ -2091,21 +2150,17 @@
             const pageInfo = document.getElementById('pageInfoText');
             if (pageInfo) {
                 pageInfo.textContent = totalRecords === 0 
-                    ? 'Showing 0 of 0' 
-                    : `Showing ${startIndex + 1}-${endIndex} of ${totalRecords}`;
+                    ? '0 of 0' 
+                    : `${startIndex + 1}-${endIndex} of ${totalRecords}`;
             }
             const currentBadge = document.getElementById('currentPageBadge');
             if (currentBadge) currentBadge.textContent = `${currentPage} / ${totalPages}`;
 
-            const btnFirst = document.getElementById('btnFirstPage');
             const btnPrev = document.getElementById('btnPrevPage');
             const btnNext = document.getElementById('btnNextPage');
-            const btnLast = document.getElementById('btnLastPage');
 
-            if (btnFirst) btnFirst.disabled = currentPage === 1;
             if (btnPrev) btnPrev.disabled = currentPage === 1;
             if (btnNext) btnNext.disabled = currentPage === totalPages || totalPages === 0;
-            if (btnLast) btnLast.disabled = currentPage === totalPages || totalPages === 0;
 
             if (totalRecords === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); font-style: italic;">No matching records found</td></tr>';
@@ -2127,23 +2182,13 @@
                     <td>${item.meanings || '-'}</td>
                     <td style="text-align: center;">
                         ${(function() {
-                            const elCounts = { fire: 0, air: 0, water: 0, earth: 0 };
-                            let totalLetters = 0;
-                            const str = item.name || '';
-                            for (let i = 0; i < str.length; i++) {
-                                const ch = str[i];
-                                if (/\s/.test(ch)) continue;
-                                let el = elementMap[ch];
-                                if (!el && (ch === 'ء' || ch === 'ئ' || ch === 'ؤ' || ch === 'ة')) el = 'fire';
-                                if (el) { elCounts[el]++; totalLetters++; }
-                            }
-                            const getPct = (el) => totalLetters > 0 ? Math.round((elCounts[el] / totalLetters) * 100) : 0;
+                            const p = getElementPercentages(item.name);
                             return `
                                 <div style="display: inline-flex; gap: 0.4rem; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; direction: rtl;">
-                                    <span style="color: #FF5722;" title="Fire">${getPct('fire')}%</span>
-                                    <span style="color: #3B82F6;" title="Air">${getPct('air')}%</span>
-                                    <span style="color: #1E1B4B;" title="Water">${getPct('water')}%</span>
-                                    <span style="color: #B45309;" title="Earth">${getPct('earth')}%</span>
+                                    <span style="color: #FFC107;" title="Fire">${p.fire}%</span>
+                                    <span style="color: #F44336;" title="Air">${p.air}%</span>
+                                    <span style="color: #2196F3;" title="Water">${p.water}%</span>
+                                    <span style="color: #000000;" title="Earth">${p.earth}%</span>
                                 </div>
                             `;
                         })()}
@@ -2152,7 +2197,7 @@
             `).join('');
 
             // 4. Update Sort UI Icons
-            const cols = ['name', 'total', 'single', 'origin', 'meanings'];
+            const cols = ['name', 'total', 'single', 'origin', 'meanings', 'temperament'];
             cols.forEach(col => {
                 const icon = document.getElementById(`sort-icon-${col}`);
                 if (currentSortCol === col) {
@@ -2327,10 +2372,6 @@
                 renderTable();
             });
         }
-        document.getElementById('btnFirstPage')?.addEventListener('click', () => {
-            currentPage = 1;
-            renderTable();
-        });
         document.getElementById('btnPrevPage')?.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
@@ -2339,11 +2380,6 @@
         });
         document.getElementById('btnNextPage')?.addEventListener('click', () => {
             currentPage++;
-            renderTable();
-        });
-        document.getElementById('btnLastPage')?.addEventListener('click', () => {
-            const totalRecords = calculationsHistory.length;
-            currentPage = Math.ceil(totalRecords / pageSize) || 1;
             renderTable();
         });
 
@@ -2358,6 +2394,16 @@
             });
         });
 
+        // Temperament filter change handler
+        const tempSelect = document.getElementById('search-temperament');
+        if (tempSelect) {
+            tempSelect.addEventListener('change', (e) => {
+                currentFilters.temperament = e.target.value;
+                currentPage = 1;
+                renderTable();
+            });
+        }
+
         // Clear filters event listener
         document.getElementById('btnClearFilters').addEventListener('click', () => {
             searchInputs.forEach(col => {
@@ -2367,6 +2413,10 @@
                     input.value = '';
                 }
             });
+            if (tempSelect) {
+                tempSelect.value = '';
+            }
+            currentFilters.temperament = '';
             currentPage = 1;
             renderTable();
         });
@@ -2486,30 +2536,6 @@
 
         // Make modal keyboard moveable
         makeElementDraggable(modalKeyboardContainer);
-
-        // Dark/Soft Mode Theme Toggle logic
-        const btnThemeToggle = document.getElementById('btnThemeToggle');
-        const themeToggleIcon = document.getElementById('themeToggleIcon');
-
-        // Check if theme was saved previously
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'soft') {
-            document.body.classList.add('soft-mode');
-            themeToggleIcon.textContent = '☀️';
-        } else {
-            themeToggleIcon.textContent = '🌗';
-        }
-
-        btnThemeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('soft-mode');
-            if (document.body.classList.contains('soft-mode')) {
-                localStorage.setItem('theme', 'soft');
-                themeToggleIcon.textContent = '☀️';
-            } else {
-                localStorage.setItem('theme', 'dark');
-                themeToggleIcon.textContent = '🌗';
-            }
-        });
     </script>
 </body>
 </html>
